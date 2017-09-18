@@ -1,4 +1,13 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao' // apply plugin
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.0.0'
+    }
+}
 
 android {
     compileSdkVersion 26
@@ -19,6 +28,12 @@ android {
     }
 }
 
+greendao {
+    schemaVersion 1
+    daoPackage 'com.ycm.kata.datacollection.model.entity'
+    targetGenDir 'src/main/java'
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -27,4 +42,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+    compile 'org.greenrobot:greendao:3.0.1'
+    compile 'org.greenrobot:greendao:3.2.2' // add library
 }
