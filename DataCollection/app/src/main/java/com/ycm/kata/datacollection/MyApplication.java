@@ -25,6 +25,10 @@ public class MyApplication extends Application {
         setDatabase();
     }
 
+    public static MyApplication getInstances(){
+        return instances;
+    }
+
     /**
      * 设置greenDao
      */

@@ -75,6 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:maxEms="50"
                     android:background="@drawable/shape_circle_gray" />
             </LinearLayout>
         </ScrollView>
@@ -110,6 +111,7 @@
                     android:id="@+id/project_et"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxEms="50"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
                     android:background="@drawable/shape_circle_gray" />
@@ -149,6 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:maxEms="30"
                     android:background="@drawable/shape_circle_gray" />
             </LinearLayout>
         </ScrollView>
@@ -185,6 +188,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
+                    android:maxEms="30"
                     android:layout_marginStart="30dp"
                     android:background="@drawable/shape_circle_gray" />
             </LinearLayout>
@@ -223,6 +227,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:maxEms="255"
+                    android:maxLines="3"
                     android:background="@drawable/shape_circle_gray" />
             </LinearLayout>
         </ScrollView>
@@ -260,6 +266,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:maxEms="255"
+                    android:maxLines="3"
                     android:background="@drawable/shape_circle_gray" />
             </LinearLayout>
         </ScrollView>

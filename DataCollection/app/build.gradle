@@ -30,7 +30,7 @@ android {
 
 greendao {
     schemaVersion 1
-    daoPackage 'com.ycm.kata.datacollection.model.entity'
+    daoPackage 'com.ycm.kata.datacollection.model'
     targetGenDir 'src/main/java'
 }
 

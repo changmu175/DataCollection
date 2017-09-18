@@ -17,15 +17,14 @@ public class ProjectEntity {
     private long updateTime;
     private String unitEngineering;
     private String block;
-    private int pilNo;
+    private String pilNo;
     private String remark;
     private String defects;
     private String imagePath;
-
-    @Generated(hash = 39478285)
+    @Generated(hash = 1231905102)
     public ProjectEntity(int id, String projectName, long checkDate,
-                         long updateTime, String unitEngineering, String block, int pilNo,
-                         String remark, String defects, String imagePath) {
+            long updateTime, String unitEngineering, String block, String pilNo,
+            String remark, String defects, String imagePath) {
         this.id = id;
         this.projectName = projectName;
         this.checkDate = checkDate;
@@ -37,87 +36,66 @@ public class ProjectEntity {
         this.defects = defects;
         this.imagePath = imagePath;
     }
-
     @Generated(hash = 939074542)
     public ProjectEntity() {
     }
-
     public int getId() {
         return this.id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public String getProjectName() {
         return this.projectName;
     }
-
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
-
     public long getCheckDate() {
         return this.checkDate;
     }
-
     public void setCheckDate(long checkDate) {
         this.checkDate = checkDate;
     }
-
     public long getUpdateTime() {
         return this.updateTime;
     }
-
     public void setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
     }
-
     public String getUnitEngineering() {
         return this.unitEngineering;
     }
-
     public void setUnitEngineering(String unitEngineering) {
         this.unitEngineering = unitEngineering;
     }
-
     public String getBlock() {
         return this.block;
     }
-
     public void setBlock(String block) {
         this.block = block;
     }
-
-    public int getPilNo() {
+    public String getPilNo() {
         return this.pilNo;
     }
-
-    public void setPilNo(int pilNo) {
+    public void setPilNo(String pilNo) {
         this.pilNo = pilNo;
     }
-
     public String getRemark() {
         return this.remark;
     }
-
     public void setRemark(String remark) {
         this.remark = remark;
     }
-
     public String getDefects() {
         return this.defects;
     }
-
     public void setDefects(String defects) {
         this.defects = defects;
     }
-
     public String getImagePath() {
         return this.imagePath;
     }
-
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
