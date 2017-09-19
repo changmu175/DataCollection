@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:gravity="center"
         android:orientation="horizontal"
         android:paddingEnd="30dp"
         android:paddingLeft="30dp"
@@ -20,13 +19,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="检测日期" />
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="6">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -34,7 +31,7 @@
 
                 <EditText
                     android:id="@+id/date_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
@@ -57,13 +54,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="项目名称" />
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="6">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -71,12 +66,12 @@
 
                 <EditText
                     android:id="@+id/name_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
-                    android:maxEms="50"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:background="@drawable/shape_circle_gray"
+                    android:maxEms="50" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -95,13 +90,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="单位工程" />
 
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="6">
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -109,12 +103,12 @@
 
                 <EditText
                     android:id="@+id/project_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:maxEms="50"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:background="@drawable/shape_circle_gray"
+                    android:maxEms="50" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -133,13 +127,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="标        段" />
 
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="6">
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -147,12 +140,12 @@
 
                 <EditText
                     android:id="@+id/block_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
-                    android:maxEms="30"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:background="@drawable/shape_circle_gray"
+                    android:maxEms="30" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -171,13 +164,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="桩        号" />
 
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="6">
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -185,12 +177,12 @@
 
                 <EditText
                     android:id="@+id/pile_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
-                    android:maxEms="30"
                     android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:background="@drawable/shape_circle_gray"
+                    android:maxEms="30" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -209,13 +201,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="备        注" />
 
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="6">
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -223,13 +214,13 @@
 
                 <EditText
                     android:id="@+id/remark_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:background="@drawable/shape_circle_gray"
                     android:maxEms="255"
-                    android:maxLines="3"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:maxLines="3" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -248,13 +239,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="缺陷描述" />
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="6">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -262,43 +251,52 @@
 
                 <EditText
                     android:id="@+id/defects_et"
-                    android:layout_width="match_parent"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginStart="30dp"
+                    android:background="@drawable/shape_circle_gray"
                     android:maxEms="255"
-                    android:maxLines="3"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:maxLines="3" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginStart="30dp"
-        android:gravity="center"
+        android:layout_height="70dp"
+        android:layout_marginEnd="100dp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
+        android:layout_marginStart="100dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/shape_rectang_gray"
-        android:orientation="vertical">
+        android:gravity="center">
 
         <TextView
             android:id="@+id/text_hint_tv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:text="照片"
-            android:visibility="visible"
-            android:gravity="center" />
+            android:layout_centerInParent="true"
+            android:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/image_iv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
             android:visibility="gone" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -317,9 +315,9 @@
             android:layout_height="30dp"
             android:layout_marginEnd="30dp"
             android:layout_marginRight="30dp"
+            android:background="@drawable/shape_circle_blue"
             android:text="保存"
-            android:textColor="#ffffff"
-            android:background="@drawable/shape_circle_blue" />
+            android:textColor="#ffffff" />
 
         <Button
             android:id="@+id/add_btn"
@@ -327,9 +325,9 @@
             android:layout_height="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginStart="30dp"
+            android:background="@drawable/shape_circle_blue"
             android:text="保存并新增"
-            android:textColor="#ffffff"
-            android:background="@drawable/shape_circle_blue" />
+            android:textColor="#ffffff" />
     </LinearLayout>
 
 </LinearLayout>

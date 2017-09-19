@@ -15,7 +15,7 @@ import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 /** 
  * DAO for table "PROJECT_ENTITY".
 */
-public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
+public class ProjectEntityDao extends AbstractDao<ProjectEntity, Long> {
 
     public static final String TABLENAME = "PROJECT_ENTITY";
 
@@ -24,7 +24,7 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, int.class, "id", true, "ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property ProjectName = new Property(1, String.class, "projectName", false, "PROJECT_NAME");
         public final static Property CheckDate = new Property(2, long.class, "checkDate", false, "CHECK_DATE");
         public final static Property UpdateTime = new Property(3, long.class, "updateTime", false, "UPDATE_TIME");
@@ -49,7 +49,7 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PROJECT_ENTITY\" (" + //
-                "\"ID\" INTEGER PRIMARY KEY NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"PROJECT_NAME\" TEXT," + // 1: projectName
                 "\"CHECK_DATE\" INTEGER NOT NULL ," + // 2: checkDate
                 "\"UPDATE_TIME\" INTEGER NOT NULL ," + // 3: updateTime
@@ -70,7 +70,11 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, ProjectEntity entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String projectName = entity.getProjectName();
         if (projectName != null) {
@@ -113,7 +117,11 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, ProjectEntity entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
  
         String projectName = entity.getProjectName();
         if (projectName != null) {
@@ -154,14 +162,14 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
     }
 
     @Override
-    public Integer readKey(Cursor cursor, int offset) {
-        return cursor.getInt(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public ProjectEntity readEntity(Cursor cursor, int offset) {
         ProjectEntity entity = new ProjectEntity( //
-            cursor.getInt(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // projectName
             cursor.getLong(offset + 2), // checkDate
             cursor.getLong(offset + 3), // updateTime
@@ -177,7 +185,7 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
      
     @Override
     public void readEntity(Cursor cursor, ProjectEntity entity, int offset) {
-        entity.setId(cursor.getInt(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setProjectName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setCheckDate(cursor.getLong(offset + 2));
         entity.setUpdateTime(cursor.getLong(offset + 3));
@@ -190,12 +198,13 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
      }
     
     @Override
-    protected final Integer updateKeyAfterInsert(ProjectEntity entity, long rowId) {
-        return entity.getId();
+    protected final Long updateKeyAfterInsert(ProjectEntity entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     @Override
-    public Integer getKey(ProjectEntity entity) {
+    public Long getKey(ProjectEntity entity) {
         if(entity != null) {
             return entity.getId();
         } else {
@@ -205,7 +214,7 @@ public class ProjectEntityDao extends AbstractDao<ProjectEntity, Integer> {
 
     @Override
     public boolean hasKey(ProjectEntity entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override
