@@ -11,7 +11,7 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity
 public class ProjectEntity {
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     private String projectName;
     private long checkDate;
     private long updateTime;
@@ -22,8 +22,8 @@ public class ProjectEntity {
     private String defects;
     private String imagePath;
 
-    @Generated(hash = 1540277638)
-    public ProjectEntity(long id, String projectName, long checkDate,
+    @Generated(hash = 1357060564)
+    public ProjectEntity(Long id, String projectName, long checkDate,
                          long updateTime, String unitEngineering, String block, String pilNo,
                          String remark, String defects, String imagePath) {
         this.id = id;
@@ -42,11 +42,11 @@ public class ProjectEntity {
     public ProjectEntity() {
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

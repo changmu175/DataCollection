@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -93,10 +92,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         progressBar.setVisibility(View.GONE);
         btnSave = findViewById(R.id.save_btn);
         btnSave.setOnClickListener(this);
-        btnSave.setEnabled(false);
-        btnAdd.setEnabled(false);
         btnAdd = findViewById(R.id.add_btn);
         btnAdd.setOnClickListener(this);
+        btnSave.setEnabled(false);
+        btnAdd.setEnabled(false);
     }
 
     private String formatDate(long time) {
@@ -139,6 +138,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
                 insert(projectEntity);
+                Intent intent = new Intent();
+                intent.setClass(getBaseContext(), DataListActivity.class);
+                startActivity(intent);
                 break;
             case R.id.add_btn:
                 break;
@@ -247,6 +249,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             ivPicture.setVisibility(View.VISIBLE);
             final String fileName = imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png";
             filePath = fileName;
+            btnAdd.setEnabled(true);
+            btnSave.setEnabled(true);
             saveImageThread = new SaveImageThread(bitmap, fileName, rootFile, updateImageHandler);
             saveImageThread.start();
         }

@@ -25,6 +25,9 @@ public class MyAdapter extends BaseAdapter {
     private Context context;
     private List<ProjectEntity> dataSource;
 
+    MyAdapter(Context context) {
+        this.context = context;
+    }
     public List<ProjectEntity> getDataSource() {
         return dataSource;
     }
