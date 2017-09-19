@@ -1,8 +1,11 @@
 package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -20,7 +23,7 @@ import java.util.List;
  * Description:
  */
 
-public class DataListActivity extends Activity implements GetDataListener{
+public class DataListActivity extends Activity implements GetDataListener, OnItemClickListener{
     Button btnAdd;
     Button btnExport;
     ListView listView;
@@ -39,8 +42,9 @@ public class DataListActivity extends Activity implements GetDataListener{
         listView = findViewById(R.id.list);
         dataSource = new ArrayList<>();
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
-        myAdapter = new MyAdapter(this);
+        myAdapter = new MyAdapter(this, this);
         listView.setAdapter(myAdapter);
+//        listView.setOnItemClickListener(this);
         getData = new GetData(projectEntityDao, this);
         getData.start();
     }
@@ -52,7 +56,20 @@ public class DataListActivity extends Activity implements GetDataListener{
 
     }
 
-    static class GetData extends Thread {
+    @Override
+    public void textOnclickListener(int position) {
+        Intent intent = new Intent();
+        intent.putExtra("projectEntity", dataSource.get(position));
+        intent.putExtra("tag", "edit");
+        startActivity(intent);
+    }
+
+    @Override
+    public void buttonOnclickListener(int position) {
+
+    }
+
+    private static class GetData extends Thread {
         private WeakReference<ProjectEntityDao> weakReference;
         private WeakReference<GetDataListener> listenerWeakReference;
 

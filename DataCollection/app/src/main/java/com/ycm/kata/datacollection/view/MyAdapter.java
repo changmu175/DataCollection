@@ -24,9 +24,10 @@ import java.util.Locale;
 public class MyAdapter extends BaseAdapter {
     private Context context;
     private List<ProjectEntity> dataSource;
-
-    MyAdapter(Context context) {
+    private OnItemClickListener onItemClickListener;
+    MyAdapter(Context context, OnItemClickListener onItemClickListener) {
         this.context = context;
+        this.onItemClickListener = onItemClickListener;
     }
     public List<ProjectEntity> getDataSource() {
         return dataSource;
@@ -52,7 +53,7 @@ public class MyAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View contentView, ViewGroup viewGroup) {
+    public View getView(final int i, View contentView, ViewGroup viewGroup) {
         HolderView holderView;
 
         if (contentView == null) {
@@ -65,6 +66,18 @@ public class MyAdapter extends BaseAdapter {
         ProjectEntity projectEntity = dataSource.get(i);
         holderView.getTextView().setText(formatDate(projectEntity.getCheckDate())
                 + " " + projectEntity.getId() + " " + projectEntity.getProjectName());
+        holderView.getTextView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClickListener.textOnclickListener(i);
+            }
+        });
+        holderView.getButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClickListener.buttonOnclickListener(i);
+            }
+        });
         contentView.setTag(holderView);
         return contentView;
     }

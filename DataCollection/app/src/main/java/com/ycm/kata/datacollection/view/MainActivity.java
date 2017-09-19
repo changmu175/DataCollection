@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -65,8 +66,30 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         time = System.currentTimeMillis();
         dateStr = formatDate(time);
         initView();
+        Intent intent = getIntent();
+        ProjectEntity pje;
+        if (intent != null) {
+            if (TextUtils.equals(intent.getStringExtra("tag"), "edit")) {
+                pje = (ProjectEntity) intent.getSerializableExtra("projectEntity");
+                setContent(pje);
+                return;
+            }
+        }
         updateImageHandler = new UpdateImageHandler(this);
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
+    }
+
+    private void setContent(ProjectEntity pje) {
+        etDate.setText(formatDate(pje.getCheckDate()));
+        etDefect.setText(pje.getDefects());
+        etRemark.setText(pje.getRemark());
+        etPile.setText(pje.getPilNo());
+        etBlock.setText(pje.getBlock());
+        etProject.setText(pje.getProjectName());
+        tvHint.setVisibility(View.GONE);
+        ivPicture.setVisibility(View.VISIBLE);
+        Bitmap bitmap = BitmapFactory.decodeFile(pje.getImagePath());
+        ivPicture.setImageBitmap(bitmap);
     }
 
     private void initView() {
@@ -119,7 +142,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             }
 
             //文件名称
-            photoFileCachePath = imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png";
+            photoFileCachePath = getFileName(System.currentTimeMillis());/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+            ;
             //后缀
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -247,7 +271,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             tvHint.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             ivPicture.setVisibility(View.VISIBLE);
-            final String fileName = imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png";
+            final String fileName = getFileName(System.currentTimeMillis())/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/;
             filePath = fileName;
             btnAdd.setEnabled(true);
             btnSave.setEnabled(true);

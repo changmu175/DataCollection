@@ -20,6 +20,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
+        android:text="删除"
+        android:textColor="#fff"
         android:background="@drawable/shape_circle_blue" />
     <View
         android:layout_below="@id/delete"

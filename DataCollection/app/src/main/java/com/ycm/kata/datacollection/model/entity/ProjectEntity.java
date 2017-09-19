@@ -4,12 +4,15 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 /**
  * Created by changmuyu on 2017/9/18.
  * Description:
  */
 @Entity
-public class ProjectEntity {
+public class ProjectEntity implements Serializable{
+    private static final long serialVersionUID = 123456789L;
     @Id(autoincrement = true)
     private Long id;
     private String projectName;
