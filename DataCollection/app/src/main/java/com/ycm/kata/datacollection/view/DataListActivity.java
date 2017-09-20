@@ -13,9 +13,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -24,9 +24,17 @@ import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.CommonUtil;
 
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,9 +43,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -45,7 +56,7 @@ import java.util.Map;
  * Description:
  */
 
-public class DataListActivity extends Activity implements GetDataListener, OnItemClickListener, View.OnClickListener {
+public class DataListActivity extends Activity implements GetDataListener, OnItemClickListener, View.OnClickListener{
     private Button btnAdd;
     private Button btnExport;
     private Button btnPrevious;
@@ -60,6 +71,8 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     private static final int VIEW_COUNT = 6;
     private UpdateViewHandler handler;
     private static final int MY_PERMISSIONS_REQUEST = 1;
+    private String imageFile;
+    private String decFile;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,7 +163,12 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                             MY_PERMISSIONS_REQUEST);
                 } else {
-                    printer();
+                    String ss = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "file" + File.separator + System.currentTimeMillis()+ ".doc";
+                    try {
+                        writeImage(ss, dataSource.get(0));
+                    } catch (IOException | InvalidFormatException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case R.id.previous_btn:
@@ -233,14 +251,13 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
      */
     private void printer() {
         try {
-            saveFile("demo.doc", this, R.raw.demo);//文件目录res/raw
+            saveFile("template.doc", this, R.raw.template);//文件目录res/raw
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         //现场检查记录
-        String aafileurl = Environment.getExternalStorageDirectory() + "/inspection/demo.doc";
-        final String bbfileurl = Environment.getExternalStorageDirectory() + "/inspection/demo_printer.doc";
+        String aafileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template.doc";
+        final String bbfileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template_printer.doc";
         //获取模板文件
         File demoFile = new File(aafileurl);
         //创建生成的文件
@@ -248,18 +265,17 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         if (newFile.exists()) {
             newFile.delete();
         }
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("$companyName$", a1.getText().toString().trim());
-        map.put("$companyAddress$", a2.getText().toString().trim());
-        map.put("$companyPic$", a3.getText().toString().trim());
-        map.put("$companyWork$", a4.getText().toString().trim());
-        map.put("$companyPhone$", a5.getText().toString().trim());
-        map.put("$CheckAddress$", a6.getText().toString().trim());
-
-        map.put("$userName$", a7.getText().toString().trim());
-        map.put("$userNum$", a8.getText().toString().trim());
-        map.put("$content$", a9.getText().toString().trim());
-        writeDoc(demoFile, newFile, map);
+        for (int i = 0; i < dataSource.size(); i++) {
+            Map<String, String> map = new HashMap<>();
+            map.put("$project_name$", dataSource.get(i).getProjectName());
+            map.put("$check_date$", CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
+            map.put("$unit_engineering$", dataSource.get(i).getUnitEngineering());
+            map.put("$block_pile$", dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+            map.put("$defects$", dataSource.get(i).getDefects());
+            map.put("$remark$", dataSource.get(i).getRemark());
+            map.put("$image$", dataSource.get(i).getImagePath());
+            writeDoc(demoFile, newFile, map);
+        }
 
     }
 
@@ -270,6 +286,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
      */
     public boolean writeDoc(File demoFile, File newFile, Map<String, String> map) {
         try {
+            String imagePath = "" ;
             FileInputStream in = new FileInputStream(demoFile);
             HWPFDocument hdt = new HWPFDocument(in);
             // 读取word文本内容
@@ -277,7 +294,25 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
             // 替换文本内容
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 range.replaceText(entry.getKey(), entry.getValue());
+
+                if (TextUtils.equals(entry.getKey(), "$image$")) {
+                    imagePath = entry.getValue();
+
+                }
             }
+            XWPFDocument xwpfDocument = new XWPFDocument(in);
+            if (!TextUtils.isEmpty(imagePath)) {
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    FileInputStream imageFileIn = new FileInputStream(imageFile);
+                    xwpfDocument.addPictureData(imageFileIn, XWPFDocument.PICTURE_TYPE_PNG);
+                    List<XWPFPictureData> pictureDatas = xwpfDocument.getAllPictures();
+                    XWPFPictureData xwpfPictureData = pictureDatas.get(0);
+                    XWPFTable table = xwpfDocument.createTable();
+
+                }
+            }
+
             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
             FileOutputStream out = new FileOutputStream(newFile, true);
             hdt.write(ostream);
@@ -285,14 +320,103 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
             out.write(ostream.toByteArray());
             out.close();
             ostream.close();
-            Toast.makeText(this,"保存成功",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private int getImageType(String imgFile) {
+        byte format;
+        if (imgFile.endsWith(".emf")) {
+            format = 2;
+        } else if (imgFile.endsWith(".wmf")) {
+            format = 3;
+        } else if (imgFile.endsWith(".pict")) {
+            format = 4;
+        } else if (!imgFile.endsWith(".jpeg") && !imgFile.endsWith(".jpg")) {
+            if (imgFile.endsWith(".png")) {
+                format = 6;
+            } else if (imgFile.endsWith(".dib")) {
+                format = 7;
+            } else if (imgFile.endsWith(".gif")) {
+                format = 8;
+            } else if (imgFile.endsWith(".tiff")) {
+                format = 9;
+            } else if (imgFile.endsWith(".eps")) {
+                format = 10;
+            } else if (imgFile.endsWith(".bmp")) {
+                format = 11;
+            } else {
+                format = 12;
+            }
+        } else {
+            format = 5;
+        }
+        return format;
+    }
+
+    private void writeImage(String decFile, ProjectEntity pje) throws IOException, InvalidFormatException {
+        XWPFDocument doc = new XWPFDocument();
+        XWPFParagraph p = doc.createParagraph();
+        XWPFRun r = p.createRun();
+        XWPFTable xwpfTable = r.getDocument().createTable(4, 4);
+        xwpfTable.getRow(1).getCell(0).setText("项目名称");
+        xwpfTable.getRow(1).getCell(1).setText(pje.getProjectName());
+        xwpfTable.getRow(1).getCell(2).setText("检测日期");
+        xwpfTable.getRow(1).getCell(3).setText(formatDate(pje.getCheckDate()));
+
+
+        xwpfTable.getRow(2).getCell(0).setText("单位工程");
+        xwpfTable.getRow(2).getCell(1).setText(pje.getUnitEngineering());
+        xwpfTable.getRow(2).getCell(2).setText("标段及桩号");
+        xwpfTable.getRow(2).getCell(3).setText(pje.getBlock() + " " + pje.getPilNo());
+
+        File imageFilePath = new File(pje.getImagePath());
+        FileInputStream fileInputStream = new FileInputStream(imageFilePath);
+        xwpfTable.getRow(3).getCell(0).addParagraph().createRun().addPicture(fileInputStream, getImageType(pje.getImagePath()), pje.getImagePath(), Units.toEMU(200.0D), Units.toEMU(200.0D));
+//        xwpfTable.getRow(3).getCell(1).;
+        xwpfTable.getRow(3).getCell(2).setText("缺陷描述");
+        xwpfTable.getRow(3).getCell(3).setText(pje.getDefects());
+
+        xwpfTable.getRow(4).getCell(0).setText("备注");
+        xwpfTable.getRow(4).getCell(1).setText(pje.getRemark());
+        r.addBreak();
+        FileOutputStream out = new FileOutputStream(decFile);
+        doc.write(out);
+        out.close();
+        doc.close();
+//        r.setText(imgFile);
+//        r.addBreak();
+//        FileOutputStream out = null;
+//        try {
+//            r.addPicture(new FileInputStream(imgFile), getImageType(imgFile), imgFile, Units.toEMU(200.0D), Units.toEMU(200.0D));
+//            out = new FileOutputStream(decFile);
+//        } catch (InvalidFormatException | IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            r.addBreak(BreakType.PAGE);
+//            try {
+//                if (out != null) {
+//                    out.close();
+//                }
+//                doc.write(out);
+//                doc.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+
+
+    }
+
+    private String formatDate(long time) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        Date d1 = new Date(time);
+        return format.format(d1);
     }
 
     /**
@@ -304,7 +428,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     public void saveFile(String fileName, Context context, int rawid) throws IOException {
 
         // 首先判断该目录下的文件夹是否存在
-        File dir = new File(Environment.getExternalStorageDirectory() + "/inspection/");
+        File dir = new File(Environment.getExternalStorageDirectory() + "/data_collection/file/");
         if (!dir.exists()) {
             // 文件夹不存在 ， 则创建文件夹
             dir.mkdirs();
@@ -341,10 +465,10 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
         if (requestCode == MY_PERMISSIONS_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                printer();
+//                printer();
             } else {
                 // Permission Denied
-                Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
             }
             return;
         }
