@@ -24,6 +24,8 @@ import java.util.Locale;
 public class MyAdapter extends BaseAdapter {
     private Context context;
     private List<ProjectEntity> dataSource;
+    private static final int VIEW_COUNT = 6;
+    private int index = 0;
     private OnItemClickListener onItemClickListener;
     MyAdapter(Context context, OnItemClickListener onItemClickListener) {
         this.context = context;
@@ -37,9 +39,31 @@ public class MyAdapter extends BaseAdapter {
         this.dataSource = dataSource;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     @Override
     public int getCount() {
-        return dataSource == null ? 0 : dataSource.size();
+        if (dataSource == null) {
+            return 0;
+        }
+        // ori表示到目前为止的前几页的总共的个数。
+        int ori = VIEW_COUNT * index;
+
+        // 值的总个数-前几页的个数就是这一页要显示的个数，如果比默认的值小，说明这是最后一页，只需显示这么多就可以了
+        if (dataSource.size() - ori < VIEW_COUNT) {
+            return dataSource.size() - ori;
+        }
+        // 如果比默认的值还要大，说明一页显示不完，还要用换一页显示，这一页用默认的值显示满就可以了。
+        else {
+            return VIEW_COUNT;
+        }
+//        return dataSource == null ? 0 : dataSource.size();
     }
 
     @Override

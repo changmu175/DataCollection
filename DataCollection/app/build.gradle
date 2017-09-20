@@ -14,7 +14,7 @@ android {
     buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "com.ycm.kata.datacollection"
-        minSdkVersion 15
+        minSdkVersion 18
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -39,6 +39,7 @@ android {
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
     }
+
 }
 
 greendao {
@@ -48,7 +49,7 @@ greendao {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -56,7 +57,47 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     compile 'org.greenrobot:greendao:3.0.1'
-    compile 'org.greenrobot:greendao:3.2.2' // add library
-//    compile files('libs/poi-3.14-beta1-20151223.jar')
-//    compile files('libs/poi-scratchpad-3.14-20151223.jar')
+    compile 'org.greenrobot:greendao:3.2.2'
+    // add library
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile files('libs/poi-3.17.jar')
+    compile files('libs/poi-examples-3.17.jar')
+    compile files('libs/poi-excelant-3.17.jar')
+    compile files('libs/poi-ooxml-3.17.jar')
+    compile files('libs/poi-ooxml-schemas-3.17.jar')
+    compile files('libs/poi-scratchpad-3.17.jar')
+    compile files('libs/xmlbeans-2.6.0.jar') {
+//        exclude group: 'org.apache.xmlbeans.xml.stream', module: 'xmlbeans'
+    }
+
+    compile files('libs/curvesapi-1.04.jar')
+//    sourceSets {
+//        main {
+//            java {
+//                exclude "org/apache/xmlbeans/xml/stream/Location.class"
+////        exclude "org/apache/xmlbeans/xml/stream/ReferenceResolver.class"
+////        exclude "org/apache/xmlbeans/xml/stream/XMLEvent.class"
+////        exclude "org/apache/xmlbeans/xml/stream/XMLInputStream.class"
+////        exclude "org/apache/xmlbeans/xml/stream/XMLName.class"
+////        exclude "org/apache/xmlbeans/xml/stream/utils/XMLStreamException.class"
+////        exclude "org/apache/xmlbeans/xml/stream/utils/NestedThrowable.class"
+//            }
+//        }
+//    }
+
+//    task unzipJar(type: Copy) {
+//        from zipTree('libs/xmlbeans-2.6.0.jar')
+//        into("$buildDir/libs/xmlbeans-2.6.0.jar")
+//        exclude "org/apache/xmlbeans/xml/stream/Location.class"
+//        exclude "org/apache/xmlbeans/xml/stream/ReferenceResolver.class"
+//        exclude "org/apache/xmlbeans/xml/stream/XMLEvent.class"
+//        exclude "org/apache/xmlbeans/xml/stream/XMLInputStream.class"
+//        exclude "org/apache/xmlbeans/xml/stream/XMLName.class"
+//        exclude "org/apache/xmlbeans/xml/stream/utils/XMLStreamException.class"
+//        exclude "org/apache/xmlbeans/xml/stream/utils/NestedThrowable.class"
+//    }
+//    compile files("$buildDir/libs/xmlbeans-2.6.0") {
+//        builtBy "unzipJar"
+//    }
+
 }

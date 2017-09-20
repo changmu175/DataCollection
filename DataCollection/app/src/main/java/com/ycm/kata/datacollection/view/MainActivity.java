@@ -66,30 +66,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         time = System.currentTimeMillis();
         dateStr = formatDate(time);
         initView();
-        Intent intent = getIntent();
-        ProjectEntity pje;
-        if (intent != null) {
-            if (TextUtils.equals(intent.getStringExtra("tag"), "edit")) {
-                pje = (ProjectEntity) intent.getSerializableExtra("projectEntity");
-                setContent(pje);
-                return;
-            }
-        }
         updateImageHandler = new UpdateImageHandler(this);
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
-    }
-
-    private void setContent(ProjectEntity pje) {
-        etDate.setText(formatDate(pje.getCheckDate()));
-        etDefect.setText(pje.getDefects());
-        etRemark.setText(pje.getRemark());
-        etPile.setText(pje.getPilNo());
-        etBlock.setText(pje.getBlock());
-        etProject.setText(pje.getProjectName());
-        tvHint.setVisibility(View.GONE);
-        ivPicture.setVisibility(View.VISIBLE);
-        Bitmap bitmap = BitmapFactory.decodeFile(pje.getImagePath());
-        ivPicture.setImageBitmap(bitmap);
     }
 
     private void initView() {
@@ -225,6 +203,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         projectEntityDao.insert(projectEntity);
     }
 
+
+
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -295,7 +275,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         WeakReference<MainActivity> mainActivityWeakReference;
 
         UpdateImageHandler(MainActivity mainActivity) {
-            mainActivityWeakReference = new WeakReference<MainActivity>(mainActivity);
+            mainActivityWeakReference = new WeakReference<>(mainActivity);
         }
 
         @Override
@@ -313,8 +293,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         private File rootFile;
 
         SaveImageThread(Bitmap bitmap, String fileName, File rootFile, UpdateImageHandler handler) {
-            bitmapWeakReference = new WeakReference<Bitmap>(bitmap);
-            handlerWeakReference = new WeakReference<UpdateImageHandler>(handler);
+            bitmapWeakReference = new WeakReference<>(bitmap);
+            handlerWeakReference = new WeakReference<>(handler);
             this.fileName = fileName;
             this.rootFile = rootFile;
         }
