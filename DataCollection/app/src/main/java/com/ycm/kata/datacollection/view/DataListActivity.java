@@ -540,11 +540,20 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
     private List<ProjectEntity> filterDataSource(List<ProjectEntity> projectEntityList) {
         String currentDate = formatDate(System.currentTimeMillis());
-        List<ProjectEntity>
+        List<ProjectEntity> currentP = new ArrayList<>();
+        for (ProjectEntity p : projectEntityList) {
+            if (TextUtils.equals(formatDate(p.getCheckDate()), currentDate)){
+                currentP.add(p);
+            }
+        }
+
+        return currentP;
 
     }
 
     private void writeExcel(List<ProjectEntity> dataSource, ExportListener exportListener) {
+        List<ProjectEntity> currentPs = new ArrayList<>();
+        currentPs.addAll(filterDataSource(dataSource));
         FileOutputStream fileOut = null;
         String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel";
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -592,7 +601,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                 return;
             }
             fileOut = new FileOutputStream(p);
-            for (int i = 0; i < dataSource.size() * 14; i += 14) {
+            for (int i = 0; i < currentPs.size() * 14; i += 14) {
                 int index;
                 if (i == 0) {
                     index = 0;
@@ -604,20 +613,20 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                 CellAddress c0Address = c0.getAddress();
                 CellRangeAddress newC0Ad = new CellRangeAddress(c0Address.getRow(), c0Address.getRow() + 13, c0Address.getColumn(), c0Address.getColumn());
                 sheet1.addMergedRegion(newC0Ad);
-                c0.setCellValue(formatDate(dataSource.get(index).getCheckDate()));
+                c0.setCellValue(formatDate(currentPs.get(index).getCheckDate()));
 
 //                row.createCell(1)/*.setCellValue(dataSource.get(i).getProjectName())*/;
                 HSSFCell c1 = row.createCell(1);
                 CellAddress c1Address = c1.getAddress();
                 CellRangeAddress newC1Ad = new CellRangeAddress(c1Address.getRow(), c1Address.getRow() + 13, c1Address.getColumn(), c1Address.getColumn());
                 sheet1.addMergedRegion(newC1Ad);
-                c1.setCellValue(dataSource.get(index).getProjectName());
+                c1.setCellValue(currentPs.get(index).getProjectName());
 
                 HSSFCell c2 = row.createCell(2);
                 CellAddress c2Address = c2.getAddress();
                 CellRangeAddress newC2Ad = new CellRangeAddress(c2Address.getRow(), c2Address.getRow() + 13, c2Address.getColumn(), c2Address.getColumn());
                 sheet1.addMergedRegion(newC2Ad);
-                c2.setCellValue(dataSource.get(index).getUnitEngineering());
+                c2.setCellValue(currentPs.get(index).getUnitEngineering());
 
 
 //                row.createCell(2).setCellValue(dataSource.get(i).getUnitEngineering());
@@ -626,32 +635,32 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                 CellAddress c3Address = c3.getAddress();
                 CellRangeAddress newC3Ad = new CellRangeAddress(c3Address.getRow(), c3Address.getRow() + 13, c3Address.getColumn(), c3Address.getColumn());
                 sheet1.addMergedRegion(newC3Ad);
-                c3.setCellValue(dataSource.get(index).getBlock() + " " + dataSource.get(index).getPilNo());
+                c3.setCellValue(currentPs.get(index).getBlock() + " " + currentPs.get(index).getPilNo());
 
 //                row.createCell(4).setCellValue(dataSource.get(i).getRemark());
                 HSSFCell c4 = row.createCell(4);
                 CellAddress c4Address = c4.getAddress();
                 CellRangeAddress newC4Ad = new CellRangeAddress(c4Address.getRow(), c4Address.getRow() + 13, c4Address.getColumn(), c4Address.getColumn());
                 sheet1.addMergedRegion(newC4Ad);
-                c4.setCellValue(dataSource.get(index).getRemark());
+                c4.setCellValue(currentPs.get(index).getRemark());
 
 //                row.createCell(5).setCellValue(dataSource.get(i).getDefects());
                 HSSFCell c5 = row.createCell(5);
                 CellAddress c5Address = c5.getAddress();
                 CellRangeAddress newC5Ad = new CellRangeAddress(c5Address.getRow(), c5Address.getRow() + 13, c5Address.getColumn(), c5Address.getColumn());
                 sheet1.addMergedRegion(newC5Ad);
-                c5.setCellValue(dataSource.get(index).getDefects());
+                c5.setCellValue(currentPs.get(index).getDefects());
 
 //                HSSFCell hssfCell = row.createCell(6);
                 HSSFCell c6 = row.createCell(6);
                 CellAddress c6Address = c6.getAddress();
                 CellRangeAddress newCr6Ad = new CellRangeAddress(c6Address.getRow(), c6Address.getRow() + 13, c6Address.getColumn(), c6Address.getColumn() + 3);
                 sheet1.addMergedRegion(newCr6Ad);
-                c6.setCellValue(dataSource.get(index).getDefects());
+                c6.setCellValue(currentPs.get(index).getDefects());
                 CellAddress newC6Ad = c6.getAddress();
 
                 byte[] buffer;
-                File file = new File(dataSource.get(index).getImagePath());
+                File file = new File(currentPs.get(index).getImagePath());
                 FileInputStream fis = new FileInputStream(file);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
                 byte[] b = new byte[1000];

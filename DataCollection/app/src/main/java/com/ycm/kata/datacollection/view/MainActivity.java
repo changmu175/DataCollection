@@ -39,6 +39,7 @@ import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.Future;
 
 public class MainActivity extends Activity implements View.OnClickListener, TextWatcher {
     private String photoFileCachePath = "";
@@ -115,6 +116,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     }
 
     public void startToPhoto() {
+        //启动相机拍照
+//        Intent intent = new Intent();
+//        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+//        startActivityForResult(intent, 0x3);
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             //文件保存路径
             String imageRootPath = Environment.getExternalStorageDirectory().getPath()
@@ -139,6 +144,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         }
     }
 
+    long id = -1;
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -147,14 +154,14 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
-                insert(projectEntity);
+                id = insert(projectEntity);
                 Toast.makeText(getBaseContext(), "保存成功", Toast.LENGTH_SHORT).show();
 //                Intent intent = new Intent();
 //                intent.setClass(getBaseContext(), DataListActivity.class);
 //                startActivity(intent);
                 break;
             case R.id.add_btn:
-                projectEntity = getProjectEntity();
+                projectEntity = getP(id);
                 update(projectEntity);
                 Intent intent = new Intent();
                 intent.setClass(getBaseContext(), DataListActivity.class);
@@ -213,18 +220,30 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         return projectEntity;
     }
 
-    private void insert(ProjectEntity projectEntity) {
-        projectEntityDao.insert(projectEntity);
+    private long insert(ProjectEntity projectEntity) {
+        if (projectEntityDao == null) {
+            return -1;
+        }
+        return projectEntityDao.insert(projectEntity);
     }
 
     private void update(ProjectEntity projectEntity) {
-        if (projectEntityDao.hasKey(projectEntity)) {
-            projectEntityDao.update(projectEntity);
-        } else {
-            projectEntityDao.insert(projectEntity);
+        if (projectEntityDao == null) {
+            return;
         }
+        projectEntityDao.update(projectEntity);
     }
 
+    private ProjectEntity getP(long id) {
+        if (projectEntityDao == null) {
+            return null;
+        }
+
+        if (id == -1) {
+            return null;
+        }
+        return projectEntityDao.load(id);
+    }
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -264,10 +283,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             if (!rootFile.exists()) {
                 return;
             }
-            long time1 = System.currentTimeMillis();
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-            long time2 = System.currentTimeMillis();
-            Log.d("ddddddddddddd", time2 - time1 + "");
             ivPicture.setImageBitmap(bitmap);// 将图片显示在ImageView里
             tvHint.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
@@ -279,16 +295,54 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             saveImageThread = new SaveImageThread(bitmap, fileName, rootFile, updateImageHandler);
             saveImageThread.start();
         }
+
+//        if (requestCode == 0x3) {
+//            if (data != null) {
+//                progressBar.setVisibility(View.VISIBLE);
+//                tvHint.setVisibility(View.GONE);
+//                //文件保存路径
+//                final String imageRootPath = Environment.getExternalStorageDirectory().getPath()
+//                        + File.separator + "data_collection";
+//                if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+//                    return;
+//                }
+//
+//                File imageRootPathFile = new File(imageRootPath);
+//                if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
+//                    return;
+//                }
+//
+////                final String rootFilePath = file.getPath();
+////                final File rootFile = new File(rootFilePath);
+////                if (!rootFile.exists()) {
+////                    return;
+////                }
+//                Bundle bundle = data.getExtras();
+//                Bitmap bitmap = bundle.getParcelable("data");
+//                ivPicture.setImageBitmap(bitmap);// 将图片显示在ImageView里
+//                tvHint.setVisibility(View.GONE);
+//                progressBar.setVisibility(View.GONE);
+//                ivPicture.setVisibility(View.VISIBLE);
+//                final String fileName = getFileName(System.currentTimeMillis())/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/;
+//                filePath = fileName;
+//                btnAdd.setEnabled(true);
+//                btnSave.setEnabled(true);
+//                saveImageThread = new SaveImageThread(bitmap, fileName, null, updateImageHandler);
+//                saveImageThread.start();
+//            } else {
+//                return;
+//            }
+//        }
     }
 
     private String getFileName(long time) {
-        final String imageRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection";
+        final String imageRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + formatDate(time);
         File imageRootPathFile = new File(imageRootPath);
         if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
             return null;
         }
 
-        return imageRootPath + File.separator + formatDate(time) + File.separator + formatDate2(time) + ".png";
+        return imageRootPath + File.separator + formatDate2(time) + ".png";
 
     }
 
@@ -327,6 +381,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             FileOutputStream b = null;
             ByteArrayOutputStream outputStream = bitmapToByteArray(bitmap, false);
             try {
+                File imageFile = new File(fileName);
+                if (!imageFile.exists() && !imageFile.createNewFile()) {
+                    return;
+                }
                 b = new FileOutputStream(fileName);
                 b.write(outputStream.toByteArray());
                 rootFile.delete();
@@ -340,7 +398,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                         b.flush();
                         b.close();
                     }
-                    bitmap.recycle();
+//                    bitmap.recycle();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
