@@ -29,6 +29,7 @@ import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.CommonUtil;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -122,19 +123,20 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 //        startActivityForResult(intent, 0x3);
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             //文件保存路径
-            String imageRootPath = Environment.getExternalStorageDirectory().getPath()
-                    + File.separator + "data_collection";
-            if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-                return;
-            }
-
-            File imageRootPathFile = new File(imageRootPath);
-            if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
-                return;
-            }
+//            String imageRootPath = Environment.getExternalStorageDirectory().getPath()
+//                    + File.separator + "data_collection";
+//            if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+//                return;
+//            }
+//
+//            File imageRootPathFile = new File(imageRootPath);
+//            if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
+//                return;
+//            }
 
             //文件名称
-            photoFileCachePath = getFileName(System.currentTimeMillis());/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+            photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*/
+            ;/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
             //后缀
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -266,33 +268,24 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         if (requestCode == 123) {
             progressBar.setVisibility(View.VISIBLE);
             tvHint.setVisibility(View.GONE);
-            //文件保存路径
-            final String imageRootPath = Environment.getExternalStorageDirectory().getPath()
-                    + File.separator + "data_collection";
-            if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-                return;
-            }
-
-            File imageRootPathFile = new File(imageRootPath);
-            if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
-                return;
-            }
 
             final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
             if (!rootFile.exists()) {
                 return;
             }
+
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
             ivPicture.setImageBitmap(bitmap);// 将图片显示在ImageView里
             tvHint.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             ivPicture.setVisibility(View.VISIBLE);
-            final String fileName = getFileName(System.currentTimeMillis())/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/;
-            filePath = fileName;
+            final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/;
+
+            filePath = desFileName;
             btnAdd.setEnabled(true);
             btnSave.setEnabled(true);
-            saveImageThread = new SaveImageThread(bitmap, fileName, rootFile, updateImageHandler);
+            saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
             saveImageThread.start();
         }
 
@@ -335,16 +328,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 //        }
     }
 
-    private String getFileName(long time) {
-        final String imageRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + formatDate(time);
-        File imageRootPathFile = new File(imageRootPath);
-        if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
-            return null;
-        }
-
-        return imageRootPath + File.separator + formatDate2(time) + ".png";
-
-    }
+//
 
     private static class UpdateImageHandler extends Handler {
         WeakReference<MainActivity> mainActivityWeakReference;
@@ -404,13 +388,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 }
             }
         }
-    }
-
-
-    private static String formatDate2(long time) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.CHINA);
-        Date d1 = new Date(time);
-        return format.format(d1);
     }
 
     public static Bitmap getZoomImage(Bitmap bitmap, double maxSize) {

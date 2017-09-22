@@ -509,7 +509,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         private WeakReference<DataListActivity> weakReference;
 
         ExportDataSuccessHandler(DataListActivity activity) {
-            weakReference = new WeakReference<DataListActivity>(activity);
+            weakReference = new WeakReference<>(activity);
         }
 
         @Override
@@ -555,9 +555,13 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         List<ProjectEntity> currentPs = new ArrayList<>();
         currentPs.addAll(filterDataSource(dataSource));
         FileOutputStream fileOut = null;
-        String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel";
+        String rootPath = /*Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel"*/CommonUtil.getDataFilePath(System.currentTimeMillis());
+        if (rootPath == null) {
+            Toast.makeText(getBaseContext(), "文件路径初始化失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
         HSSFWorkbook wb = new HSSFWorkbook();
-        HSSFSheet sheet1 = wb.createSheet("项目数据" + System.currentTimeMillis());
+        HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtil.formatDate(System.currentTimeMillis()));
         sheet1.setDefaultColumnWidth(30);
         // 生成一个样式
 //            HSSFCellStyle style = wb.createCellStyle();
@@ -590,16 +594,12 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         sheet1.addMergedRegion(newCra);
         cell7.setCellValue("图片");
         try {
-            File rootFile = new File(rootPath);
-            if (!rootFile.exists() && !rootFile.mkdir()) {
+            String p = CommonUtil.getDataFilePath(System.currentTimeMillis());
+            if (p == null) {
+                Toast.makeText(getBaseContext(), "数据文件创建失败", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            String p = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel" + File.separator + "项目数据" + formatDate(System.currentTimeMillis()) + ".xls";
-            File dexFile = new File(p);
-            if (!dexFile.exists() && !dexFile.createNewFile()) {
-                return;
-            }
+//            String p = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel" + File.separator + "项目数据" + formatDate(System.currentTimeMillis()) + ".xls";
             fileOut = new FileOutputStream(p);
             for (int i = 0; i < currentPs.size() * 14; i += 14) {
                 int index;
