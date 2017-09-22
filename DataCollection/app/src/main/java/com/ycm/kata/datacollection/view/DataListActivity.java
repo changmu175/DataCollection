@@ -538,6 +538,12 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         }
     }
 
+    private List<ProjectEntity> filterDataSource(List<ProjectEntity> projectEntityList) {
+        String currentDate = formatDate(System.currentTimeMillis());
+        List<ProjectEntity>
+
+    }
+
     private void writeExcel(List<ProjectEntity> dataSource, ExportListener exportListener) {
         FileOutputStream fileOut = null;
         String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel";
