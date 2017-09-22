@@ -2,6 +2,7 @@ package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -11,6 +12,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -21,11 +23,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.PermissionUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -68,6 +72,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         initView();
         updateImageHandler = new UpdateImageHandler(this);
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
+        if (!(PermissionUtils.checkPermission(this, PermissionUtils.CODE_CAMERA) == PackageManager.PERMISSION_GRANTED)
+                || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+            showCamera();
+        }
+
     }
 
     private void initView() {
@@ -121,7 +130,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
             //文件名称
             photoFileCachePath = getFileName(System.currentTimeMillis());/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-            ;
             //后缀
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -140,11 +148,17 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
                 insert(projectEntity);
+                Toast.makeText(getBaseContext(), "保存成功", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent();
+//                intent.setClass(getBaseContext(), DataListActivity.class);
+//                startActivity(intent);
+                break;
+            case R.id.add_btn:
+                projectEntity = getProjectEntity();
+                update(projectEntity);
                 Intent intent = new Intent();
                 intent.setClass(getBaseContext(), DataListActivity.class);
                 startActivity(intent);
-                break;
-            case R.id.add_btn:
                 break;
         }
     }
@@ -203,6 +217,13 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         projectEntityDao.insert(projectEntity);
     }
 
+    private void update(ProjectEntity projectEntity) {
+        if (projectEntityDao.hasKey(projectEntity)) {
+            projectEntityDao.update(projectEntity);
+        } else {
+            projectEntityDao.insert(projectEntity);
+        }
+    }
 
 
     @Override
@@ -238,7 +259,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 return;
             }
 
-            final String rootFilePath = file.getAbsolutePath();
+            final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
             if (!rootFile.exists()) {
                 return;
@@ -409,5 +430,57 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         matrix.postScale(scaleWidth, scaleHeight);
         Bitmap bitmap = Bitmap.createBitmap(orgBitmap, 0, 0, (int) width, (int) height, matrix, true);
         return bitmap;
+    }
+
+
+    public void showCamera() {
+//        PermissionUtils.requestPermission(this, PermissionUtils.CODE_CAMERA, mPermissionGrant);
+        PermissionUtils.requestMultiPermissions(this, mPermissionGrant);
+    }
+
+    private PermissionUtils.PermissionGrant mPermissionGrant = new PermissionUtils.PermissionGrant() {
+        @Override
+        public void onPermissionGranted(int requestCode) {
+            switch (requestCode) {
+//                case PermissionUtils.CODE_RECORD_AUDIO:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_RECORD_AUDIO", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case PermissionUtils.CODE_GET_ACCOUNT:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_GET_ACCOUNTS", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case PermissionUtils.CODE_READ_PHONE_STATE:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_READ_PHONE_STATE", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case PermissionUtils.CODE_CALL_PHONE:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_CALL_PHONE", Toast.LENGTH_SHORT).show();
+//                    break;
+                case PermissionUtils.CODE_CAMERA:
+                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_CAMERA", Toast.LENGTH_SHORT).show();
+                    break;
+//                case PermissionUtils.CODE_ACCESS_FINE_LOCATION:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_ACCESS_FINE_LOCATION", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case PermissionUtils.CODE_ACCESS_COARSE_LOCATION:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
+//                    break;
+//                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_READ_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+//                    break;
+                case PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE:
+                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        PermissionUtils.requestPermissionResult(this, requestCode, permissions, grantResults, mPermissionGrant);
     }
 }
