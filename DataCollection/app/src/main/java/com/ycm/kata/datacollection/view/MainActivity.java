@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -135,8 +136,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 //            }
 
             //文件名称
-            photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*/
-            ;/*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+            photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis());
             //后缀
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -163,8 +163,13 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 //                startActivity(intent);
                 break;
             case R.id.add_btn:
-                projectEntity = getP(id);
-                update(projectEntity);
+                if (id != -1) {
+                    projectEntity = getP(id);
+                    update(projectEntity);
+                } else {
+                    projectEntity = getProjectEntity();
+                    id = insert(projectEntity);
+                }
                 Intent intent = new Intent();
                 intent.setClass(getBaseContext(), DataListActivity.class);
                 startActivity(intent);
@@ -272,15 +277,24 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
             if (!rootFile.exists()) {
+                progressBar.setVisibility(View.GONE);
+                tvHint.setVisibility(View.VISIBLE);
+                Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-            ivPicture.setImageBitmap(bitmap);// 将图片显示在ImageView里
+            DisplayMetrics dm = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(dm);
+            int screenWidth = dm.widthPixels;
+            Bitmap bmp = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
+
+
+            ivPicture.setImageBitmap(bmp);// 将图片显示在ImageView里
             tvHint.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             ivPicture.setVisibility(View.VISIBLE);
-            final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/;
+            final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
 
             filePath = desFileName;
             btnAdd.setEnabled(true);
@@ -291,7 +305,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
 //        if (requestCode == 0x3) {
 //            if (data != null) {
-//                progressBar.setVisibility(View.VISIBLE);
+//                progressBar.setVisibility(View.VISIBLE);w
 //                tvHint.setVisibility(View.GONE);
 //                //文件保存路径
 //                final String imageRootPath = Environment.getExternalStorageDirectory().getPath()

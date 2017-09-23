@@ -2,6 +2,8 @@ package com.ycm.kata.datacollection;
 
 import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.ycm.kata.datacollection.model.DaoMaster;
 import com.ycm.kata.datacollection.model.DaoSession;
@@ -11,7 +13,7 @@ import com.ycm.kata.datacollection.model.DaoSession;
  * Description:
  */
 
-public class MyApplication extends Application {
+public class MyApplication extends MultiDexApplication {
     private DaoMaster.DevOpenHelper mHelper;
     private SQLiteDatabase db;
     private DaoMaster mDaoMaster;
@@ -21,6 +23,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        MultiDex.install(this);
         instances = this;
         setDatabase();
     }

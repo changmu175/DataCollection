@@ -23,7 +23,7 @@ public class CommonUtil {
     }
 
     public static String formatDate2(long time) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.CHINA);
         Date d1 = new Date(time);
         return format.format(d1);
     }
@@ -36,7 +36,7 @@ public class CommonUtil {
             return null;
         }
 
-        String imageFilePath  = imageRootFilePath + File.separator + formatDate2(currTime) + "png";
+        String imageFilePath  = imageRootFilePath + File.separator + formatDate2(currTime) + ".png";
         File imageFile = new File(imageFilePath);
         try {
             if (!imageFile.exists() && !imageFile.createNewFile()) {
@@ -53,7 +53,7 @@ public class CommonUtil {
         String rootPath = getRootPath();
         String dataFileRootPath = rootPath + File.separator + "data_file" + File.separator + formatDate(currTime);
         File dataDirectFile = new File(dataFileRootPath);
-        if (!dataDirectFile.exists() && !dataDirectFile.mkdir()) {
+        if (!dataDirectFile.exists() && !dataDirectFile.mkdirs()) {
             return null;
         }
 

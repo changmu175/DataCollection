@@ -39,6 +39,7 @@ import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.Units;
@@ -208,7 +209,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         }
     }
 
-    ProgressDialog pDialog;
+    static ProgressDialog pDialog;
 
     private void showDialg(String message) {
         if (null == pDialog) {
@@ -291,171 +292,171 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     /**
      * 为了保证模板的可用，最好在现有的模板上复制后修改
      */
-    private void printer() {
-        try {
-            saveFile("template.docx", this, R.raw.template);//文件目录res/raw
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //现场检查记录
-        String aafileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template.docx";
-        final String bbfileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template_printer.docx";
-        //获取模板文件
-        File demoFile = new File(aafileurl);
-        //创建生成的文件
-        File newFile = new File(bbfileurl);
-        if (newFile.exists()) {
-            newFile.delete();
-        }
-        for (int i = 0; i < dataSource.size(); i++) {
-            Map<String, String> map = new HashMap<>();
-            map.put("$project_name$", dataSource.get(i).getProjectName());
-            map.put("$check_date$", CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
-            map.put("$unit_engineering$", dataSource.get(i).getUnitEngineering());
-            map.put("$block_pile$", dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
-            map.put("$defects$", dataSource.get(i).getDefects());
-            map.put("$remark$", dataSource.get(i).getRemark());
-            map.put("$image$", dataSource.get(i).getImagePath());
-//            writeDoc(demoFile, newFile, map);
-        }
-
-    }
+//    private void printer() {
+//        try {
+//            saveFile("template.docx", this, R.raw.template);//文件目录res/raw
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        //现场检查记录
+//        String aafileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template.docx";
+//        final String bbfileurl = Environment.getExternalStorageDirectory() + "/data_collection/file/template_printer.docx";
+//        //获取模板文件
+//        File demoFile = new File(aafileurl);
+//        //创建生成的文件
+//        File newFile = new File(bbfileurl);
+//        if (newFile.exists()) {
+//            newFile.delete();
+//        }
+//        for (int i = 0; i < dataSource.size(); i++) {
+//            Map<String, String> map = new HashMap<>();
+//            map.put("$project_name$", dataSource.get(i).getProjectName());
+//            map.put("$check_date$", CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
+//            map.put("$unit_engineering$", dataSource.get(i).getUnitEngineering());
+//            map.put("$block_pile$", dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+//            map.put("$defects$", dataSource.get(i).getDefects());
+//            map.put("$remark$", dataSource.get(i).getRemark());
+//            map.put("$image$", dataSource.get(i).getImagePath());
+////            writeDoc(demoFile, newFile, map);
+//        }
+//
+//    }
 
     /**
      * demoFile 模板文件
      * newFile 生成文件
      * map 要填充的数据
      */
-    public boolean writeDoc(File demoFile, File newFile, Map<String, String> map) {
-        try {
-            String imagePath = "";
-            FileInputStream in = new FileInputStream(demoFile);
-            HWPFDocument hdt = new HWPFDocument(in);
-            // 读取word文本内容
-            Range range = hdt.getRange();
-            // 替换文本内容
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                range.replaceText(entry.getKey(), entry.getValue());
-            }
-
-            ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-            FileOutputStream out = new FileOutputStream(newFile, true);
-            hdt.write(ostream);
-            // 输出字节流
-            out.write(ostream.toByteArray());
-            out.close();
-            ostream.close();
-            Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private int getImageType(String imgFile) {
-        byte format;
-        if (imgFile.endsWith(".emf")) {
-            format = 2;
-        } else if (imgFile.endsWith(".wmf")) {
-            format = 3;
-        } else if (imgFile.endsWith(".pict")) {
-            format = 4;
-        } else if (!imgFile.endsWith(".jpeg") && !imgFile.endsWith(".jpg")) {
-            if (imgFile.endsWith(".png")) {
-                format = 6;
-            } else if (imgFile.endsWith(".dib")) {
-                format = 7;
-            } else if (imgFile.endsWith(".gif")) {
-                format = 8;
-            } else if (imgFile.endsWith(".tiff")) {
-                format = 9;
-            } else if (imgFile.endsWith(".eps")) {
-                format = 10;
-            } else if (imgFile.endsWith(".bmp")) {
-                format = 11;
-            } else {
-                format = 12;
-            }
-        } else {
-            format = 5;
-        }
-        return format;
-    }
-
-    private void writeImage(String decFile, ProjectEntity pje) throws IOException, InvalidFormatException {
-        File rf = new File(decFile);
-        if (!rf.exists()) {
-            rf.mkdir();
-        }
-
-        String name = System.currentTimeMillis() + ".doc";
-        File f = new File(decFile, name);
-        if (!f.exists()) {
-            f.createNewFile();
-        }
-        FileInputStream fileInputStream1 = new FileInputStream(f);
-//        HWPFDocument document = new HWPFDocument(fileInputStream1);
-
-        XWPFDocument doc = new XWPFDocument();
-        XWPFParagraph p = doc.createParagraph();
-        XWPFRun r = p.createRun();
-        XWPFTable xwpfTable = r.getDocument().createTable(4, 4);
-        xwpfTable.getRow(1).getCell(0).setText("项目名称");
-        xwpfTable.getRow(1).getCell(1).setText(pje.getProjectName());
-        xwpfTable.getRow(1).getCell(2).setText("检测日期");
-        xwpfTable.getRow(1).getCell(3).setText(formatDate(pje.getCheckDate()));
-
-
-        xwpfTable.getRow(2).getCell(0).setText("单位工程");
-        xwpfTable.getRow(2).getCell(1).setText(pje.getUnitEngineering());
-        xwpfTable.getRow(2).getCell(2).setText("标段及桩号");
-        xwpfTable.getRow(2).getCell(3).setText(pje.getBlock() + " " + pje.getPilNo());
-
-        File imageFilePath = new File(pje.getImagePath());
-        FileInputStream fileInputStream = new FileInputStream(imageFilePath);
-        xwpfTable.getRow(3).getCell(0).addParagraph().createRun().addPicture(fileInputStream, getImageType(pje.getImagePath()), pje.getImagePath(), Units.toEMU(200.0D), Units.toEMU(200.0D));
-//        xwpfTable.getRow(3).getCell(1).;
-        xwpfTable.getRow(3).getCell(2).setText("缺陷描述");
-        xwpfTable.getRow(3).getCell(3).setText(pje.getDefects());
-
-        xwpfTable.getRow(4).getCell(0).setText("备注");
-        xwpfTable.getRow(4).getCell(1).setText(pje.getRemark());
-        r.addBreak();
-        FileOutputStream out = new FileOutputStream(decFile + File.separator + name);
-        doc.write(out);
-        out.close();
-//        doc.close();
-//        r.setText(imgFile);
-//        r.addBreak();
-//        FileOutputStream out = null;
+//    public boolean writeDoc(File demoFile, File newFile, Map<String, String> map) {
 //        try {
-//            r.addPicture(new FileInputStream(imgFile), getImageType(imgFile), imgFile, Units.toEMU(200.0D), Units.toEMU(200.0D));
-//            out = new FileOutputStream(decFile);
-//        } catch (InvalidFormatException | IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            r.addBreak(BreakType.PAGE);
-//            try {
-//                if (out != null) {
-//                    out.close();
-//                }
-//                doc.write(out);
-//                doc.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
+//            String imagePath = "";
+//            FileInputStream in = new FileInputStream(demoFile);
+//            HWPFDocument hdt = new HWPFDocument(in);
+//            // 读取word文本内容
+//            Range range = hdt.getRange();
+//            // 替换文本内容
+//            for (Map.Entry<String, String> entry : map.entrySet()) {
+//                range.replaceText(entry.getKey(), entry.getValue());
 //            }
 //
+//            ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+//            FileOutputStream out = new FileOutputStream(newFile, true);
+//            hdt.write(ostream);
+//            // 输出字节流
+//            out.write(ostream.toByteArray());
+//            out.close();
+//            ostream.close();
+//            Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show();
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
 //        }
+//        return false;
+//    }
 
+//    private int getImageType(String imgFile) {
+//        byte format;
+//        if (imgFile.endsWith(".emf")) {
+//            format = 2;
+//        } else if (imgFile.endsWith(".wmf")) {
+//            format = 3;
+//        } else if (imgFile.endsWith(".pict")) {
+//            format = 4;
+//        } else if (!imgFile.endsWith(".jpeg") && !imgFile.endsWith(".jpg")) {
+//            if (imgFile.endsWith(".png")) {
+//                format = 6;
+//            } else if (imgFile.endsWith(".dib")) {
+//                format = 7;
+//            } else if (imgFile.endsWith(".gif")) {
+//                format = 8;
+//            } else if (imgFile.endsWith(".tiff")) {
+//                format = 9;
+//            } else if (imgFile.endsWith(".eps")) {
+//                format = 10;
+//            } else if (imgFile.endsWith(".bmp")) {
+//                format = 11;
+//            } else {
+//                format = 12;
+//            }
+//        } else {
+//            format = 5;
+//        }
+//        return format;
+//    }
 
-    }
+//    private void writeImage(String decFile, ProjectEntity pje) throws IOException, InvalidFormatException {
+//        File rf = new File(decFile);
+//        if (!rf.exists()) {
+//            rf.mkdir();
+//        }
+//
+//        String name = System.currentTimeMillis() + ".doc";
+//        File f = new File(decFile, name);
+//        if (!f.exists()) {
+//            f.createNewFile();
+//        }
+//        FileInputStream fileInputStream1 = new FileInputStream(f);
+////        HWPFDocument document = new HWPFDocument(fileInputStream1);
+//
+//        XWPFDocument doc = new XWPFDocument();
+//        XWPFParagraph p = doc.createParagraph();
+//        XWPFRun r = p.createRun();
+//        XWPFTable xwpfTable = r.getDocument().createTable(4, 4);
+//        xwpfTable.getRow(1).getCell(0).setText("项目名称");
+//        xwpfTable.getRow(1).getCell(1).setText(pje.getProjectName());
+//        xwpfTable.getRow(1).getCell(2).setText("检测日期");
+//        xwpfTable.getRow(1).getCell(3).setText(formatDate(pje.getCheckDate()));
+//
+//
+//        xwpfTable.getRow(2).getCell(0).setText("单位工程");
+//        xwpfTable.getRow(2).getCell(1).setText(pje.getUnitEngineering());
+//        xwpfTable.getRow(2).getCell(2).setText("标段及桩号");
+//        xwpfTable.getRow(2).getCell(3).setText(pje.getBlock() + " " + pje.getPilNo());
+//
+//        File imageFilePath = new File(pje.getImagePath());
+//        FileInputStream fileInputStream = new FileInputStream(imageFilePath);
+//        xwpfTable.getRow(3).getCell(0).addParagraph().createRun().addPicture(fileInputStream, getImageType(pje.getImagePath()), pje.getImagePath(), Units.toEMU(200.0D), Units.toEMU(200.0D));
+////        xwpfTable.getRow(3).getCell(1).;
+//        xwpfTable.getRow(3).getCell(2).setText("缺陷描述");
+//        xwpfTable.getRow(3).getCell(3).setText(pje.getDefects());
+//
+//        xwpfTable.getRow(4).getCell(0).setText("备注");
+//        xwpfTable.getRow(4).getCell(1).setText(pje.getRemark());
+//        r.addBreak();
+//        FileOutputStream out = new FileOutputStream(decFile + File.separator + name);
+//        doc.write(out);
+//        out.close();
+////        doc.close();
+////        r.setText(imgFile);
+////        r.addBreak();
+////        FileOutputStream out = null;
+////        try {
+////            r.addPicture(new FileInputStream(imgFile), getImageType(imgFile), imgFile, Units.toEMU(200.0D), Units.toEMU(200.0D));
+////            out = new FileOutputStream(decFile);
+////        } catch (InvalidFormatException | IOException e) {
+////            e.printStackTrace();
+////        } finally {
+////            r.addBreak(BreakType.PAGE);
+////            try {
+////                if (out != null) {
+////                    out.close();
+////                }
+////                doc.write(out);
+////                doc.close();
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////
+////        }
+//
+//
+//    }
 
-    private String formatDate(long time) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
-        Date d1 = new Date(time);
-        return format.format(d1);
-    }
+//    private String formatDate(long time) {
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+//        Date d1 = new Date(time);
+//        return format.format(d1);
+//    }
 
     /**
      * 将文件复制到SD卡，并返回该文件对应的数据库对象
@@ -463,41 +464,41 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
      * @return
      * @throws IOException
      */
-    public void saveFile(String fileName, Context context, int rawid) throws IOException {
+//    public void saveFile(String fileName, Context context, int rawid) throws IOException {
+//
+//        // 首先判断该目录下的文件夹是否存在
+//        File dir = new File(Environment.getExternalStorageDirectory() + "/data_collection/file/");
+//        if (!dir.exists()) {
+//            // 文件夹不存在 ， 则创建文件夹
+//            dir.mkdirs();
+//        }
+//
+//        // 判断目标文件是否存在
+//        File file1 = new File(dir, fileName);
+//
+//        if (!file1.exists()) {
+//            file1.createNewFile(); // 创建文件
+//
+//        }
+//        InputStream input = context.getResources().openRawResource(rawid); // 获取资源文件raw
+//        try {
+//
+//            FileOutputStream out = new FileOutputStream(file1); // 文件输出流、用于将文件写到SD卡中
+//            byte[] buffer = new byte[1024];
+//            int len = 0;
+//            while ((len = (input.read(buffer))) != -1) { // 读取文件，-- 进到内存
+//
+//                out.write(buffer, 0, len); // 写入数据 ，-- 从内存出
+//            }
+//            input.close();
+//            out.close(); // 关闭流
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
-        // 首先判断该目录下的文件夹是否存在
-        File dir = new File(Environment.getExternalStorageDirectory() + "/data_collection/file/");
-        if (!dir.exists()) {
-            // 文件夹不存在 ， 则创建文件夹
-            dir.mkdirs();
-        }
-
-        // 判断目标文件是否存在
-        File file1 = new File(dir, fileName);
-
-        if (!file1.exists()) {
-            file1.createNewFile(); // 创建文件
-
-        }
-        InputStream input = context.getResources().openRawResource(rawid); // 获取资源文件raw
-        try {
-
-            FileOutputStream out = new FileOutputStream(file1); // 文件输出流、用于将文件写到SD卡中
-            byte[] buffer = new byte[1024];
-            int len = 0;
-            while ((len = (input.read(buffer))) != -1) { // 读取文件，-- 进到内存
-
-                out.write(buffer, 0, len); // 写入数据 ，-- 从内存出
-            }
-            input.close();
-            out.close(); // 关闭流
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void dismiss() {
+    public static void dismiss() {
         if (pDialog != null) {
             pDialog.dismiss();
         }
@@ -505,7 +506,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
     ExportDataSuccessHandler dataSuccessHandler;
 
-    private class ExportDataSuccessHandler extends Handler {
+    private static class ExportDataSuccessHandler extends Handler {
         private WeakReference<DataListActivity> weakReference;
 
         ExportDataSuccessHandler(DataListActivity activity) {
@@ -539,10 +540,10 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     }
 
     private List<ProjectEntity> filterDataSource(List<ProjectEntity> projectEntityList) {
-        String currentDate = formatDate(System.currentTimeMillis());
+        String currentDate = CommonUtil.formatDate(System.currentTimeMillis());
         List<ProjectEntity> currentP = new ArrayList<>();
         for (ProjectEntity p : projectEntityList) {
-            if (TextUtils.equals(formatDate(p.getCheckDate()), currentDate)){
+            if (TextUtils.equals(CommonUtil.formatDate(p.getCheckDate()), currentDate)){
                 currentP.add(p);
             }
         }
@@ -557,134 +558,206 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         FileOutputStream fileOut = null;
         String rootPath = /*Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel"*/CommonUtil.getDataFilePath(System.currentTimeMillis());
         if (rootPath == null) {
-            Toast.makeText(getBaseContext(), "文件路径初始化失败", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getBaseContext(), "文件路径初始化失败", Toast.LENGTH_SHORT).show();
             return;
         }
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtil.formatDate(System.currentTimeMillis()));
-        sheet1.setDefaultColumnWidth(30);
-        // 生成一个样式
-//            HSSFCellStyle style = wb.createCellStyle();
-        //创建第一行（也可以称为表头）
-        HSSFRow row = sheet1.createRow(0);
-        //样式字体居中
-//            style.setAlignment(HorizontalAlignment.CENTER);
-        //给表头第一行一次创建单元格
-        HSSFCell cell1 = row.createCell(0);
-        cell1.setCellValue("检测日期");
-//            cell.setCellStyle(style);
-        HSSFCell cell2 = row.createCell(1);
-        cell2.setCellValue("项目名称");
-//            cell.setCellStyle(style);
-        HSSFCell cell3 = row.createCell(2);
-        cell3.setCellValue("工程单位");
+//        // 生成一个样式
+////            HSSFCellStyle style = wb.createCellStyle();
+//        //创建第一行（也可以称为表头）
+//        HSSFRow row = sheet1.createRow(0);
+//        //样式字体居中
+////            style.setAlignment(HorizontalAlignment.CENTER);
+//        //给表头第一行一次创建单元格
+//        HSSFCell cell1 = row.createCell(0);
+//        cell1.setCellValue("检测日期");
+////            cell.setCellStyle(style);
+//        HSSFCell cell2 = row.createCell(1);
+//        cell2.setCellValue("项目名称");
+////            cell.setCellStyle(style);
+//        HSSFCell cell3 = row.createCell(2);
+//        cell3.setCellValue("工程单位");
+//
+//        HSSFCell cell4 = row.createCell(3);
+//        cell4.setCellValue("标段及桩号");
+//
+//        HSSFCell cell5 = row.createCell(4);
+//        cell5.setCellValue("备注");
+//
+//        HSSFCell cell6 = row.createCell(5);
+//        cell6.setCellValue("缺陷描述");
+//
+//        HSSFCell cell7 = row.createCell(6);
+//        CellAddress cell7Address = cell7.getAddress();
+//        CellRangeAddress newCra = new CellRangeAddress(cell7Address.getRow(), cell7Address.getRow(), cell7Address.getColumn(), cell7Address.getColumn() + 2);
+//        sheet1.addMergedRegion(newCra);
+//        cell7.setCellValue("图片");
 
-        HSSFCell cell4 = row.createCell(3);
-        cell4.setCellValue("标段及桩号");
 
-        HSSFCell cell5 = row.createCell(4);
-        cell5.setCellValue("备注");
 
-        HSSFCell cell6 = row.createCell(5);
-        cell6.setCellValue("缺陷描述");
 
-        HSSFCell cell7 = row.createCell(6);
-        CellAddress cell7Address = cell7.getAddress();
-        CellRangeAddress newCra = new CellRangeAddress(cell7Address.getRow(), cell7Address.getRow(), cell7Address.getColumn(), cell7Address.getColumn() + 2);
-        sheet1.addMergedRegion(newCra);
-        cell7.setCellValue("图片");
+
+
         try {
             String p = CommonUtil.getDataFilePath(System.currentTimeMillis());
             if (p == null) {
-                Toast.makeText(getBaseContext(), "数据文件创建失败", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getBaseContext(), "数据文件创建失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 //            String p = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "excel" + File.separator + "项目数据" + formatDate(System.currentTimeMillis()) + ".xls";
             fileOut = new FileOutputStream(p);
-            for (int i = 0; i < currentPs.size() * 14; i += 14) {
+            for (int i = 0; i < 1/*currentPs.size() * 14*/; i += 14) {
                 int index;
                 if (i == 0) {
                     index = 0;
                 } else {
                     index = i / 14;
                 }
-                row = sheet1.createRow(i + 1);
-                HSSFCell c0 = row.createCell(0);
-                CellAddress c0Address = c0.getAddress();
-                CellRangeAddress newC0Ad = new CellRangeAddress(c0Address.getRow(), c0Address.getRow() + 13, c0Address.getColumn(), c0Address.getColumn());
-                sheet1.addMergedRegion(newC0Ad);
-                c0.setCellValue(formatDate(currentPs.get(index).getCheckDate()));
+                //start
+                HSSFRow rowName = sheet1.createRow(0);
 
-//                row.createCell(1)/*.setCellValue(dataSource.get(i).getProjectName())*/;
-                HSSFCell c1 = row.createCell(1);
-                CellAddress c1Address = c1.getAddress();
-                CellRangeAddress newC1Ad = new CellRangeAddress(c1Address.getRow(), c1Address.getRow() + 13, c1Address.getColumn(), c1Address.getColumn());
-                sheet1.addMergedRegion(newC1Ad);
-                c1.setCellValue(currentPs.get(index).getProjectName());
+                HSSFCell cellNameTitle = rowName.createCell(0);
+                CellAddress cellNameTitleAddress = cellNameTitle.getAddress();
+                CellRangeAddress newCellTitleNameAd = new CellRangeAddress(cellNameTitleAddress.getRow(), cellNameTitleAddress.getRow() + 1, cellNameTitleAddress.getColumn(), cellNameTitleAddress.getColumn());
+                sheet1.addMergedRegion(newCellTitleNameAd);
+                cellNameTitle.setCellValue("项目名称");
 
-                HSSFCell c2 = row.createCell(2);
-                CellAddress c2Address = c2.getAddress();
-                CellRangeAddress newC2Ad = new CellRangeAddress(c2Address.getRow(), c2Address.getRow() + 13, c2Address.getColumn(), c2Address.getColumn());
-                sheet1.addMergedRegion(newC2Ad);
-                c2.setCellValue(currentPs.get(index).getUnitEngineering());
+                HSSFCell cellName = rowName.createCell(newCellTitleNameAd.getLastColumn() + 1);
+                CellAddress cellNameAddress = cellName.getAddress();
+                CellRangeAddress newCellNameAd = new CellRangeAddress(cellNameAddress.getRow(), cellNameAddress.getRow() + 1 , cellNameAddress.getColumn(), cellNameAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newCellNameAd);
+                cellName.setCellValue(dataSource.get(i).getProjectName());
+
+                HSSFCell cellCheckDateTitle = rowName.createCell(newCellNameAd.getLastColumn() +1);
+                CellAddress checkDateTitleAddress = cellCheckDateTitle.getAddress();
+                CellRangeAddress newCellTitleCheckDateAd = new CellRangeAddress(checkDateTitleAddress.getRow(), checkDateTitleAddress.getRow() + 1, checkDateTitleAddress.getColumn(), checkDateTitleAddress.getColumn());
+                sheet1.addMergedRegion(newCellTitleCheckDateAd);
+                cellCheckDateTitle.setCellValue("检测日期");
+
+                HSSFCell checkDate = rowName.createCell(newCellTitleCheckDateAd.getLastColumn() + 1);
+                CellAddress checkDateAddress = checkDate.getAddress();
+                CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(), checkDateAddress.getRow() + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newCellCheckDateAd);
+                checkDate.setCellValue(CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
+
+                // TODO: 2017/9/23 可能要先创建行
+                HSSFRow rowUnitEngineer= sheet1.createRow(newCellCheckDateAd.getLastRow() +1);
+
+                HSSFCell cellUnitEngineerTitle = rowUnitEngineer.createCell(0);
+                CellAddress unitEngineerTitleAddress = cellUnitEngineerTitle.getAddress();
+                CellRangeAddress UnitEngineerTitleCheckDateAd = new CellRangeAddress(unitEngineerTitleAddress.getRow(), unitEngineerTitleAddress.getRow() + 2, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn());
+                sheet1.addMergedRegion(UnitEngineerTitleCheckDateAd);
+                cellUnitEngineerTitle.setCellValue("单位工程");
+
+                HSSFCell cellUnitEngineer= rowUnitEngineer.createCell(UnitEngineerTitleCheckDateAd.getLastColumn() + 1);
+                CellAddress cellUnitEngineerAddress = cellUnitEngineer.getAddress();
+                CellRangeAddress newCellUnitEngineerAd = new CellRangeAddress(cellUnitEngineerAddress.getRow(), cellUnitEngineerAddress.getRow() + 2, cellUnitEngineerAddress.getColumn(), cellUnitEngineerAddress.getColumn());
+                sheet1.addMergedRegion(newCellUnitEngineerAd);
+                cellUnitEngineer.setCellValue(dataSource.get(i).getUnitEngineering());
+
+                HSSFCell cellBlockPileTitle = rowUnitEngineer.createCell(newCellUnitEngineerAd.getLastColumn() +1);
+                CellAddress blockPileTitleAddress = cellBlockPileTitle.getAddress();
+                CellRangeAddress newBlockPileTitleAddress = new CellRangeAddress(blockPileTitleAddress.getRow(), blockPileTitleAddress.getRow() + 2, blockPileTitleAddress.getColumn(), blockPileTitleAddress.getColumn() );
+                sheet1.addMergedRegion(newBlockPileTitleAddress);
+                cellBlockPileTitle.setCellValue("标段及桩号");
+
+                HSSFCell cellBlockPile= rowUnitEngineer.createCell(newBlockPileTitleAddress.getLastColumn() + 1);
+                CellAddress cellBlockPileAddress = cellBlockPile.getAddress();
+                CellRangeAddress newCellBlockPileAd = new CellRangeAddress(cellBlockPileAddress.getRow(), cellBlockPileAddress.getRow() + 2, cellBlockPileAddress.getColumn(), cellBlockPileAddress.getColumn());
+                sheet1.addMergedRegion(newCellBlockPileAd);
+                cellBlockPile.setCellValue(dataSource.get(index).getBlock() + " " + dataSource.get(index).getPilNo());
+
+                HSSFCell cellDefectsTitle = rowUnitEngineer.createCell(newCellBlockPileAd.getLastColumn() + 1);
+                CellAddress defectsAddress = cellDefectsTitle.getAddress();
+                CellRangeAddress newDefectsTitleAddress = new CellRangeAddress(defectsAddress.getRow(), defectsAddress.getRow() + 2, defectsAddress.getColumn(), defectsAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newDefectsTitleAddress);
+                cellDefectsTitle.setCellValue("缺陷描述");
 
 
-//                row.createCell(2).setCellValue(dataSource.get(i).getUnitEngineering());
-//                row.createCell(3).setCellValue(dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
-                HSSFCell c3 = row.createCell(3);
-                CellAddress c3Address = c3.getAddress();
-                CellRangeAddress newC3Ad = new CellRangeAddress(c3Address.getRow(), c3Address.getRow() + 13, c3Address.getColumn(), c3Address.getColumn());
-                sheet1.addMergedRegion(newC3Ad);
-                c3.setCellValue(currentPs.get(index).getBlock() + " " + currentPs.get(index).getPilNo());
+                HSSFRow rowImage = sheet1.createRow(UnitEngineerTitleCheckDateAd.getLastRow() +1);
 
-//                row.createCell(4).setCellValue(dataSource.get(i).getRemark());
-                HSSFCell c4 = row.createCell(4);
-                CellAddress c4Address = c4.getAddress();
-                CellRangeAddress newC4Ad = new CellRangeAddress(c4Address.getRow(), c4Address.getRow() + 13, c4Address.getColumn(), c4Address.getColumn());
-                sheet1.addMergedRegion(newC4Ad);
-                c4.setCellValue(currentPs.get(index).getRemark());
-
-//                row.createCell(5).setCellValue(dataSource.get(i).getDefects());
-                HSSFCell c5 = row.createCell(5);
-                CellAddress c5Address = c5.getAddress();
-                CellRangeAddress newC5Ad = new CellRangeAddress(c5Address.getRow(), c5Address.getRow() + 13, c5Address.getColumn(), c5Address.getColumn());
-                sheet1.addMergedRegion(newC5Ad);
-                c5.setCellValue(currentPs.get(index).getDefects());
-
-//                HSSFCell hssfCell = row.createCell(6);
-                HSSFCell c6 = row.createCell(6);
-                CellAddress c6Address = c6.getAddress();
-                CellRangeAddress newCr6Ad = new CellRangeAddress(c6Address.getRow(), c6Address.getRow() + 13, c6Address.getColumn(), c6Address.getColumn() + 3);
-                sheet1.addMergedRegion(newCr6Ad);
-                c6.setCellValue(currentPs.get(index).getDefects());
-                CellAddress newC6Ad = c6.getAddress();
-
-                byte[] buffer;
-                File file = new File(currentPs.get(index).getImagePath());
-                FileInputStream fis = new FileInputStream(file);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-                byte[] b = new byte[1000];
-                int n;
-                while ((n = fis.read(b)) != -1) {
-                    bos.write(b, 0, n);
-                }
-                fis.close();
-                bos.close();
-                buffer = bos.toByteArray();
-                //画图的顶级管理器，一个sheet只能获取一个（一定要注意这点）
-                HSSFPatriarch patriarch = sheet1.createDrawingPatriarch();
-                //anchor主要用于设置图片的属性
-//                hssfCell.getRow().getRowNum();
-
-                HSSFClientAnchor anchor =
-                        new HSSFClientAnchor(0, 0, 255, 255, (short)c6Address.getColumn(),  c6Address.getRow(), (short)(c6Address.getColumn() + 2),  c6Address.getRow() + 13 /*(short) newC6Ad.getColumn(), newC6Ad.getRow(), (short) newC6Ad.getColumn(), newC6Ad.getRow()*/);
-
-                anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
+                HSSFCell cellImage = rowImage.createCell(0);
+                CellAddress imageAddress = cellImage.getAddress();
+                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10, imageAddress.getColumn(), imageAddress.getColumn() + 4);
+                sheet1.addMergedRegion(imageAd);
                 //插入图片
-                patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));
-                // 写入excel文件
-                exportListener.progress(index);
+                insertImage(sheet1, dataSource.get(index).getImagePath(), imageAddress,imageAd, wb);
+
+                HSSFCell cellDefects= rowImage.createCell(imageAd.getLastColumn() + 1);
+                CellAddress cellDefectsAddress = cellDefects.getAddress();
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), cellDefectsAddress.getRow() + 4, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newCellDefectsAd);
+                cellDefects.setCellValue(dataSource.get(index).getDefects());
+
+                HSSFRow rowRemark= sheet1.createRow(imageAd.getLastRow() +1);
+                HSSFCell cellRemarkTitle = rowRemark.createCell(0);
+                CellAddress remarkTitleAddress = cellRemarkTitle.getAddress();
+                CellRangeAddress remarkTitleAd = new CellRangeAddress(remarkTitleAddress.getRow(), remarkTitleAddress.getRow() + 1, remarkTitleAddress.getColumn(), remarkTitleAddress.getColumn());
+                sheet1.addMergedRegion(remarkTitleAd);
+                cellRemarkTitle.setCellValue("备注");
+
+                HSSFCell cellRemark = rowRemark.createCell(remarkTitleAd.getLastColumn() + 1);
+                CellAddress cellRemarkAddress = cellRemark.getAddress();
+                CellRangeAddress newCellRemarkAd = new CellRangeAddress(cellRemarkAddress.getRow(), cellRemarkAddress.getRow() + 1, cellRemarkAddress.getColumn(), cellRemarkAddress.getColumn() + 6);
+                sheet1.addMergedRegion(newCellRemarkAd);
+                cellRemark.setCellValue(dataSource.get(index).getRemark());
+
+
+//                row = sheet1.createRow(i + 1);
+//                HSSFCell c0 = row.createCell(0);
+//                CellAddress c0Address = c0.getAddress();
+//                CellRangeAddress newC0Ad = new CellRangeAddress(c0Address.getRow(), c0Address.getRow() + 13, c0Address.getColumn(), c0Address.getColumn());
+//                sheet1.addMergedRegion(newC0Ad);
+//                c0.setCellValue(CommonUtil.formatDate(currentPs.get(index).getCheckDate()));
+//
+////                row.createCell(1)/*.setCellValue(dataSource.get(i).getProjectName())*/;
+//                HSSFCell c1 = row.createCell(1);
+//                CellAddress c1Address = c1.getAddress();
+//                CellRangeAddress newC1Ad = new CellRangeAddress(c1Address.getRow(), c1Address.getRow() + 13, c1Address.getColumn(), c1Address.getColumn());
+//                sheet1.addMergedRegion(newC1Ad);
+//                c1.setCellValue(currentPs.get(index).getProjectName());
+//
+//                HSSFCell c2 = row.createCell(2);
+//                CellAddress c2Address = c2.getAddress();
+//                CellRangeAddress newC2Ad = new CellRangeAddress(c2Address.getRow(), c2Address.getRow() + 13, c2Address.getColumn(), c2Address.getColumn());
+//                sheet1.addMergedRegion(newC2Ad);
+//                c2.setCellValue(currentPs.get(index).getUnitEngineering());
+//
+//
+////                row.createCell(2).setCellValue(dataSource.get(i).getUnitEngineering());
+////                row.createCell(3).setCellValue(dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+//                HSSFCell c3 = row.createCell(3);
+//                CellAddress c3Address = c3.getAddress();
+//                CellRangeAddress newC3Ad = new CellRangeAddress(c3Address.getRow(), c3Address.getRow() + 13, c3Address.getColumn(), c3Address.getColumn());
+//                sheet1.addMergedRegion(newC3Ad);
+//                c3.setCellValue(currentPs.get(index).getBlock() + " " + currentPs.get(index).getPilNo());
+//
+////                row.createCell(4).setCellValue(dataSource.get(i).getRemark());
+//                HSSFCell c4 = row.createCell(4);
+//                CellAddress c4Address = c4.getAddress();
+//                CellRangeAddress newC4Ad = new CellRangeAddress(c4Address.getRow(), c4Address.getRow() + 13, c4Address.getColumn(), c4Address.getColumn());
+//                sheet1.addMergedRegion(newC4Ad);
+//                c4.setCellValue(currentPs.get(index).getRemark());
+//
+////                row.createCell(5).setCellValue(dataSource.get(i).getDefects());
+//                HSSFCell c5 = row.createCell(5);
+//                CellAddress c5Address = c5.getAddress();
+//                CellRangeAddress newC5Ad = new CellRangeAddress(c5Address.getRow(), c5Address.getRow() + 13, c5Address.getColumn(), c5Address.getColumn());
+//                sheet1.addMergedRegion(newC5Ad);
+//                c5.setCellValue(currentPs.get(index).getDefects());
+//
+////                HSSFCell hssfCell = row.createCell(6);
+//                HSSFCell c6 = row.createCell(6);
+//                CellAddress c6Address = c6.getAddress();
+//                CellRangeAddress newCr6Ad = new CellRangeAddress(c6Address.getRow(), c6Address.getRow() + 13, c6Address.getColumn(), c6Address.getColumn() + 3);
+//                sheet1.addMergedRegion(newCr6Ad);
+//                c6.setCellValue(currentPs.get(index).getDefects());
+//                CellAddress newC6Ad = c6.getAddress();
+
+
             }
+            // 写入excel文件
             wb.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();
@@ -760,5 +833,38 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 //                }
 //            }
 //        }
+    }
+
+
+    public void insertImage(HSSFSheet sheet, String imagePath, CellAddress imageCellAd , CellRangeAddress imageRCellAd, HSSFWorkbook wb ) {
+        byte[] buffer;
+        try{
+            File file = new File(imagePath);
+
+        FileInputStream fis = new FileInputStream(file);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
+        byte[] b = new byte[1000];
+        int n;
+        while ((n = fis.read(b)) != -1) {
+            bos.write(b, 0, n);
+        }
+        fis.close();
+        bos.close();
+        buffer = bos.toByteArray();
+        //画图的顶级管理器，一个sheet只能获取一个（一定要注意这点）
+        HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
+        //anchor主要用于设置图片的属性
+//                hssfCell.getRow().getRowNum();
+
+        HSSFClientAnchor anchor =
+                new HSSFClientAnchor(0, 0, 255, 255, (short)imageCellAd.getColumn(),  imageCellAd.getRow(), (short)(imageRCellAd.getLastColumn() /** 5*/),  imageRCellAd.getLastRow() /** 5*/ /*(short) newC6Ad.getColumn(), newC6Ad.getRow(), (short) newC6Ad.getColumn(), newC6Ad.getRow()*/);
+
+        anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
+        //插入图片
+        patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        exportListener.progress(index);
     }
 }
