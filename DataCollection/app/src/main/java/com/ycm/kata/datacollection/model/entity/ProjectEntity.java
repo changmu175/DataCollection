@@ -1,5 +1,7 @@
 package com.ycm.kata.datacollection.model.entity;
 
+import android.text.TextUtils;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
@@ -125,5 +127,41 @@ public class ProjectEntity implements Serializable{
         this.imagePath = imagePath;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ProjectEntity)) {
+            return false;
+        }
 
+        ProjectEntity projectEntityObject = (ProjectEntity) obj;
+        if (!TextUtils.equals(projectEntityObject.getPilNo(), this.pilNo)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getProjectName(), this.projectName)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getBlock(), this.block)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getDefects(), this.defects)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getImagePath(), this.imagePath)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getRemark(), this.remark)) {
+            return false;
+        }
+
+        if (!TextUtils.equals(projectEntityObject.getUnitEngineering(), this.unitEngineering)) {
+            return false;
+        }
+
+        return true;
+    }
 }

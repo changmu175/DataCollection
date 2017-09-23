@@ -1,7 +1,10 @@
 package com.ycm.kata.datacollection.utils;
 
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.widget.Toast;
+
+import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +33,7 @@ public class CommonUtil {
 
     public static String getImageFilePath(long currTime) {
         String rootPath = getRootPath();
-        String imageRootFilePath = rootPath + File.separator + "image" + formatDate(currTime);
+        String imageRootFilePath = rootPath + File.separator + "数据采集照片" + formatDate(currTime);
         File imageDirectFile = new File(imageRootFilePath);
         if (!imageDirectFile.exists() && !imageDirectFile.mkdir()) {
             return null;
@@ -51,13 +54,13 @@ public class CommonUtil {
 
     public static String getDataFilePath(long currTime) {
         String rootPath = getRootPath();
-        String dataFileRootPath = rootPath + File.separator + "data_file" + File.separator + formatDate(currTime);
+        String dataFileRootPath = rootPath + File.separator + "数据采集文件" + File.separator + formatDate(currTime);
         File dataDirectFile = new File(dataFileRootPath);
         if (!dataDirectFile.exists() && !dataDirectFile.mkdirs()) {
             return null;
         }
 
-        String dataFilePath = dataFileRootPath + File.separator + formatDate(currTime) + ".xls";
+        String dataFilePath = dataFileRootPath + File.separator + "数据采集" + formatDate(currTime) + ".xls";
         File dataFile = new File(dataFilePath);
         try {
             if (!dataFile.exists() && !dataFile.createNewFile()) {
@@ -70,11 +73,17 @@ public class CommonUtil {
     }
 
     public static String getRootPath() {
-        String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection";
+        String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "A数据采集";
         File rootFile = new File(rootPath);
         if (!rootFile.exists() && !rootFile.mkdir()) {
             return null;
         }
         return rootPath;
+    }
+
+    public static void destroyBitmap(Bitmap bitmap) {
+        if (bitmap != null && !bitmap.isRecycled()){
+            bitmap.recycle();
+        }
     }
 }

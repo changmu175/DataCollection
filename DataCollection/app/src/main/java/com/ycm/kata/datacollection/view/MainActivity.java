@@ -22,10 +22,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.resource.transcode.BitmapBytesTranscoder;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
@@ -54,6 +57,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     private EditText etDefect;
     private TextView tvHint;
     private ImageView ivPicture;
+    private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
     private Button btnSave;
     private Button btnAdd;
@@ -71,9 +75,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         time = System.currentTimeMillis();
-        dateStr = formatDate(time);
+        dateStr = CommonUtil.formatDate(time);
         initView();
-        updateImageHandler = new UpdateImageHandler(this);
+
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
         if (!(PermissionUtils.checkPermission(this, PermissionUtils.CODE_CAMERA) == PackageManager.PERMISSION_GRANTED)
                 || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
@@ -98,9 +102,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         etRemark.addTextChangedListener(this);
         etDefect = findViewById(R.id.defects_et);
         etDefect.addTextChangedListener(this);
+        llTakePhoto = findViewById(R.id.take_photo);
+        llTakePhoto.setOnClickListener(this);
         tvHint = findViewById(R.id.text_hint_tv);
         ivPicture = findViewById(R.id.image_iv);
-        tvHint.setOnClickListener(this);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
         btnSave = findViewById(R.id.save_btn);
@@ -111,33 +116,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         btnAdd.setEnabled(false);
     }
 
-    private String formatDate(long time) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
-        Date d1 = new Date(time);
-        return format.format(d1);
-    }
-
     public void startToPhoto() {
         //启动相机拍照
-//        Intent intent = new Intent();
-//        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-//        startActivityForResult(intent, 0x3);
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            //文件保存路径
-//            String imageRootPath = Environment.getExternalStorageDirectory().getPath()
-//                    + File.separator + "data_collection";
-//            if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//                return;
-//            }
-//
-//            File imageRootPathFile = new File(imageRootPath);
-//            if (!imageRootPathFile.exists() && !imageRootPathFile.mkdir()) {
-//                return;
-//            }
-
             //文件名称
             photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis());
-            //后缀
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file = new File(photoFileCachePath)));
@@ -146,33 +129,46 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         }
     }
 
-    long id = -1;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CommonUtil.destroyBitmap(showBitmap);
+    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.text_hint_tv:
+            case R.id.take_photo:
                 startToPhoto();
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
-                id = insert(projectEntity);
-                Toast.makeText(getBaseContext(), "保存成功", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent();
-//                intent.setClass(getBaseContext(), DataListActivity.class);
-//                startActivity(intent);
-                break;
-            case R.id.add_btn:
-                if (id != -1) {
-                    projectEntity = getP(id);
-                    update(projectEntity);
-                } else {
-                    projectEntity = getProjectEntity();
-                    id = insert(projectEntity);
+                if (insert(projectEntity) != -1) {
+                    Toast.makeText(getBaseContext(), "保存成功", Toast.LENGTH_SHORT).show();
                 }
                 Intent intent = new Intent();
                 intent.setClass(getBaseContext(), DataListActivity.class);
                 startActivity(intent);
+                finish();
+                break;
+            case R.id.add_btn:
+                if (projectEntity == null) {
+                    projectEntity = getProjectEntity();
+                    if (insert(projectEntity) != -1) {
+                        Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+
+                ProjectEntity pro = getProjectEntity();
+                if (!pro.equals(projectEntity)) {
+                    projectEntity = pro;
+                    if (insert(projectEntity) != -1) {
+                        Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getBaseContext(), "你没做任何改变", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
@@ -267,6 +263,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
     }
 
+    private Bitmap showBitmap = null;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -284,21 +281,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             }
 
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-            DisplayMetrics dm = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(dm);
-            int screenWidth = dm.widthPixels;
-            Bitmap bmp = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
-
-
-            ivPicture.setImageBitmap(bmp);// 将图片显示在ImageView里
-            tvHint.setVisibility(View.GONE);
-            progressBar.setVisibility(View.GONE);
-            ivPicture.setVisibility(View.VISIBLE);
             final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-
             filePath = desFileName;
-            btnAdd.setEnabled(true);
-            btnSave.setEnabled(true);
+            updateImageHandler = new UpdateImageHandler(this, bitmap);
             saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
             saveImageThread.start();
         }
@@ -346,6 +331,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
     private static class UpdateImageHandler extends Handler {
         WeakReference<MainActivity> mainActivityWeakReference;
+        WeakReference<Bitmap> bitmapWeakReference;
+        UpdateImageHandler(MainActivity mainActivity, Bitmap bitmap) {
+            mainActivityWeakReference = new WeakReference<>(mainActivity);
+            bitmapWeakReference = new WeakReference<>(bitmap);
+        }
 
         UpdateImageHandler(MainActivity mainActivity) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
@@ -354,8 +344,18 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Bitmap bitmap = bitmapWeakReference.get();
+            DisplayMetrics dm = new DisplayMetrics();
+            mainActivityWeakReference.get().getWindowManager().getDefaultDisplay().getMetrics(dm);
+            int screenWidth = dm.widthPixels;
+            mainActivityWeakReference.get().showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
+            mainActivityWeakReference.get().ivPicture.setImageBitmap(mainActivityWeakReference.get().showBitmap);// 将图片显示在ImageView里
+            mainActivityWeakReference.get().tvHint.setVisibility(View.GONE);
+            mainActivityWeakReference.get().progressBar.setVisibility(View.GONE);
+            mainActivityWeakReference.get().ivPicture.setVisibility(View.VISIBLE);
             mainActivityWeakReference.get().btnAdd.setEnabled(true);
             mainActivityWeakReference.get().btnSave.setEnabled(true);
+            CommonUtil.destroyBitmap(bitmap);
         }
     }
 
@@ -396,13 +396,13 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                         b.flush();
                         b.close();
                     }
-//                    bitmap.recycle();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
+
 
     public static Bitmap getZoomImage(Bitmap bitmap, double maxSize) {
         ByteArrayOutputStream outputStream;
@@ -483,7 +483,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
 
     public void showCamera() {
-//        PermissionUtils.requestPermission(this, PermissionUtils.CODE_CAMERA, mPermissionGrant);
         PermissionUtils.requestMultiPermissions(this, mPermissionGrant);
     }
 
@@ -491,30 +490,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         @Override
         public void onPermissionGranted(int requestCode) {
             switch (requestCode) {
-//                case PermissionUtils.CODE_RECORD_AUDIO:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_RECORD_AUDIO", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case PermissionUtils.CODE_GET_ACCOUNT:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_GET_ACCOUNTS", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case PermissionUtils.CODE_READ_PHONE_STATE:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_READ_PHONE_STATE", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case PermissionUtils.CODE_CALL_PHONE:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_CALL_PHONE", Toast.LENGTH_SHORT).show();
-//                    break;
                 case PermissionUtils.CODE_CAMERA:
                     Toast.makeText(getBaseContext(), "Result Permission Grant CODE_CAMERA", Toast.LENGTH_SHORT).show();
                     break;
-//                case PermissionUtils.CODE_ACCESS_FINE_LOCATION:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_ACCESS_FINE_LOCATION", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case PermissionUtils.CODE_ACCESS_COARSE_LOCATION:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_ACCESS_COARSE_LOCATION", Toast.LENGTH_SHORT).show();
-//                    break;
-//                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
-//                    Toast.makeText(getBaseContext(), "Result Permission Grant CODE_READ_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
-//                    break;
                 case PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE:
                     Toast.makeText(getBaseContext(), "Result Permission Grant CODE_WRITE_EXTERNAL_STORAGE", Toast.LENGTH_SHORT).show();
                     break;

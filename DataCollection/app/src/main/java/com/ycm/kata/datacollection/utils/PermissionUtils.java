@@ -146,7 +146,7 @@ public class PermissionUtils {
         if (permissionList.size() > 0) {
             ActivityCompat.requestPermissions(activity, permissionList.toArray(new String[permissionList.size()]), CODE_MULTI_PERMISSION );
         } else if (shouldRationalePermissionList.size() > 0){
-            showMessageOkCancel(activity, "请打开相机权限和读取权限", new DialogInterface.OnClickListener() {
+            showMessageOkCancel(activity, "应用需要拍照权限和读写权限，请开启权限", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ActivityCompat.requestPermissions(activity, shouldRationalePermissionList.toArray(new String[shouldRationalePermissionList.size()]), CODE_MULTI_PERMISSION);
