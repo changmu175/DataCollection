@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -496,7 +498,6 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-//
 //    }
     public static void dismiss() {
         if (pDialog != null) {
@@ -569,7 +570,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         try {
             fileOut = new FileOutputStream(p);
             int lastRow = 0;
-            for (int i = 0; i < dataSource.size(); i++) {
+            for (int i = 0; i < currentPs.size(); i++) {
                 if (lastRow == 0) {
                     lastRow += 1;
                 } else {
@@ -578,93 +579,106 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
                 //创建第一行
                 HSSFRow rowName = sheet1.createRow(lastRow);
-
+                //第1列
                 HSSFCell cellNameTitle = rowName.createCell(0);
                 CellAddress cellNameTitleAddress = cellNameTitle.getAddress();
                 CellRangeAddress newCellTitleNameAd = new CellRangeAddress(cellNameTitleAddress.getRow(), cellNameTitleAddress.getRow() + 1 + 1, cellNameTitleAddress.getColumn(), cellNameTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(newCellTitleNameAd);
                 cellNameTitle.setCellValue("项目名称");
 
+                //第2列
                 HSSFCell cellName = rowName.createCell(newCellTitleNameAd.getLastColumn() + 1);
                 CellAddress cellNameAddress = cellName.getAddress();
                 CellRangeAddress newCellNameAd = new CellRangeAddress(cellNameAddress.getRow(), cellNameAddress.getRow() + 1 + 1, cellNameAddress.getColumn(), cellNameAddress.getColumn() + 2 + 1);
                 sheet1.addMergedRegion(newCellNameAd);
-                cellName.setCellValue(dataSource.get(i).getProjectName());
+                cellName.setCellValue(currentPs.get(i).getProjectName());
 
+                //第3列
                 HSSFCell cellCheckDateTitle = rowName.createCell(newCellNameAd.getLastColumn() + 1);
                 CellAddress checkDateTitleAddress = cellCheckDateTitle.getAddress();
                 CellRangeAddress newCellTitleCheckDateAd = new CellRangeAddress(checkDateTitleAddress.getRow(), checkDateTitleAddress.getRow() + 1 + 1, checkDateTitleAddress.getColumn(), checkDateTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(newCellTitleCheckDateAd);
                 cellCheckDateTitle.setCellValue("检测日期");
 
+                //第4列
                 HSSFCell checkDate = rowName.createCell(newCellTitleCheckDateAd.getLastColumn() + 1);
                 CellAddress checkDateAddress = checkDate.getAddress();
-                CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(), checkDateAddress.getRow() + 1 + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2 + 1);
+                CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(), checkDateAddress.getRow() + 1 + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellCheckDateAd);
-                checkDate.setCellValue(CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
+                checkDate.setCellValue(CommonUtil.formatDate(currentPs.get(i).getCheckDate()));
 
                 //创建第二行
                 HSSFRow rowUnitEngineer = sheet1.createRow(newCellCheckDateAd.getLastRow() + 1);
 
+                //第1列
                 HSSFCell cellUnitEngineerTitle = rowUnitEngineer.createCell(0);
                 CellAddress unitEngineerTitleAddress = cellUnitEngineerTitle.getAddress();
                 CellRangeAddress UnitEngineerTitleCheckDateAd = new CellRangeAddress(unitEngineerTitleAddress.getRow(), unitEngineerTitleAddress.getRow() + 2 + 1, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(UnitEngineerTitleCheckDateAd);
                 cellUnitEngineerTitle.setCellValue("单位工程");
 
+                //第2列
                 HSSFCell cellUnitEngineer = rowUnitEngineer.createCell(UnitEngineerTitleCheckDateAd.getLastColumn() + 1);
                 CellAddress cellUnitEngineerAddress = cellUnitEngineer.getAddress();
                 CellRangeAddress newCellUnitEngineerAd = new CellRangeAddress(cellUnitEngineerAddress.getRow(), cellUnitEngineerAddress.getRow() + 2 + 1, cellUnitEngineerAddress.getColumn(), cellUnitEngineerAddress.getColumn() + 1);
                 sheet1.addMergedRegion(newCellUnitEngineerAd);
-                cellUnitEngineer.setCellValue(dataSource.get(i).getUnitEngineering());
+                cellUnitEngineer.setCellValue(currentPs.get(i).getUnitEngineering());
 
+                //第3列
                 HSSFCell cellBlockPileTitle = rowUnitEngineer.createCell(newCellUnitEngineerAd.getLastColumn() + 1);
                 CellAddress blockPileTitleAddress = cellBlockPileTitle.getAddress();
                 CellRangeAddress newBlockPileTitleAddress = new CellRangeAddress(blockPileTitleAddress.getRow(), blockPileTitleAddress.getRow() + 2 + 1, blockPileTitleAddress.getColumn(), blockPileTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(newBlockPileTitleAddress);
                 cellBlockPileTitle.setCellValue("标段及桩号");
 
+                //第4列
                 HSSFCell cellBlockPile = rowUnitEngineer.createCell(newBlockPileTitleAddress.getLastColumn() + 1);
                 CellAddress cellBlockPileAddress = cellBlockPile.getAddress();
-                CellRangeAddress newCellBlockPileAd = new CellRangeAddress(cellBlockPileAddress.getRow(), cellBlockPileAddress.getRow() + 2 + 1, cellBlockPileAddress.getColumn(), cellBlockPileAddress.getColumn() + 1 + 1);
+                CellRangeAddress newCellBlockPileAd = new CellRangeAddress(cellBlockPileAddress.getRow(), cellBlockPileAddress.getRow() + 2 + 1, cellBlockPileAddress.getColumn(), cellBlockPileAddress.getColumn() + 1);
                 sheet1.addMergedRegion(newCellBlockPileAd);
-                cellBlockPile.setCellValue(dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+                cellBlockPile.setCellValue(currentPs.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
 
+                //第5列
                 HSSFCell cellDefectsTitle = rowUnitEngineer.createCell(newCellBlockPileAd.getLastColumn() + 1);
                 CellAddress defectsAddress = cellDefectsTitle.getAddress();
-                CellRangeAddress newDefectsTitleAddress = new CellRangeAddress(defectsAddress.getRow(), defectsAddress.getRow() + 2 + 1, defectsAddress.getColumn(), defectsAddress.getColumn() + 2 + 1);
+                CellRangeAddress newDefectsTitleAddress = new CellRangeAddress(defectsAddress.getRow(), defectsAddress.getRow() + 2 + 1, defectsAddress.getColumn(), defectsAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newDefectsTitleAddress);
                 cellDefectsTitle.setCellValue("缺陷描述");
 
                 //创建第三行
                 HSSFRow rowImage = sheet1.createRow(UnitEngineerTitleCheckDateAd.getLastRow() + 1);
 
+                //第1列
                 HSSFCell cellImage = rowImage.createCell(0);
                 CellAddress imageAddress = cellImage.getAddress();
-                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 1, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 1);
+                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
                 sheet1.addMergedRegion(imageAd);
                 //插入图片
-                insertImage(sheet1, dataSource.get(i).getImagePath(), imageAddress, imageAd, wb);
+                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
 
+                //第2列
                 HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
                 CellAddress cellDefectsAddress = cellDefects.getAddress();
-                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), cellDefectsAddress.getRow() + 10 + 1, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2 + 1);
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), cellDefectsAddress.getRow() + 10 + 10 + 11, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellDefectsAd);
-                cellDefects.setCellValue(dataSource.get(i).getDefects());
+                cellDefects.setCellValue(currentPs.get(i).getDefects());
 
                 //创建第四行
                 HSSFRow rowRemark = sheet1.createRow(imageAd.getLastRow() + 1);
+
+                //第1列
                 HSSFCell cellRemarkTitle = rowRemark.createCell(0);
                 CellAddress remarkTitleAddress = cellRemarkTitle.getAddress();
                 CellRangeAddress remarkTitleAd = new CellRangeAddress(remarkTitleAddress.getRow(), remarkTitleAddress.getRow() + 1 + 1, remarkTitleAddress.getColumn(), remarkTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(remarkTitleAd);
                 cellRemarkTitle.setCellValue("备注");
 
+                //第2列
                 HSSFCell cellRemark = rowRemark.createCell(remarkTitleAd.getLastColumn() + 1);
                 CellAddress cellRemarkAddress = cellRemark.getAddress();
-                CellRangeAddress newCellRemarkAd = new CellRangeAddress(cellRemarkAddress.getRow(), cellRemarkAddress.getRow() + 1 + 1, cellRemarkAddress.getColumn(), cellRemarkAddress.getColumn() + 6 + 1);
+                CellRangeAddress newCellRemarkAd = new CellRangeAddress(cellRemarkAddress.getRow(), cellRemarkAddress.getRow() + 1 + 1, cellRemarkAddress.getColumn(), cellRemarkAddress.getColumn() + 6 + 2);
                 sheet1.addMergedRegion(newCellRemarkAd);
-                cellRemark.setCellValue(dataSource.get(i).getRemark());
+                cellRemark.setCellValue(currentPs.get(i).getRemark());
                 lastRow = remarkTitleAd.getLastRow();
                 exportListener.progress(i);
             }
@@ -719,9 +733,28 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
             HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
             //anchor主要用于设置图片的属性
 //                hssfCell.getRow().getRowNum();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options); // 此时返回的bitmap为null
+            double imageWidth = options.outWidth;
+            double imageHeight = options.outHeight;
+
+            double zoomIndex;
+            if (imageHeight > 255) {
+                zoomIndex = imageHeight / 255;
+                imageHeight /= zoomIndex;
+                imageWidth /= zoomIndex;
+            }
+            int columnWidth = sheet.getDefaultColumnWidth();// 8
+            int rowHeight = sheet.getDefaultRowHeight();//255
+            int columNum = imageRCellAd.getLastColumn() - imageCellAd.getColumn();
+            int rowNum /*= imageRCellAd.getLastRow() - imageCellAd.getRow()*/;
+
+            rowNum = 31 /*(columnWidth * columNum) / rowHeight*/;
+
 
             HSSFClientAnchor anchor =
-                    new HSSFClientAnchor(0, 0, 255, 255, (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageRCellAd.getLastColumn() /** 5*/), imageRCellAd.getLastRow() /** 5*/ /*(short) newC6Ad.getColumn(), newC6Ad.getRow(), (short) newC6Ad.getColumn(), newC6Ad.getRow()*/);
+                    new HSSFClientAnchor(0, 0, (int)imageWidth, (int)imageHeight, (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageRCellAd.getLastColumn()), imageRCellAd.getLastRow());
+
 
             anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
             //插入图片
@@ -742,4 +775,5 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
             }
         }
     }
+
 }

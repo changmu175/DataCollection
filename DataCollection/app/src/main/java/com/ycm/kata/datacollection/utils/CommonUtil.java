@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.widget.Toast;
 
+import com.ycm.kata.datacollection.model.entity.ImageInfo;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 
 import java.io.File;
@@ -86,4 +87,13 @@ public class CommonUtil {
             bitmap.recycle();
         }
     }
+
+//    public static ImageInfo zoomImage(int width, int height) {
+//        float zoomIndex;
+//        if (height > 255) {
+//            zoomIndex = height / 255;
+//            height /= zoomIndex;
+//            width /= zoomIndex;
+//        }
+//    }
 }
