@@ -1,12 +1,12 @@
 package com.ycm.kata.datacollection;
 
-import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.ycm.kata.datacollection.model.DaoMaster;
 import com.ycm.kata.datacollection.model.DaoSession;
+import com.ycm.kata.datacollection.utils.CrashHandler;
 
 /**
  * Created by changmuyu on 2017/9/18.
@@ -26,6 +26,7 @@ public class MyApplication extends MultiDexApplication {
         MultiDex.install(this);
         instances = this;
         setDatabase();
+        CrashHandler.getInstance().init(getApplicationContext());
     }
 
     public static MyApplication getInstances(){

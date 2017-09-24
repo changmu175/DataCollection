@@ -3,17 +3,14 @@ package com.ycm.kata.datacollection.view;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,7 +25,7 @@ import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
-import com.ycm.kata.datacollection.utils.CommonUtil;
+import com.ycm.kata.datacollection.utils.CommonUtils;
 
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -37,36 +34,18 @@ import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.Range;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.util.Units;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFPictureData;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Created by changmuyu on 2017/9/19.
@@ -111,17 +90,11 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         listView.setAdapter(myAdapter);
         View empty = LayoutInflater.from(this).inflate(R.layout.empy_layout, null);
         listView.setEmptyView(empty);
-//        listView.setOnItemClickListener(this);
-//        getData = new GetData(projectEntityDao, this);
-//        getData.start();
     }
 
     @Override
     public void loadSuccess(List<ProjectEntity> dataSource) {
-//        myAdapter.setDataSource(dataSource);
-//        myAdapter.notifyDataSetChanged();
         handler.sendEmptyMessage(123);
-
     }
 
     @Override
@@ -155,7 +128,6 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     ExportData exportData;
 
     private void getDataSource() {
-//        exportData = new ExportData()
         getData = new GetData(projectEntityDao, this);
         getData.start();
     }
@@ -189,14 +161,14 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                             MY_PERMISSIONS_REQUEST);
                 } else {
-                    String ss = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "file";
-                    /*try {
-//                        writeImage(ss, dataSource.get(0));
-
-                    }*/ /*catch (IOException | InvalidFormatException e) {
-                        e.printStackTrace();
-                    }*/
-//                    printer();
+//                    String ss = Environment.getExternalStorageDirectory().getPath() + File.separator + "data_collection" + File.separator + "file";
+//                    /*try {
+////                        writeImage(ss, dataSource.get(0));
+//
+//                    }*/ /*catch (IOException | InvalidFormatException e) {
+//                        e.printStackTrace();
+//                    }*/
+////                    printer();
                     showDialg("正在导出数据");
                     exportData = new ExportData(dataSource, this);
                     dataSuccessHandler = new ExportDataSuccessHandler(this);
@@ -314,7 +286,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 //        for (int i = 0; i < dataSource.size(); i++) {
 //            Map<String, String> map = new HashMap<>();
 //            map.put("$project_name$", dataSource.get(i).getProjectName());
-//            map.put("$check_date$", CommonUtil.formatDate(dataSource.get(i).getCheckDate()));
+//            map.put("$check_date$", CommonUtils.formatDate(dataSource.get(i).getCheckDate()));
 //            map.put("$unit_engineering$", dataSource.get(i).getUnitEngineering());
 //            map.put("$block_pile$", dataSource.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
 //            map.put("$defects$", dataSource.get(i).getDefects());
@@ -541,10 +513,10 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     }
 
     private List<ProjectEntity> filterDataSource(List<ProjectEntity> projectEntityList) {
-        String currentDate = CommonUtil.formatDate(System.currentTimeMillis());
+        String currentDate = CommonUtils.formatDate(System.currentTimeMillis());
         List<ProjectEntity> currentP = new ArrayList<>();
         for (ProjectEntity p : projectEntityList) {
-            if (TextUtils.equals(CommonUtil.formatDate(p.getCheckDate()), currentDate)) {
+            if (TextUtils.equals(CommonUtils.formatDate(p.getCheckDate()), currentDate)) {
                 currentP.add(p);
             }
         }
@@ -557,13 +529,13 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         List<ProjectEntity> currentPs = new ArrayList<>();
         currentPs.addAll(filterDataSource(dataSource));
         FileOutputStream fileOut = null;
-        String rootPath = CommonUtil.getDataFilePath(System.currentTimeMillis());
+        String rootPath = CommonUtils.getDataFilePath(System.currentTimeMillis());
         if (rootPath == null) {
             return;
         }
         HSSFWorkbook wb = new HSSFWorkbook();
-        HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtil.formatDate(System.currentTimeMillis()));
-        String p = CommonUtil.getDataFilePath(System.currentTimeMillis());
+        HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtils.formatDate(System.currentTimeMillis()));
+        String p = CommonUtils.getDataFilePath(System.currentTimeMillis());
         if (p == null) {
             return;
         }
@@ -605,7 +577,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                 CellAddress checkDateAddress = checkDate.getAddress();
                 CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(), checkDateAddress.getRow() + 1 + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellCheckDateAd);
-                checkDate.setCellValue(CommonUtil.formatDate(currentPs.get(i).getCheckDate()));
+                checkDate.setCellValue(CommonUtils.formatDate(currentPs.get(i).getCheckDate()));
 
                 //创建第二行
                 HSSFRow rowUnitEngineer = sheet1.createRow(newCellCheckDateAd.getLastRow() + 1);

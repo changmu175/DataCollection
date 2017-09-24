@@ -14,26 +14,23 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.resource.transcode.BitmapBytesTranscoder;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
-import com.ycm.kata.datacollection.utils.CommonUtil;
+import com.ycm.kata.datacollection.utils.CameraUtil;
+import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -41,10 +38,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.Future;
 
 public class MainActivity extends Activity implements View.OnClickListener, TextWatcher {
     private String photoFileCachePath = "";
@@ -57,6 +50,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     private EditText etDefect;
     private TextView tvHint;
     private ImageView ivPicture;
+    private ImageView ivList;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
     private Button btnSave;
@@ -75,7 +69,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         time = System.currentTimeMillis();
-        dateStr = CommonUtil.formatDate(time);
+        dateStr = CommonUtils.formatDate(time);
         initView();
 
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
@@ -108,19 +102,19 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         ivPicture = findViewById(R.id.image_iv);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
+        ivList = findViewById(R.id.list_btn);
+        ivList.setOnClickListener(this);
         btnSave = findViewById(R.id.save_btn);
         btnSave.setOnClickListener(this);
         btnAdd = findViewById(R.id.add_btn);
         btnAdd.setOnClickListener(this);
-        btnSave.setEnabled(false);
-        btnAdd.setEnabled(false);
     }
 
     public void startToPhoto() {
         //启动相机拍照
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             //文件名称
-            photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis());
+            photoFileCachePath = CommonUtils.getImageFilePath(System.currentTimeMillis());
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file = new File(photoFileCachePath)));
@@ -132,13 +126,14 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CommonUtil.destroyBitmap(showBitmap);
+        CommonUtils.destroyBitmap(showBitmap);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
+//                CameraUtil.getInstance().camera(this);
                 startToPhoto();
                 break;
             case R.id.save_btn:
@@ -169,6 +164,12 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 } else {
                     Toast.makeText(getBaseContext(), "你没做任何改变", Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case R.id.list_btn:
+                Intent intent1 = new Intent();
+                intent1.setClass(this, DataListActivity.class);
+                startActivity(intent1);
+                finish();
                 break;
         }
     }
@@ -268,6 +269,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 123) {
+            if (file == null ) {
+                Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
             progressBar.setVisibility(View.VISIBLE);
             tvHint.setVisibility(View.GONE);
 
@@ -281,7 +286,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             }
 
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-            final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+            final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
             filePath = desFileName;
             updateImageHandler = new UpdateImageHandler(this, bitmap);
             saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
@@ -353,9 +358,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             mainActivityWeakReference.get().tvHint.setVisibility(View.GONE);
             mainActivityWeakReference.get().progressBar.setVisibility(View.GONE);
             mainActivityWeakReference.get().ivPicture.setVisibility(View.VISIBLE);
-            mainActivityWeakReference.get().btnAdd.setEnabled(true);
-            mainActivityWeakReference.get().btnSave.setEnabled(true);
-            CommonUtil.destroyBitmap(bitmap);
+            CommonUtils.destroyBitmap(bitmap);
         }
     }
 

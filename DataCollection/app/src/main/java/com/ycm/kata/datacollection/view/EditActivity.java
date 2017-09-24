@@ -31,7 +31,8 @@ import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
-import com.ycm.kata.datacollection.utils.CommonUtil;
+import com.ycm.kata.datacollection.utils.CameraUtil;
+import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -186,6 +187,54 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         return projectEntity;
     }
 
+    private ProjectEntity getNewProjectEntity() {
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setCheckDate(time);
+        String name = "";
+        Editable nameEditable = etName.getText();
+        if (nameEditable != null) {
+            name = nameEditable.toString();
+        }
+
+        String project = "";
+        Editable projectEditable = etProject.getText();
+        if (projectEditable != null) {
+            project = projectEditable.toString();
+        }
+
+        String block = "";
+        Editable blockEditable = etBlock.getText();
+        if (blockEditable != null) {
+            block = blockEditable.toString();
+        }
+
+        String pile = "";
+        Editable pileEditable = etPile.getText();
+        if (pileEditable != null) {
+            pile = pileEditable.toString();
+        }
+
+        String remark = "";
+        Editable remarkEditable = etRemark.getText();
+        if (remarkEditable != null) {
+            remark = remarkEditable.toString();
+        }
+
+        String defect = "";
+        Editable defectEditable = etDefect.getText();
+        if (defectEditable != null) {
+            defect = defectEditable.toString();
+        }
+        projectEntity.setBlock(block);
+        projectEntity.setPilNo(pile);
+        projectEntity.setDefects(defect);
+        projectEntity.setProjectName(name);
+        projectEntity.setRemark(remark);
+        projectEntity.setUnitEngineering(project);
+        projectEntity.setUpdateTime(time);
+        projectEntity.setImagePath(pje.getImagePath());
+        return projectEntity;
+    }
 
     private String formatDate(long time) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
@@ -212,6 +261,7 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
+//                CameraUtil.getInstance().camera(this);
                 startToPhoto();
                 break;
         }
@@ -228,10 +278,10 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
                 return;
             }
 
-            ProjectEntity pro = getProjectEntity();
+            ProjectEntity pro = getNewProjectEntity();
             if (!pro.equals(pje)) {
                 pje = pro;
-                if (insert(pje) != -1) {
+                if (insert(pro) != -1) {
                     Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
                 }
             } else {
@@ -252,7 +302,7 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         //启动相机拍照
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             //文件名称
-            photoFileCachePath = CommonUtil.getImageFilePath(System.currentTimeMillis());
+            photoFileCachePath = CommonUtils.getImageFilePath(System.currentTimeMillis());
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file = new File(photoFileCachePath)));
@@ -261,58 +311,75 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         }
     }
 
-    private Bitmap showBitmap = null;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 123) {
+            if (file == null) {
+                Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
             progressBar.setVisibility(View.VISIBLE);
             tvHint.setVisibility(View.GONE);
-
+            ivPicture.setVisibility(View.GONE);
             final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
             if (!rootFile.exists()) {
                 progressBar.setVisibility(View.GONE);
-                tvHint.setVisibility(View.VISIBLE);
+                ivPicture.setVisibility(View.VISIBLE);
+//                tvHint.setVisibility(View.VISIBLE);
                 Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
 
-
-
-            final String desFileName = CommonUtil.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+            final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
 
             filePath = desFileName;
+            updateImageHandler = new UpdateImageHandler(this, bitmap);
             saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
             saveImageThread.start();
 
-            btnAdd.setEnabled(true);
-            btnSave.setEnabled(true);
-            DisplayMetrics dm = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(dm);
-            int screenWidth = dm.widthPixels;
-            showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
-            ivPicture.setImageBitmap(showBitmap);// 将图片显示在ImageView里
-            tvHint.setVisibility(View.GONE);
-            progressBar.setVisibility(View.GONE);
-            ivPicture.setVisibility(View.VISIBLE);
+//            btnAdd.setEnabled(true);
+//            btnSave.setEnabled(true);
+//            DisplayMetrics dm = new DisplayMetrics();
+//            getWindowManager().getDefaultDisplay().getMetrics(dm);
+//            int screenWidth = dm.widthPixels;
+//            showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
+//            ivPicture.setImageBitmap(showBitmap);// 将图片显示在ImageView里
+//            tvHint.setVisibility(View.GONE);
+//            progressBar.setVisibility(View.GONE);
+//            ivPicture.setVisibility(View.VISIBLE);
         }
     }
 
+    private Bitmap showBitmap = null;
     private static class UpdateImageHandler extends Handler {
-        WeakReference<MainActivity> mainActivityWeakReference;
+        WeakReference<EditActivity> mainActivityWeakReference;
+        WeakReference<Bitmap> bitmapWeakReference;
+        UpdateImageHandler(EditActivity mainActivity, Bitmap bitmap) {
+            mainActivityWeakReference = new WeakReference<>(mainActivity);
+            bitmapWeakReference = new WeakReference<>(bitmap);
+        }
 
-        UpdateImageHandler(MainActivity mainActivity) {
+        UpdateImageHandler(EditActivity mainActivity) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
         }
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-//            mainActivityWeakReference.get().btnAdd.setEnabled(true);
-//            mainActivityWeakReference.get().btnSave.setEnabled(true);
+            Bitmap bitmap = bitmapWeakReference.get();
+            DisplayMetrics dm = new DisplayMetrics();
+            mainActivityWeakReference.get().getWindowManager().getDefaultDisplay().getMetrics(dm);
+            int screenWidth = dm.widthPixels;
+            mainActivityWeakReference.get().showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
+            mainActivityWeakReference.get().ivPicture.setImageBitmap(mainActivityWeakReference.get().showBitmap);// 将图片显示在ImageView里
+            mainActivityWeakReference.get().tvHint.setVisibility(View.GONE);
+            mainActivityWeakReference.get().progressBar.setVisibility(View.GONE);
+            mainActivityWeakReference.get().ivPicture.setVisibility(View.VISIBLE);
+            CommonUtils.destroyBitmap(bitmap);
         }
     }
 
