@@ -6,12 +6,22 @@ package com.ycm.kata.datacollection.model.entity;
  */
 
 public class ImageInfo {
+    private String path;
     private int width;
     private int height;
 
-    ImageInfo(int width, int height) {
+    public ImageInfo(String path, int width, int height) {
+        this.path = path;
         this.width = width;
         this.height = height;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public int getWidth() {

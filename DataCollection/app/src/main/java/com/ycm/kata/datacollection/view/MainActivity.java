@@ -14,6 +14,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -48,7 +49,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     private EditText etPile;
     private EditText etRemark;
     private EditText etDefect;
-    private TextView tvHint;
     private ImageView ivPicture;
     private ImageView ivList;
     private RelativeLayout llTakePhoto;
@@ -98,7 +98,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         etDefect.addTextChangedListener(this);
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
-        tvHint = findViewById(R.id.text_hint_tv);
         ivPicture = findViewById(R.id.image_iv);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
@@ -117,7 +116,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             photoFileCachePath = CommonUtils.getImageFilePath(System.currentTimeMillis());
             //启动相机拍照
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file = new File(photoFileCachePath)));
+            file = new File(photoFileCachePath);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
             startActivityForResult(intent, 123);
         }
@@ -138,6 +138,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
+                if (!isLegal(projectEntity)) {
+                    Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (insert(projectEntity) != -1) {
                     Toast.makeText(getBaseContext(), "保存成功", Toast.LENGTH_SHORT).show();
                 }
@@ -149,6 +153,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             case R.id.add_btn:
                 if (projectEntity == null) {
                     projectEntity = getProjectEntity();
+                    if (!isLegal(projectEntity)) {
+                        Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     if (insert(projectEntity) != -1) {
                         Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
                     }
@@ -156,6 +164,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 }
 
                 ProjectEntity pro = getProjectEntity();
+                if (!isLegal(pro)) {
+                    Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (!pro.equals(projectEntity)) {
                     projectEntity = pro;
                     if (insert(projectEntity) != -1) {
@@ -172,6 +184,15 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 finish();
                 break;
         }
+    }
+
+    public boolean isLegal(ProjectEntity projectEntity) {
+        return !(TextUtils.isEmpty(projectEntity.getPilNo())
+                && TextUtils.isEmpty(projectEntity.getBlock())
+                && TextUtils.isEmpty(projectEntity.getProjectName())
+                && TextUtils.isEmpty(projectEntity.getRemark())
+                && TextUtils.isEmpty(projectEntity.getUnitEngineering())
+                && TextUtils.isEmpty(projectEntity.getDefects()));
     }
 
     private ProjectEntity getProjectEntity() {
@@ -274,13 +295,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 return;
             }
             progressBar.setVisibility(View.VISIBLE);
-            tvHint.setVisibility(View.GONE);
 
             final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
             if (!rootFile.exists()) {
                 progressBar.setVisibility(View.GONE);
-                tvHint.setVisibility(View.VISIBLE);
                 Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -288,7 +307,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
             Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
             final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
             filePath = desFileName;
-            updateImageHandler = new UpdateImageHandler(this, bitmap);
+            updateImageHandler = new UpdateImageHandler(this, desFileName);
             saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
             saveImageThread.start();
         }
@@ -337,9 +356,14 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     private static class UpdateImageHandler extends Handler {
         WeakReference<MainActivity> mainActivityWeakReference;
         WeakReference<Bitmap> bitmapWeakReference;
+        String path;
         UpdateImageHandler(MainActivity mainActivity, Bitmap bitmap) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             bitmapWeakReference = new WeakReference<>(bitmap);
+        }
+        UpdateImageHandler(MainActivity mainActivity, String path) {
+            mainActivityWeakReference = new WeakReference<>(mainActivity);
+            this.path = path;
         }
 
         UpdateImageHandler(MainActivity mainActivity) {
@@ -349,16 +373,17 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Bitmap bitmap = bitmapWeakReference.get();
+//            Bitmap bitmap = bitmapWeakReference.get();
             DisplayMetrics dm = new DisplayMetrics();
             mainActivityWeakReference.get().getWindowManager().getDefaultDisplay().getMetrics(dm);
             int screenWidth = dm.widthPixels;
-            mainActivityWeakReference.get().showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
-            mainActivityWeakReference.get().ivPicture.setImageBitmap(mainActivityWeakReference.get().showBitmap);// 将图片显示在ImageView里
-            mainActivityWeakReference.get().tvHint.setVisibility(View.GONE);
+//            mainActivityWeakReference.get().showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
+            Uri uri = Uri.fromFile(new File(path));
+            mainActivityWeakReference.get().ivPicture.setImageURI(uri);
+//            mainActivityWeakReference.get().ivPicture.setImageBitmap(mainActivityWeakReference.get().showBitmap);// 将图片显示在ImageView里
             mainActivityWeakReference.get().progressBar.setVisibility(View.GONE);
             mainActivityWeakReference.get().ivPicture.setVisibility(View.VISIBLE);
-            CommonUtils.destroyBitmap(bitmap);
+//            CommonUtils.destroyBitmap(bitmap);
         }
     }
 

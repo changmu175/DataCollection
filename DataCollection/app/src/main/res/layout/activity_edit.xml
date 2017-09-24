@@ -6,10 +6,38 @@
     android:orientation="vertical"
     tools:context="com.ycm.kata.datacollection.view.MainActivity">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="采集宝" />
+
+        <ImageView
+            android:id="@+id/list_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="30dp"
+            android:src="@drawable/list_16" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        android:background="#777777" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
         android:orientation="horizontal"
         android:paddingEnd="30dp"
         android:paddingLeft="30dp"
@@ -23,22 +51,28 @@
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/date_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray" />
+                    android:background="@null" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,20 +92,25 @@
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/name_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+                    android:background="@null"
                     android:maxEms="50" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -95,20 +134,24 @@
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_marginStart="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/project_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+                    android:background="@null"
                     android:maxEms="50" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -132,20 +175,24 @@
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_marginStart="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/block_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+                    android:background="@null"
                     android:maxEms="30" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -153,7 +200,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingEnd="30dp"
@@ -169,20 +216,25 @@
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_marginLeft="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/pile_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+
+                    android:background="@null"
                     android:maxEms="30" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -190,7 +242,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingEnd="30dp"
@@ -206,21 +258,25 @@
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            >
+            android:layout_marginStart="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/remark_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+                    android:background="@null"
                     android:maxEms="255"
                     android:maxLines="3" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -228,7 +284,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingEnd="30dp"
@@ -243,61 +299,73 @@
 
         <ScrollView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/defects_et"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginStart="30dp"
-                    android:background="@drawable/shape_circle_gray"
+                    android:background="@null"
                     android:maxEms="255"
                     android:maxLines="3" />
+
+                <View
+                    android:layout_width="200dp"
+                    android:layout_height="1dp"
+                    android:background="#777777" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/take_photo"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_marginEnd="100dp"
-        android:layout_marginLeft="100dp"
-        android:layout_marginRight="100dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/shape_rectang_gray"
-        android:gravity="center">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingEnd="30dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:paddingStart="30dp">
 
         <TextView
-            android:id="@+id/text_hint_tv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="照片"
-            android:layout_centerInParent="true"
-            android:visibility="visible" />
-
-        <ProgressBar
-            android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="gone"/>
+            android:text="照        片" />
 
-        <ImageView
-            android:id="@+id/image_iv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:visibility="gone" />
-    </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/take_photo"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/shape_rectang_gray"
+            android:gravity="center">
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image_iv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -310,12 +378,17 @@
         android:paddingRight="30dp"
         android:paddingStart="30dp">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/save_btn"
             android:layout_width="100dp"
             android:layout_height="30dp"
             android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
             android:background="@drawable/shape_circle_blue"
             android:text="保存"
             android:textColor="#ffffff" />
@@ -324,7 +397,6 @@
             android:id="@+id/add_btn"
             android:layout_width="100dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="30dp"
             android:layout_marginStart="30dp"
             android:background="@drawable/shape_circle_blue"
             android:text="保存并新增"

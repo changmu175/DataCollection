@@ -58,19 +58,20 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
     private EditText etPile;
     private EditText etRemark;
     private EditText etDefect;
-    private TextView tvHint;
     private ImageView ivPicture;
+    private ImageView ivList;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
     private Button btnSave;
     private Button btnAdd;
     private ProjectEntityDao projectEntityDao;
     private ProjectEntity projectEntity;
-    private String filePath = "";
+    private String filePath;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
-//    private ProjectEntity projectEntity;
+    //    private ProjectEntity projectEntity;
     private String dateStr;
+    private long dateTime;
     private long time;
     private ProjectEntity pje;
 
@@ -79,6 +80,7 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         initView();
+        filePath = null;
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
         Intent intent = getIntent();
         if (intent != null) {
@@ -107,10 +109,11 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         etDefect.addTextChangedListener(this);
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
-        tvHint = findViewById(R.id.text_hint_tv);
         ivPicture = findViewById(R.id.image_iv);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
+        ivList = findViewById(R.id.list_btn);
+        ivList.setOnClickListener(this);
         btnSave = findViewById(R.id.save_btn);
         btnSave.setOnClickListener(this);
         btnAdd = findViewById(R.id.add_btn);
@@ -125,21 +128,18 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         etPile.setText(pje.getPilNo());
         etBlock.setText(pje.getBlock());
         etProject.setText(pje.getUnitEngineering());
-        tvHint.setVisibility(View.GONE);
         ivPicture.setVisibility(View.VISIBLE);
         if (!TextUtils.isEmpty(pje.getImagePath())) {
             ivPicture.setVisibility(View.VISIBLE);
-            tvHint.setVisibility(View.GONE);
             Glide.with(this).load(pje.getImagePath()).crossFade().into(ivPicture);
         } else {
             ivPicture.setVisibility(View.GONE);
-            tvHint.setVisibility(View.VISIBLE);
         }
     }
 
     private ProjectEntity getProjectEntity() {
         ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setCheckDate(time);
+        projectEntity.setCheckDate(pje.getCheckDate());
         String name = "";
         Editable nameEditable = etName.getText();
         if (nameEditable != null) {
@@ -183,13 +183,14 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         projectEntity.setRemark(remark);
         projectEntity.setUnitEngineering(project);
         projectEntity.setUpdateTime(time);
-        projectEntity.setImagePath(pje.getImagePath());
+        String path = filePath == null ? pje.getImagePath() : filePath;
+        projectEntity.setImagePath(path);
         return projectEntity;
     }
 
     private ProjectEntity getNewProjectEntity() {
         ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setCheckDate(time);
+
         String name = "";
         Editable nameEditable = etName.getText();
         if (nameEditable != null) {
@@ -232,7 +233,8 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         projectEntity.setRemark(remark);
         projectEntity.setUnitEngineering(project);
         projectEntity.setUpdateTime(time);
-        projectEntity.setImagePath(pje.getImagePath());
+        String path = filePath == null ? pje.getImagePath() : filePath;
+        projectEntity.setImagePath(path);
         return projectEntity;
     }
 
@@ -267,11 +269,19 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
         }
         if (view == btnSave) {
             ProjectEntity projectEntity = getProjectEntity();
+            if (!isLegal(projectEntity)) {
+                Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
             projectEntityDao.update(projectEntity);
             finish();
         } else if (view == btnAdd) {
             if (pje == null) {
                 pje = getProjectEntity();
+                if (!isLegal(pje)) {
+                    Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (insert(pje) != -1) {
                     Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
                 }
@@ -281,12 +291,21 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
             ProjectEntity pro = getNewProjectEntity();
             if (!pro.equals(pje)) {
                 pje = pro;
+                if (!isLegal(pro)) {
+                    Toast.makeText(getBaseContext(), "数据不能全为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (insert(pro) != -1) {
                     Toast.makeText(getBaseContext(), "新增成功", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(getBaseContext(), "你没做任何改变", Toast.LENGTH_SHORT).show();
             }
+        } else if (view == ivList) {
+            Intent intent1 = new Intent();
+            intent1.setClass(this, DataListActivity.class);
+            startActivity(intent1);
+            finish();
         }
     }
 
@@ -298,6 +317,16 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
     }
 
     private File file;
+
+    public boolean isLegal(ProjectEntity projectEntity) {
+        return !(TextUtils.isEmpty(projectEntity.getPilNo())
+                && TextUtils.isEmpty(projectEntity.getBlock())
+                && TextUtils.isEmpty(projectEntity.getProjectName())
+                && TextUtils.isEmpty(projectEntity.getRemark())
+                && TextUtils.isEmpty(projectEntity.getUnitEngineering())
+                && TextUtils.isEmpty(projectEntity.getDefects()));
+    }
+
     public void startToPhoto() {
         //启动相机拍照
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -320,7 +349,6 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
                 return;
             }
             progressBar.setVisibility(View.VISIBLE);
-            tvHint.setVisibility(View.GONE);
             ivPicture.setVisibility(View.GONE);
             final String rootFilePath = file.getPath();
             final File rootFile = new File(rootFilePath);
@@ -355,9 +383,11 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
     }
 
     private Bitmap showBitmap = null;
+
     private static class UpdateImageHandler extends Handler {
         WeakReference<EditActivity> mainActivityWeakReference;
         WeakReference<Bitmap> bitmapWeakReference;
+
         UpdateImageHandler(EditActivity mainActivity, Bitmap bitmap) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             bitmapWeakReference = new WeakReference<>(bitmap);
@@ -376,7 +406,6 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
             int screenWidth = dm.widthPixels;
             mainActivityWeakReference.get().showBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
             mainActivityWeakReference.get().ivPicture.setImageBitmap(mainActivityWeakReference.get().showBitmap);// 将图片显示在ImageView里
-            mainActivityWeakReference.get().tvHint.setVisibility(View.GONE);
             mainActivityWeakReference.get().progressBar.setVisibility(View.GONE);
             mainActivityWeakReference.get().ivPicture.setVisibility(View.VISIBLE);
             CommonUtils.destroyBitmap(bitmap);

@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -176,10 +177,10 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
                 }
                 break;
             case R.id.previous_btn:
-                nextView();
+                preView();
                 break;
             case R.id.next_btn:
-                preView();
+                nextView();
                 break;
         }
     }
@@ -211,7 +212,9 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
         public void run() {
             super.run();
             dataSource = weakReference.get().loadAll();
-            listenerWeakReference.get().loadSuccess(dataSource);
+            if (dataSource != null && dataSource.size() != 0) {
+                listenerWeakReference.get().loadSuccess(dataSource);
+            }
         }
     }
 
@@ -227,42 +230,63 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
     // 点击左边的Button，表示向前翻页，索引值要减1.
     public void preView() {
-        myAdapter.setIndex(index--);
+        if (index <= 0) {
+            Toast.makeText(getBaseContext(), "已经是第一页啦", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("tagggg1", index + " ");
+        myAdapter.setIndex(--index);
         // 刷新ListView里面的数值。
         myAdapter.notifyDataSetChanged();
         // 检查Button是否可用。
-        checkButton();
+//        checkButton();
     }
 
     // 点击右边的Button，表示向后翻页，索引值要加1.
     public void nextView() {
-        myAdapter.setIndex(index++);
+        if (dataSource == null || dataSource.size() == 0) {
+            Toast.makeText(getBaseContext(), "没有数据", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int pageSize;
+        if ((dataSource.size() % VIEW_COUNT) == 0) {
+            pageSize = dataSource.size() / VIEW_COUNT - 1;
+        } else {
+            pageSize = (dataSource.size() / VIEW_COUNT);
+        }
+
+        if (index >= pageSize) {
+            Toast.makeText(getBaseContext(), "已经是最后一页啦", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("tagggg", index + " ");
+        myAdapter.setIndex(++index);
         // 刷新ListView里面的数值。
         myAdapter.notifyDataSetChanged();
-
         // 检查Button是否可用。
-        checkButton();
+//        checkButton();
     }
 
-    public void checkButton() {
-        // 索引值小于等于0，表示不能向前翻页了，以经到了第一页了。
-        // 将向前翻页的按钮设为不可用。
-        if (index <= 0) {
-            btnNext.setEnabled(false);
-        } else {
-            btnPrevious.setEnabled(true);
-        }
-        // 值的长度减去前几页的长度，剩下的就是这一页的长度，如果这一页的长度比View_Count小，表示这是最后的一页了，后面在没有了。
-        // 将向后翻页的按钮设为不可用。
-        if (dataSource.size() - index * VIEW_COUNT <= VIEW_COUNT) {
-            btnNext.setEnabled(false);
-        }
-        // 否则将2个按钮都设为可用的。
-        else {
-            btnNext.setEnabled(true);
-        }
-
-    }
+//    public void checkButton() {
+//        // 索引值小于等于0，表示不能向前翻页了，以经到了第一页了。
+//        // 将向前翻页的按钮设为不可用。
+//        if (index <= 0) {
+//            btnNext.setEnabled(false);
+//        } else {
+//            btnPrevious.setEnabled(true);
+//        }
+//        // 值的长度减去前几页的长度，剩下的就是这一页的长度，如果这一页的长度比View_Count小，表示这是最后的一页了，后面在没有了。
+//        // 将向后翻页的按钮设为不可用。
+//        if (dataSource.size() - index * VIEW_COUNT <= VIEW_COUNT) {
+//            btnNext.setEnabled(false);
+//        }
+//        // 否则将2个按钮都设为可用的。
+//        else {
+//            btnNext.setEnabled(true);
+//        }
+//
+//    }
 
     /**
      * 为了保证模板的可用，最好在现有的模板上复制后修改
@@ -527,7 +551,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
     private void writeExcel(List<ProjectEntity> dataSource, ExportListener exportListener) {
         List<ProjectEntity> currentPs = new ArrayList<>();
-        currentPs.addAll(filterDataSource(dataSource));
+        currentPs.addAll(dataSource/*filterDataSource(dataSource)*/);
         FileOutputStream fileOut = null;
         String rootPath = CommonUtils.getDataFilePath(System.currentTimeMillis());
         if (rootPath == null) {
@@ -723,10 +747,13 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
 
             rowNum = 31 /*(columnWidth * columNum) / rowHeight*/;
 
-
+            if (imageHeight > 255) {
+                imageHeight = 255;
+            } else if (imageHeight <= 0) {
+                return;
+            }
             HSSFClientAnchor anchor =
-                    new HSSFClientAnchor(0, 0, (int)imageWidth, (int)imageHeight, (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageRCellAd.getLastColumn()), imageRCellAd.getLastRow());
-
+                    new HSSFClientAnchor(0, 0, (int) imageWidth, (int) imageHeight, (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageRCellAd.getLastColumn()), imageRCellAd.getLastRow());
 
             anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
             //插入图片

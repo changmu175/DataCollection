@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ycm.kata.datacollection.R;
+import com.ycm.kata.datacollection.model.entity.ImageInfo;
 import com.ycm.kata.datacollection.utils.AppConstant;
 import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
@@ -76,11 +77,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
-
+    private CameraActivity cameraActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        cameraActivity = this;
         context = this;
         initView();
         initData();
@@ -459,7 +461,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
                 final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-                updateImageHandler = new UpdateImageHandler(saveBitmap);
+                ImageInfo imageInfo = new ImageInfo(desFileName, screenWidth, picHeight);
+                updateImageHandler = new UpdateImageHandler(cameraActivity, imageInfo);
                 saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler);
                 saveImageThread.start();
 
@@ -481,13 +484,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 //                setResult(AppConstant.RESULT_CODE.RESULT_OK, intent);
 //                finish();
 
-                Intent intent = new Intent();
-                intent.setClass(CameraActivity.this, ShowPicActivity.class);
-                intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName);
-                intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
-                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, picHeight);
-                startActivity(intent);
-                finish();
+
                 //这里打印宽高 就能看到 CameraUtil.getInstance().getPropPictureSize(parameters.getSupportedPictureSizes(), 200);
                 // 这设置的最小宽度影响返回图片的大小 所以这里一般这是1000左右把我觉得
 //                Log.d("bitmapWidth==", bitmap.getWidth() + "");
@@ -562,7 +559,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private static class UpdateImageHandler extends Handler {
         WeakReference<CameraActivity> mainActivityWeakReference;
         WeakReference<Bitmap> bitmapWeakReference;
-
+        WeakReference<ImageInfo> imageInfoWeakReference;
         UpdateImageHandler(CameraActivity mainActivity, Bitmap bitmap) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             bitmapWeakReference = new WeakReference<>(bitmap);
@@ -572,13 +569,21 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             bitmapWeakReference = new WeakReference<>(bitmap);
         }
 
-        UpdateImageHandler(CameraActivity mainActivity) {
+        UpdateImageHandler(CameraActivity mainActivity, ImageInfo imageInfo) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
+            imageInfoWeakReference = new WeakReference<ImageInfo>(imageInfo);
         }
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Intent intent = new Intent();
+            intent.setClass(mainActivityWeakReference.get(), ShowPicActivity.class);
+            intent.putExtra(AppConstant.KEY.IMG_PATH, imageInfoWeakReference.get().getPath());
+            intent.putExtra(AppConstant.KEY.PIC_WIDTH, imageInfoWeakReference.get().getWidth());
+            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, imageInfoWeakReference.get().getHeight());
+            mainActivityWeakReference.get().startActivity(intent);
+            mainActivityWeakReference.get().finish();
 //            Bitmap bitmap = bitmapWeakReference.get();
 //            DisplayMetrics dm = new DisplayMetrics();
 //            mainActivityWeakReference.get().getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -627,6 +632,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                         b.flush();
                         b.close();
                     }
+                    bitmap.recycle();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

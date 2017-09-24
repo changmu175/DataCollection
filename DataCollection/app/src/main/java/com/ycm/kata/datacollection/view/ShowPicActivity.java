@@ -31,12 +31,13 @@ public class ShowPicActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_show_pic);
         tvConfirm = findViewById(R.id.confirm);
         tvRepeat = findViewById(R.id.repeat);
+        img = findViewById(R.id.img);
         tvRepeat.setOnClickListener(this);
         tvConfirm.setOnClickListener(this);
         intent = getIntent();
         picWidth = intent.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
         picHeight = intent.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
-        img = findViewById(R.id.img);
+
 //        Bitmap bitmap = BitmapFactory.decodeFile(intent.getStringExtra(AppConstant.KEY.IMG_PATH));
 //        Bitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
 //        img.setImageURI(Uri.parse(getIntent().getStringExtra(AppConstant.KEY.IMG_PATH)));

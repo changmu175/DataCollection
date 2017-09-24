@@ -18,17 +18,22 @@
         android:roundIcon="@mipmap/logo2"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.MainActivity">
+        <activity android:name=".view.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.DataListActivity" />
-        <activity android:name=".view.EditActivity" />
-        <activity android:name=".view.CameraActivity"/>
-        <activity android:name=".view.ShowPicActivity"/>
+        <activity android:name=".view.DataListActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.EditActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.CameraActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.ShowPicActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

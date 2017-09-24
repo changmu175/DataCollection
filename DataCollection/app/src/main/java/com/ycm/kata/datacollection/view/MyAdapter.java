@@ -68,12 +68,13 @@ public class MyAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        return dataSource == null ? null : dataSource.get(i);
+
+        return dataSource == null ? null : dataSource.get(i + index * VIEW_COUNT);
     }
 
     @Override
     public long getItemId(int i) {
-        return dataSource == null ? 0 : i;
+        return dataSource == null ? 0 : i + index * VIEW_COUNT;
     }
 
     @Override
@@ -87,13 +88,13 @@ public class MyAdapter extends BaseAdapter {
             holderView = (HolderView) contentView.getTag();
 
         }
-        ProjectEntity projectEntity = dataSource.get(i);
+        ProjectEntity projectEntity = dataSource.get(i + index * VIEW_COUNT);
         holderView.getTextView().setText(formatDate(projectEntity.getCheckDate())
                 + " " + projectEntity.getId() + " " + projectEntity.getProjectName());
         holderView.getTextView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClickListener.textOnclickListener(i);
+                onItemClickListener.textOnclickListener(i + index * VIEW_COUNT);
             }
         });
         holderView.getButton().setOnClickListener(new View.OnClickListener() {
