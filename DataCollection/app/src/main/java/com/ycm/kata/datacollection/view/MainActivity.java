@@ -33,6 +33,8 @@ import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
+import com.zxy.tiny.Tiny;
+import com.zxy.tiny.callback.FileWithBitmapCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -304,12 +306,33 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
                 return;
             }
 
-            Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
+//            Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
             final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-            filePath = desFileName;
-            updateImageHandler = new UpdateImageHandler(this, desFileName);
-            saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
-            saveImageThread.start();
+//            filePath = desFileName;
+
+            Tiny.FileCompressOptions options = new Tiny.FileCompressOptions();
+            options.isKeepSampling = true;
+            options.outfile = desFileName;
+
+            Tiny.getInstance().source(rootFilePath).asFile().withOptions(options).compress(new FileWithBitmapCallback() {
+                @Override
+                public void callback(boolean isSuccess, Bitmap bitmap, String outfile) {
+                    //return the compressed file path and bitmap object
+                    if (isSuccess) {
+                        progressBar.setVisibility(View.GONE);
+                        ivPicture.setImageBitmap(bitmap);
+                        ivPicture.setVisibility(View.VISIBLE);
+                        filePath = outfile;
+                    } else {
+                        Toast.makeText(getBaseContext(), "压缩图片出错", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+
+//            updateImageHandler = new UpdateImageHandler(this, desFileName);
+//            saveImageThread = new SaveImageThread(bitmap, desFileName, rootFile, updateImageHandler);
+//            saveImageThread.start();
         }
 
 //        if (requestCode == 0x3) {

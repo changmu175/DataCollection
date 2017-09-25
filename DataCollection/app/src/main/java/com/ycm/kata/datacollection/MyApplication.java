@@ -7,6 +7,7 @@ import android.support.multidex.MultiDexApplication;
 import com.ycm.kata.datacollection.model.DaoMaster;
 import com.ycm.kata.datacollection.model.DaoSession;
 import com.ycm.kata.datacollection.utils.CrashHandler;
+import com.zxy.tiny.Tiny;
 
 /**
  * Created by changmuyu on 2017/9/18.
@@ -26,6 +27,7 @@ public class MyApplication extends MultiDexApplication {
         MultiDex.install(this);
         instances = this;
         setDatabase();
+        Tiny.getInstance().init(this);
         CrashHandler.getInstance().init(getApplicationContext());
     }
 

@@ -24,7 +24,9 @@ android {
 //        jackOptions {
 //            enabled true
 //        }
-
+        ndk {
+            abiFilters 'armeabi','x86'//or armeabi-v7a、arm64-v8a、x86
+        }
 
     }
     dexOptions {
@@ -83,6 +85,7 @@ dependencies {
     compile files('libs/commons-codec-1.10.jar')
     compile files('libs/commons-collections4-4.1.jar')
     compile files('libs/commons-io-2.4.jar')
+    compile 'com.zxy.android:tiny:0.0.6'
     //    compile files('libs/rt.jar')
 //    compile files('libs/rt.jar')
 }
