@@ -505,10 +505,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         }
 
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
-        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 800);
+        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 480);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
-        Camera.Size pictrueSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 800);
-        parameters.setPictureSize(pictrueSize.width, pictrueSize.height);
+        Camera.Size pictureSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 480);
+        parameters.setPictureSize(pictureSize.width, pictureSize.height);
         camera.setParameters(parameters);
 
         /**
@@ -519,9 +519,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
          *
          */
 
-        picHeight = (screenWidth * pictrueSize.width) / pictrueSize.height;
+        picHeight = (screenWidth * pictureSize.width) / pictureSize.height;
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictrueSize.width) / pictrueSize.height);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictureSize.width) / pictureSize.height);
         //这里当然可以设置拍照位置 比如居中 我这里就置顶了
         //params.gravity = Gravity.CENTER;
         surfaceView.setLayoutParams(params);
@@ -571,7 +571,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
         UpdateImageHandler(CameraActivity mainActivity, ImageInfo imageInfo) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
-            imageInfoWeakReference = new WeakReference<ImageInfo>(imageInfo);
+            imageInfoWeakReference = new WeakReference<>(imageInfo);
         }
 
         @Override

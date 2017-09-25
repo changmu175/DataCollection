@@ -77,7 +77,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
                 Looper.loop();
             }
         }.start();
-        ex.printStackTrace();
+        Log.e("---------", ex.getMessage());
         collectDeviceInfo(context);
         saveCrashInfo2File(ex);
         return true;

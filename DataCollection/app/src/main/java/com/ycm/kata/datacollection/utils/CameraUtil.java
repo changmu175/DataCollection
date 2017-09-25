@@ -191,6 +191,28 @@ public class CameraUtil {
         }
         return list.get(i);
     }
+    /**
+     * 获取所有支持的返回视频尺寸
+     *
+     * @param list
+     * @param minHeight
+     * @return
+     */
+    public Size getPropSizeForPreHeight(List<Size> list, int minHeight) {
+        Collections.sort(list, new CameraAscendSizeComparatorForHeight());
+
+        int i = 0;
+        for (Size s : list) {
+            if ((s.height >= minHeight)) {
+                break;
+            }
+            i++;
+        }
+        if (i == list.size()) {
+            i = 0;//如果没找到，就选最小的size
+        }
+        return list.get(i);
+    }
 
     /**
      * 获取所有支持的返回视频尺寸
@@ -204,7 +226,7 @@ public class CameraUtil {
 
         int i = 0;
         for (Size s : list) {
-            if ((s.height >= minHeight)) {
+            if ((s.height <= minHeight)) {
                 break;
             }
             i++;

@@ -44,7 +44,7 @@ public class ShowPicActivity extends Activity implements View.OnClickListener{
         Uri uri = Uri.fromFile(new File(intent.getStringExtra(AppConstant.KEY.IMG_PATH)));
         img.setImageURI(uri);
 //        img.setImageBitmap(bitmap);
-        img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
+//        img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
     }
 
     @Override
