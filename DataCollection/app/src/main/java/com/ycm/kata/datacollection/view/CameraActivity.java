@@ -46,8 +46,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private Context context;
 
     //屏幕宽高
-    private int screenWidth;
-    private int screenHeight;
+    private static int screenWidth;
+    private static int screenHeight;
     private LinearLayout home_custom_top_relative;
     private ImageView camera_delay_time;
     private View homeCustom_cover_top_view;
@@ -74,7 +74,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private RelativeLayout homecamera_bottom_relative;
     private ImageView img_camera;
     private int picHeight;
-
+    private static String desFileName;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     private CameraActivity cameraActivity;
@@ -460,10 +460,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 //                }
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-                final String desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+                desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+
                 ImageInfo imageInfo = new ImageInfo(desFileName, screenWidth, picHeight);
                 updateImageHandler = new UpdateImageHandler(cameraActivity, imageInfo);
-                saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler);
+                saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler, cameraActivity, imageInfo);
                 saveImageThread.start();
 
 
@@ -579,9 +580,9 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             super.handleMessage(msg);
             Intent intent = new Intent();
             intent.setClass(mainActivityWeakReference.get(), ShowPicActivity.class);
-            intent.putExtra(AppConstant.KEY.IMG_PATH, imageInfoWeakReference.get().getPath());
-            intent.putExtra(AppConstant.KEY.PIC_WIDTH, imageInfoWeakReference.get().getWidth());
-            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, imageInfoWeakReference.get().getHeight());
+            intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName /*imageInfoWeakReference.get().getPath()*/);
+            intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth /*imageInfoWeakReference.get().getWidth()*/);
+            intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight /*imageInfoWeakReference.get().getHeight()*/);
             mainActivityWeakReference.get().startActivity(intent);
             mainActivityWeakReference.get().finish();
 //            Bitmap bitmap = bitmapWeakReference.get();
@@ -602,6 +603,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private static class SaveImageThread extends Thread {
         private WeakReference<Bitmap> bitmapWeakReference;
         private WeakReference<UpdateImageHandler> handlerWeakReference;
+        WeakReference<CameraActivity> mainActivityWeakReference;
+        WeakReference<ImageInfo> imageInfoWeakReference;
         private String fileName;
 
         SaveImageThread(Bitmap bitmap, String fileName, UpdateImageHandler handler) {
@@ -610,6 +613,15 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             this.fileName = fileName;
         }
 
+        SaveImageThread(Bitmap bitmap, String fileName,
+                        UpdateImageHandler handler,
+                        CameraActivity cameraActivity, ImageInfo imageInfo) {
+            bitmapWeakReference = new WeakReference<>(bitmap);
+            handlerWeakReference = new WeakReference<>(handler);
+            mainActivityWeakReference = new WeakReference<>(cameraActivity);
+            imageInfoWeakReference = new WeakReference<>(imageInfo);
+            this.fileName = fileName;
+        }
         @Override
         public void run() {
             Bitmap bitmap = bitmapWeakReference.get();
@@ -624,6 +636,15 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 b = new FileOutputStream(fileName);
                 b.write(outputStream.toByteArray());
                 handlerWeakReference.get().sendEmptyMessage(123);
+
+
+//                Intent intent = new Intent();
+//                intent.setClass(mainActivityWeakReference.get(), ShowPicActivity.class);
+//                intent.putExtra(AppConstant.KEY.IMG_PATH, imageInfoWeakReference.get().getPath());
+//                intent.putExtra(AppConstant.KEY.PIC_WIDTH, imageInfoWeakReference.get().getWidth());
+//                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, imageInfoWeakReference.get().getHeight());
+//                mainActivityWeakReference.get().startActivity(intent);
+//                mainActivityWeakReference.get().finish();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

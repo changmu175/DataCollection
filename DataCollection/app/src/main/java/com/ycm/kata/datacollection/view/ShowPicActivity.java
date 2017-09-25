@@ -2,21 +2,22 @@ package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ycm.kata.datacollection.R;
+import com.ycm.kata.datacollection.event.EventManager;
+import com.ycm.kata.datacollection.event.PhotoEvent;
 import com.ycm.kata.datacollection.utils.AppConstant;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
-public class ShowPicActivity extends Activity implements View.OnClickListener{
+public class ShowPicActivity extends BaseActivity implements View.OnClickListener{
 
     private ImageView img;
     private int picWidth;
@@ -29,6 +30,7 @@ public class ShowPicActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_pic);
+
         tvConfirm = findViewById(R.id.confirm);
         tvRepeat = findViewById(R.id.repeat);
         img = findViewById(R.id.img);
@@ -41,7 +43,8 @@ public class ShowPicActivity extends Activity implements View.OnClickListener{
 //        Bitmap bitmap = BitmapFactory.decodeFile(intent.getStringExtra(AppConstant.KEY.IMG_PATH));
 //        Bitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
 //        img.setImageURI(Uri.parse(getIntent().getStringExtra(AppConstant.KEY.IMG_PATH)));
-        Uri uri = Uri.fromFile(new File(intent.getStringExtra(AppConstant.KEY.IMG_PATH)));
+        imagePath = intent.getStringExtra(AppConstant.KEY.IMG_PATH);
+        Uri uri = Uri.fromFile(new File(imagePath));
         img.setImageURI(uri);
 //        img.setImageBitmap(bitmap);
 //        img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
@@ -57,7 +60,21 @@ public class ShowPicActivity extends Activity implements View.OnClickListener{
                 finish();
                 break;
             case R.id.confirm:
+//                Intent ii = intent;
+//                ii.putExtra(AppConstant.KEY.IMG_PATH, imagePath);
+//                setResult(123, ii);
+                PhotoEvent photoEvent = new PhotoEvent();
+                photoEvent.setImagePath(imagePath);
+                EventManager.GetInstance().getEventBus().post(photoEvent);
+//                EventBus.getDefault().post(photoEvent);
+                finish();
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }

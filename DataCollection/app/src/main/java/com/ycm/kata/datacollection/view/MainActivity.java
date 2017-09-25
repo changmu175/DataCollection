@@ -1,6 +1,5 @@
 package com.ycm.kata.datacollection.view;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -23,16 +22,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
+import com.ycm.kata.datacollection.event.PhotoEvent;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.AppConstant;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,7 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MainActivity extends Activity implements View.OnClickListener, TextWatcher {
+public class MainActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
     private String photoFileCachePath = "";
     private EditText etDate;
     private EditText etName;
@@ -133,8 +135,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-//                CameraUtil.getInstance().camera(this);
-                startToPhoto();
+                CameraUtil.getInstance().camera(this);
+//                startToPhoto();
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
@@ -285,10 +287,26 @@ public class MainActivity extends Activity implements View.OnClickListener, Text
 
     }
 
+    @Subscribe
+    public void onEventMainThread(PhotoEvent photoEvent) {
+        filePath = photoEvent.getImagePath();
+        if (TextUtils.isEmpty(filePath)) {
+            return;
+        }
+        Uri uri = Uri.fromFile(new File(filePath));
+        ivPicture.setImageURI(uri);
+    }
+
     private Bitmap showBitmap = null;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 123 && data != null) {
+            filePath = data.getStringExtra(AppConstant.KEY.IMG_PATH);
+            Uri uri = Uri.fromFile(new File(filePath));
+            ivPicture.setImageURI(uri);
+        }
+
         if (requestCode == 123) {
             if (file == null ) {
                 Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
