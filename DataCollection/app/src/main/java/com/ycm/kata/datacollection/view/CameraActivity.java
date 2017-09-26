@@ -1,7 +1,6 @@
 package com.ycm.kata.datacollection.view;
 
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -24,10 +22,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
+import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.AppConstant;
-import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.SystemUtils;
@@ -38,7 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class CameraActivity extends Activity implements SurfaceHolder.Callback, View.OnClickListener {
+public class CameraActivity extends BaseActivity implements SurfaceHolder.Callback, View.OnClickListener {
     private Camera mCamera;
     private SurfaceView surfaceView;
     private SurfaceHolder mHolder;
@@ -78,14 +79,30 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     private CameraActivity cameraActivity;
+    private TextView tvAddress;
+    private LocationService locationService;
+    private String address;
+    private Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        locationService = ((MyApplication) getApplication()).locationService;
+        locationService.registerListener(mListener);
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+        locationService.start();// 定位SDK
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                tvAddress.setText(msg.getData().getString("address"));
+            }
+        };
         cameraActivity = this;
         context = this;
         initView();
         initData();
+
     }
 
     private void initView() {
@@ -131,7 +148,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         //闪光灯
         flash_light = (ImageView) findViewById(R.id.flash_light);
         flash_light.setOnClickListener(this);
-
+        tvAddress = findViewById(R.id.address);
         camera_delay_time_text = (TextView) findViewById(R.id.camera_delay_time_text);
 
         homecamera_bottom_relative = (RelativeLayout) findViewById(R.id.homecamera_bottom_relative);
@@ -141,15 +158,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
-
         menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
         animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
-
         //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
         RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
         bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         homecamera_bottom_relative.setLayoutParams(bottomParam);
     }
+
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -461,12 +477,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
                 desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
+                saveBitmap = CameraUtil.getInstance().drawTextToRightBottom(getBaseContext(), saveBitmap, address, 12, getResources().getColor(R.color.Gray), 30, 30);
+                saveImage(saveBitmap, desFileName);
 
-                ImageInfo imageInfo = new ImageInfo(desFileName, screenWidth, picHeight);
-                updateImageHandler = new UpdateImageHandler(cameraActivity, imageInfo);
-                saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler, cameraActivity, imageInfo);
-                saveImageThread.start();
 
+//                ImageInfo imageInfo = new ImageInfo(desFileName, screenWidth, picHeight);
+//                updateImageHandler = new UpdateImageHandler(cameraActivity, imageInfo);
+//                saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler, cameraActivity, imageInfo);
+//                saveImageThread.start();
+                Intent intent = new Intent();
+                intent.setClass(cameraActivity, ShowPicActivity.class);
+                intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName /*imageInfoWeakReference.get().getPath()*/);
+                intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth /*imageInfoWeakReference.get().getWidth()*/);
+                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight /*imageInfoWeakReference.get().getHeight()*/);
+//                intent.putExtra(AppConstant.KEY.PIC_PRE, saveBitmap /*imageInfoWeakReference.get().getHeight()*/);
+                cameraActivity.startActivity(intent);
+                cameraActivity.finish();
 
 //                BitmapUtils.saveJPGE_After(context, saveBitmap, img_path, 100);
 
@@ -561,6 +587,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         WeakReference<CameraActivity> mainActivityWeakReference;
         WeakReference<Bitmap> bitmapWeakReference;
         WeakReference<ImageInfo> imageInfoWeakReference;
+
         UpdateImageHandler(CameraActivity mainActivity, Bitmap bitmap) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             bitmapWeakReference = new WeakReference<>(bitmap);
@@ -622,10 +649,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
             imageInfoWeakReference = new WeakReference<>(imageInfo);
             this.fileName = fileName;
         }
+
         @Override
         public void run() {
             Bitmap bitmap = bitmapWeakReference.get();
-            bitmap = getZoomImage(bitmap, 650);
+//            bitmap = getZoomImage(bitmap, 650);
             FileOutputStream b = null;
             ByteArrayOutputStream outputStream = bitmapToByteArray(bitmap, false);
             try {
@@ -635,16 +663,15 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
                 }
                 b = new FileOutputStream(fileName);
                 b.write(outputStream.toByteArray());
-                handlerWeakReference.get().sendEmptyMessage(123);
+//                handlerWeakReference.get().sendEmptyMessage(123);
 
-
-//                Intent intent = new Intent();
-//                intent.setClass(mainActivityWeakReference.get(), ShowPicActivity.class);
-//                intent.putExtra(AppConstant.KEY.IMG_PATH, imageInfoWeakReference.get().getPath());
-//                intent.putExtra(AppConstant.KEY.PIC_WIDTH, imageInfoWeakReference.get().getWidth());
-//                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, imageInfoWeakReference.get().getHeight());
-//                mainActivityWeakReference.get().startActivity(intent);
-//                mainActivityWeakReference.get().finish();
+                Intent intent = new Intent();
+                intent.setClass(mainActivityWeakReference.get(), ShowPicActivity.class);
+                intent.putExtra(AppConstant.KEY.IMG_PATH, imageInfoWeakReference.get().getPath());
+                intent.putExtra(AppConstant.KEY.PIC_WIDTH, imageInfoWeakReference.get().getWidth());
+                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, imageInfoWeakReference.get().getHeight());
+                mainActivityWeakReference.get().startActivity(intent);
+                mainActivityWeakReference.get().finish();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -661,6 +688,32 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         }
     }
 
+
+    private void saveImage(Bitmap bitmap, String fileName) {
+//        bitmap = getZoomImage(bitmap, 650);
+        FileOutputStream b = null;
+        ByteArrayOutputStream outputStream = bitmapToByteArray(bitmap, false);
+        try {
+            File imageFile = new File(fileName);
+            if (!imageFile.exists() && !imageFile.createNewFile()) {
+                return;
+            }
+            b = new FileOutputStream(fileName);
+            b.write(outputStream.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (b != null) {
+                    b.flush();
+                    b.close();
+                }
+                bitmap.recycle();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static Bitmap getZoomImage(Bitmap bitmap, double maxSize) {
         ByteArrayOutputStream outputStream;
@@ -738,4 +791,22 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback, 
         Bitmap bitmap = Bitmap.createBitmap(orgBitmap, 0, 0, (int) width, (int) height, matrix, true);
         return bitmap;
     }
+
+    /*****
+     *
+     * 定位结果回调，重写onReceiveLocation方法，可以直接拷贝如下代码到自己工程中修改
+     *
+     */
+    private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
+
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            address = location.getAddrStr();
+            Bundle bundle = new Bundle();
+            bundle.putString("address", address);
+            Message message = new Message();
+            message.setData(bundle);
+            handler.sendMessage(message);
+        }
+    };
 }

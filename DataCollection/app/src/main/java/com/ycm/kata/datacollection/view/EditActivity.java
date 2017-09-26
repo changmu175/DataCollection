@@ -52,7 +52,7 @@ import java.util.Locale;
  * Description:
  */
 
-public class EditActivity extends Activity implements TextWatcher, View.OnClickListener {
+public class EditActivity extends BaseActivity implements TextWatcher, View.OnClickListener {
     private String photoFileCachePath = "";
     private EditText etDate;
     private EditText etName;
@@ -266,8 +266,8 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-//                CameraUtil.getInstance().camera(this);
-                startToPhoto();
+                CameraUtil.getInstance().camera(this);
+//                startToPhoto();
                 break;
         }
         if (view == btnSave) {
@@ -369,7 +369,6 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
             if (!rootFile.exists()) {
                 progressBar.setVisibility(View.GONE);
                 ivPicture.setVisibility(View.VISIBLE);
-//                tvHint.setVisibility(View.VISIBLE);
                 Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
                 return;
             }

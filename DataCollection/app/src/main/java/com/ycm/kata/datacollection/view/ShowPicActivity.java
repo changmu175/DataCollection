@@ -2,6 +2,7 @@ package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -40,12 +41,19 @@ public class ShowPicActivity extends BaseActivity implements View.OnClickListene
         picWidth = intent.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
         picHeight = intent.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
 
-//        Bitmap bitmap = BitmapFactory.decodeFile(intent.getStringExtra(AppConstant.KEY.IMG_PATH));
-//        Bitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, bitmap.getHeight() * screenWidth / bitmap.getWidth(), true);
-//        img.setImageURI(Uri.parse(getIntent().getStringExtra(AppConstant.KEY.IMG_PATH)));
+//        Bitmap bitmap = intent.getParcelableExtra(AppConstant.KEY.PIC_PRE);
+//        img.setImageBitmap(bitmap);
+
+
         imagePath = intent.getStringExtra(AppConstant.KEY.IMG_PATH);
         Uri uri = Uri.fromFile(new File(imagePath));
         img.setImageURI(uri);
+
+
+
+
+
+
 //        img.setImageBitmap(bitmap);
 //        img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
     }

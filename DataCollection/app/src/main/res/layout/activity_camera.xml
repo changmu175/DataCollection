@@ -30,6 +30,7 @@
         android:layout_height="0dp"
         android:background="@color/Black4" />
 
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -38,8 +39,8 @@
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
     </FrameLayout>
+
 
     <RelativeLayout
         android:id="@+id/homecamera_bottom_relative"
@@ -54,6 +55,23 @@
             android:layout_centerInParent="true"
             android:src="@drawable/img_homepage_camera5" />
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/homecamera_bottom_relative"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:textSize="18dp"
+        android:textColor="#fff"
+        android:text="地址"
+        android:drawablePadding="10dp"
+        android:drawableLeft="@drawable/location"
+        />
 
     <TextView
         android:id="@+id/camera_delay_time_text"

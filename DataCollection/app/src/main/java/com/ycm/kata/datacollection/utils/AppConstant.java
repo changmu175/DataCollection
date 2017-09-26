@@ -14,6 +14,7 @@ public class AppConstant {
         String VIDEO_PATH = "VIDEO_PATH";
         String PIC_WIDTH = "PIC_WIDTH";
         String PIC_HEIGHT = "PIC_HEIGHT";
+        String PIC_PRE = "PIC_PRE";
     }
 
     public interface REQUEST_CODE {

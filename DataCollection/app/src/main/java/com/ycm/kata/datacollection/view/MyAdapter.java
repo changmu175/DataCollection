@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ycm.kata.datacollection.R;
@@ -97,7 +98,7 @@ public class MyAdapter extends BaseAdapter {
                 onItemClickListener.textOnclickListener(i + index * VIEW_COUNT);
             }
         });
-        holderView.getButton().setOnClickListener(new View.OnClickListener() {
+        holderView.getDelete().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onItemClickListener.buttonOnclickListener(i);
@@ -115,11 +116,11 @@ public class MyAdapter extends BaseAdapter {
 
     private class HolderView {
         private TextView textView;
-        private Button button;
+        private ImageView delete;
 
         HolderView(View view) {
             textView = view.findViewById(R.id.text);
-            button = view.findViewById(R.id.delete);
+            delete = view.findViewById(R.id.delete);
         }
 
         public TextView getTextView() {
@@ -130,12 +131,12 @@ public class MyAdapter extends BaseAdapter {
             this.textView = textView;
         }
 
-        public Button getButton() {
-            return button;
+        public ImageView getDelete() {
+            return delete;
         }
 
-        public void setButton(Button button) {
-            this.button = button;
+        public void setDelete(ImageView delete) {
+            this.delete = delete;
         }
     }
 }

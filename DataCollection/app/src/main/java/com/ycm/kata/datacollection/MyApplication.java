@@ -4,8 +4,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.mapapi.SDKInitializer;
 import com.ycm.kata.datacollection.model.DaoMaster;
 import com.ycm.kata.datacollection.model.DaoSession;
+import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.CrashHandler;
 import com.zxy.tiny.Tiny;
 
@@ -20,7 +24,7 @@ public class MyApplication extends MultiDexApplication {
     private DaoMaster mDaoMaster;
     private DaoSession mDaoSession;
     public static MyApplication instances;
-
+    public LocationService locationService;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -29,6 +33,9 @@ public class MyApplication extends MultiDexApplication {
         setDatabase();
         Tiny.getInstance().init(this);
         CrashHandler.getInstance().init(getApplicationContext());
+        locationService = new LocationService(getApplicationContext());
+        SDKInitializer.initialize(getApplicationContext());
+
     }
 
     public static MyApplication getInstances(){

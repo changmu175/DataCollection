@@ -24,11 +24,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.Poi;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.PhotoEvent;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.AppConstant;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
@@ -75,6 +79,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         time = System.currentTimeMillis();
         dateStr = CommonUtils.formatDate(time);
         initView();
+
+
 
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
         if (!(PermissionUtils.checkPermission(this, PermissionUtils.CODE_CAMERA) == PackageManager.PERMISSION_GRANTED)
@@ -575,4 +581,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                            @NonNull int[] grantResults) {
         PermissionUtils.requestPermissionResult(this, requestCode, permissions, grantResults, mPermissionGrant);
     }
+
+
+
 }
