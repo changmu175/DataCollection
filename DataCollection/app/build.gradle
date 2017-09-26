@@ -85,6 +85,8 @@ dependencies {
     compile files('libs/commons-codec-1.10.jar')
     compile files('libs/commons-collections4-4.1.jar')
     compile files('libs/commons-io-2.4.jar')
+
+    compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.zxy.android:tiny:0.0.6'
     //    compile files('libs/rt.jar')
 //    compile files('libs/rt.jar')
