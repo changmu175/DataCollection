@@ -294,6 +294,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             return;
         }
         Uri uri = Uri.fromFile(new File(filePath));
+        ivPicture.setVisibility(View.VISIBLE);
         ivPicture.setImageURI(uri);
     }
 
@@ -301,11 +302,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 123 && data != null) {
-            filePath = data.getStringExtra(AppConstant.KEY.IMG_PATH);
-            Uri uri = Uri.fromFile(new File(filePath));
-            ivPicture.setImageURI(uri);
-        }
 
         if (requestCode == 123) {
             if (file == null ) {

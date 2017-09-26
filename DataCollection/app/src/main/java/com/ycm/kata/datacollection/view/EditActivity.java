@@ -29,11 +29,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
+import com.ycm.kata.datacollection.event.PhotoEvent;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -338,6 +341,17 @@ public class EditActivity extends Activity implements TextWatcher, View.OnClickL
             intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
             startActivityForResult(intent, 123);
         }
+    }
+
+    @Subscribe
+    public void onEventMainThread(PhotoEvent photoEvent) {
+        filePath = photoEvent.getImagePath();
+        if (TextUtils.isEmpty(filePath)) {
+            return;
+        }
+        Uri uri = Uri.fromFile(new File(filePath));
+        ivPicture.setVisibility(View.VISIBLE);
+        ivPicture.setImageURI(uri);
     }
 
     @Override
