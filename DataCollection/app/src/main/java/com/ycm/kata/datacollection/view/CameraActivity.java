@@ -10,6 +10,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,8 +27,11 @@ import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
+import com.ycm.kata.datacollection.model.LocationInfoDao;
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
+import com.ycm.kata.datacollection.model.entity.LocationInfo;
 import com.ycm.kata.datacollection.service.LocationService;
+import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
@@ -79,25 +83,21 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     private CameraActivity cameraActivity;
+    private LocationInfoDao locationInfoDao;
     private TextView tvAddress;
-    private LocationService locationService;
     private String address;
-    private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        locationService = ((MyApplication) getApplication()).locationService;
-        locationService.registerListener(mListener);
-        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
-        locationService.start();// 定位SDK
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                tvAddress.setText(msg.getData().getString("address"));
-            }
-        };
+        ActivityStack.getInstanse().pushActivity(this);
+        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
+        LocationInfo locationInfo = locationInfoDao.loadByRowId(1L);
+        if (locationInfo != null) {
+            address = locationInfo.getAddress();
+        }
+
         cameraActivity = this;
         context = this;
         initView();
@@ -149,6 +149,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         flash_light = (ImageView) findViewById(R.id.flash_light);
         flash_light.setOnClickListener(this);
         tvAddress = findViewById(R.id.address);
+        if (!TextUtils.isEmpty(address)) {
+            tvAddress.setText(address);
+            tvAddress.setVisibility(View.VISIBLE);
+        }
         camera_delay_time_text = (TextView) findViewById(R.id.camera_delay_time_text);
 
         homecamera_bottom_relative = (RelativeLayout) findViewById(R.id.homecamera_bottom_relative);
@@ -343,7 +347,6 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
      */
     public void camera_square_0() {
         camera_square.setImageResource(R.drawable.btn_camera_size1_n);
-
         //属性动画
         ValueAnimator anim = ValueAnimator.ofInt(0, animHeight);
         anim.setDuration(300);
@@ -477,7 +480,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
                 desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-                saveBitmap = CameraUtil.getInstance().drawTextToRightBottom(getBaseContext(), saveBitmap, address, 12, getResources().getColor(R.color.Gray), 30, 30);
+                if (!TextUtils.isEmpty(address)) {
+                    saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+                }
                 saveImage(saveBitmap, desFileName);
 
 
@@ -532,9 +537,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         }
 
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
-        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 480);
+        Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 720);
         parameters.setPreviewSize(previewSize.width, previewSize.height);
-        Camera.Size pictureSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 480);
+        Camera.Size pictureSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 720);
         parameters.setPictureSize(pictureSize.width, pictureSize.height);
         camera.setParameters(parameters);
 
@@ -792,21 +797,5 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         return bitmap;
     }
 
-    /*****
-     *
-     * 定位结果回调，重写onReceiveLocation方法，可以直接拷贝如下代码到自己工程中修改
-     *
-     */
-    private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
 
-        @Override
-        public void onReceiveLocation(BDLocation location) {
-            address = location.getAddrStr();
-            Bundle bundle = new Bundle();
-            bundle.putString("address", address);
-            Message message = new Message();
-            message.setData(bundle);
-            handler.sendMessage(message);
-        }
-    };
 }

@@ -32,6 +32,7 @@ import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.PhotoEvent;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
@@ -82,6 +83,7 @@ public class EditActivity extends BaseActivity implements TextWatcher, View.OnCl
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+        ActivityStack.getInstanse().pushActivity(this);
         initView();
         filePath = null;
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();

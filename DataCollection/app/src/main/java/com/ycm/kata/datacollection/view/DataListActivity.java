@@ -26,6 +26,7 @@ import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
+import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 
 
@@ -75,6 +76,7 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_list);
+        ActivityStack.getInstanse().pushActivity(this);
         btnAdd = findViewById(R.id.add_new_btn);
         btnAdd.setOnClickListener(this);
         btnExport = findViewById(R.id.export_btn);

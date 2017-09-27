@@ -4,8 +4,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import com.baidu.location.BDAbstractLocationListener;
-import com.baidu.location.LocationClient;
 import com.baidu.mapapi.SDKInitializer;
 import com.ycm.kata.datacollection.model.DaoMaster;
 import com.ycm.kata.datacollection.model.DaoSession;
@@ -56,6 +54,7 @@ public class MyApplication extends MultiDexApplication {
         mDaoMaster = new DaoMaster(db);
         mDaoSession = mDaoMaster.newSession();
     }
+
 
     public DaoSession getDaoSession() {
         return mDaoSession;

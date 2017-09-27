@@ -3,7 +3,6 @@ package com.ycm.kata.datacollection.view;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,14 +25,15 @@ import android.widget.Toast;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.Poi;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.PhotoEvent;
+import com.ycm.kata.datacollection.model.LocationInfoDao;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
+import com.ycm.kata.datacollection.model.entity.LocationInfo;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.service.LocationService;
-import com.ycm.kata.datacollection.utils.AppConstant;
+import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
@@ -71,21 +71,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private File file;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
+    private LocationService locationService;
+    private String address;
+    private LocationInfoDao locationInfoDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActivityStack.getInstanse().pushActivity(this);
         time = System.currentTimeMillis();
         dateStr = CommonUtils.formatDate(time);
+        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
+        locationService = ((MyApplication) getApplication()).locationService;
+        locationService.registerListener(mListener);
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+        locationService.start();// 定位SDK
         initView();
-
-
 
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
         if (!(PermissionUtils.checkPermission(this, PermissionUtils.CODE_CAMERA) == PackageManager.PERMISSION_GRANTED)
-                || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-            showCamera();
+                || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                || !(PermissionUtils.checkPermission(this, PermissionUtils.CODE_ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            requestPermission();
         }
 
     }
@@ -553,7 +562,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
 
-    public void showCamera() {
+    public void requestPermission() {
         PermissionUtils.requestMultiPermissions(this, mPermissionGrant);
     }
 
@@ -582,6 +591,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         PermissionUtils.requestPermissionResult(this, requestCode, permissions, grantResults, mPermissionGrant);
     }
 
+    /*****
+     *
+     * 定位结果回调，重写onReceiveLocation方法，可以直接拷贝如下代码到自己工程中修改
+     *
+     */
+    private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
 
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            address = location.getAddrStr();
+            LocationInfo existLocationInfo = locationInfoDao.loadByRowId(1L);
+            if (existLocationInfo != null) {
+                locationInfoDao.update(new LocationInfo(1L, address));
+            } else {
+                locationInfoDao.insert(new LocationInfo(1L, address));
+            }
+        }
+    };
 
 }

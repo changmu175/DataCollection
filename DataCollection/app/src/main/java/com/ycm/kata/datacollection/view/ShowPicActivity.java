@@ -12,14 +12,14 @@ import android.widget.TextView;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.EventManager;
 import com.ycm.kata.datacollection.event.PhotoEvent;
+import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
-public class ShowPicActivity extends BaseActivity implements View.OnClickListener{
-
+public class ShowPicActivity extends BaseActivity implements View.OnClickListener {
     private ImageView img;
     private int picWidth;
     private int picHeight;
@@ -27,11 +27,12 @@ public class ShowPicActivity extends BaseActivity implements View.OnClickListene
     private TextView tvConfirm;
     private Intent intent;
     private String imagePath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_pic);
-
+        ActivityStack.getInstanse().pushActivity(this);
         tvConfirm = findViewById(R.id.confirm);
         tvRepeat = findViewById(R.id.repeat);
         img = findViewById(R.id.img);
@@ -48,10 +49,6 @@ public class ShowPicActivity extends BaseActivity implements View.OnClickListene
         imagePath = intent.getStringExtra(AppConstant.KEY.IMG_PATH);
         Uri uri = Uri.fromFile(new File(imagePath));
         img.setImageURI(uri);
-
-
-
-
 
 
 //        img.setImageBitmap(bitmap);

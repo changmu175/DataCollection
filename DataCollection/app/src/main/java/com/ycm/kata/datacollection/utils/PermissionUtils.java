@@ -32,8 +32,8 @@ public class PermissionUtils {
     public static final int CODE_READ_PHONE_STATE = 2;
     public static final int CODE_CALL_PHONE = 3;
     public static final int CODE_CAMERA = 0;
-    public static final int CODE_ACCESS_FINE_LOCATION = 5;
-    public static final int CODE_ACCESS_COARSE_LOCATION = 6;
+    public static final int CODE_ACCESS_FINE_LOCATION = 2;
+    public static final int CODE_ACCESS_COARSE_LOCATION = 3;
     public static final int CODE_READ_EXTERNAL_STORAGE = 7;
     public static final int CODE_WRITE_EXTERNAL_STORAGE = 1;
     public static final int CODE_MULTI_PERMISSION = 100;
@@ -44,7 +44,7 @@ public class PermissionUtils {
     public static final String PERMISSION_CALL_PHONE = Manifest.permission.CALL_PHONE;
     public static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
     public static final String PERMISSION_ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-//    public static final String PERMISSION_ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    public static final String PERMISSION_ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     public static final String PERMISSION_READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
 //    public static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -54,9 +54,9 @@ public class PermissionUtils {
 //            PERMISSION_READ_PHONE_STATE,
 //            PERMISSION_CALL_PHONE,
             PERMISSION_CAMERA,
-//            PERMISSION_ACCESS_FINE_LOCATION,
-//            PERMISSION_ACCESS_COARSE_LOCATION,
             PERMISSION_READ_EXTERNAL_STORAGE,
+            PERMISSION_ACCESS_FINE_LOCATION,
+            PERMISSION_ACCESS_COARSE_LOCATION
 //            PERMISSION_WRITE_EXTERNAL_STORAGE
     };
 
@@ -111,7 +111,7 @@ public class PermissionUtils {
                 ActivityCompat.requestPermissions(activity, new String[]{requestPermission}, requestCode);
                 Log.d(TAG, "showMessageOKCancel requestPermissions:" + requestPermission);
             }
-        });
+        }, null);
     }
 
     private static void requestMultiResult(Activity activity, String[] permissions, int[] grantResults, PermissionGrant permissionGrant) {
@@ -146,10 +146,15 @@ public class PermissionUtils {
         if (permissionList.size() > 0) {
             ActivityCompat.requestPermissions(activity, permissionList.toArray(new String[permissionList.size()]), CODE_MULTI_PERMISSION );
         } else if (shouldRationalePermissionList.size() > 0){
-            showMessageOkCancel(activity, "应用需要拍照权限和读写权限，请开启权限", new DialogInterface.OnClickListener() {
+            showMessageOkCancel(activity, "应用需要一些权限才能使用，请开启权限", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ActivityCompat.requestPermissions(activity, shouldRationalePermissionList.toArray(new String[shouldRationalePermissionList.size()]), CODE_MULTI_PERMISSION);
+                }
+            }, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    ActivityStack.getInstanse().exitApp();
                 }
             });
         } else {
@@ -216,11 +221,16 @@ public class PermissionUtils {
                 intent.setData(uri);
                 activity.startActivity(intent);
             }
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ActivityStack.getInstanse().exitApp();
+            }
         });
     }
 
-    private static void showMessageOkCancel(final Activity activity, String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(activity).setMessage(message).setPositiveButton("ok", okListener).setNegativeButton("cancel", okListener).create().show();
+    private static void showMessageOkCancel(final Activity activity, String message, DialogInterface.OnClickListener okListener, DialogInterface.OnClickListener cancelListener) {
+        new AlertDialog.Builder(activity).setMessage(message).setPositiveButton("ok", okListener).setNegativeButton("cancel", cancelListener).create().show();
 //        AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(activity, R.style.dialog));
 //        alertDialog.setMessage(message).setPositiveButton("ok", okListener).setNegativeButton("cancel", okListener).create().show();
 

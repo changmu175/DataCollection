@@ -68,9 +68,9 @@
         android:layout_marginRight="30dp"
         android:textSize="18dp"
         android:textColor="#fff"
-        android:text="地址"
         android:drawablePadding="10dp"
         android:drawableLeft="@drawable/location"
+        android:visibility="visible"
         />
 
     <TextView
