@@ -28,9 +28,9 @@ public class ProjectEntity implements Serializable{
     private String imagePath;
 
     @Generated(hash = 1357060564)
-    public ProjectEntity(Long id, String projectName, long checkDate,
-                         long updateTime, String unitEngineering, String block, String pilNo,
-                         String remark, String defects, String imagePath) {
+    public ProjectEntity(Long id, String projectName, long checkDate, long updateTime,
+            String unitEngineering, String block, String pilNo, String remark, String defects,
+            String imagePath) {
         this.id = id;
         this.projectName = projectName;
         this.checkDate = checkDate;

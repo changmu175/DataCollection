@@ -1,21 +1,30 @@
 package com.ycm.kata.datacollection.view;
 
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,6 +42,7 @@ import com.ycm.kata.datacollection.model.entity.LocationInfo;
 import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
+import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.SystemUtils;
@@ -86,6 +96,8 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private LocationInfoDao locationInfoDao;
     private TextView tvAddress;
     private String address;
+    private CameraOrientationEventListener cameraOrientationEventListener;
+    private Animation operatingAnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +109,19 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         if (locationInfo != null) {
             address = locationInfo.getAddress();
         }
+        cameraOrientationEventListener = new CameraOrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL);
+        if (cameraOrientationEventListener.canDetectOrientation()) {
+            cameraOrientationEventListener.enable();
+        }
+        operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rote);
+        LinearInterpolator lin = new LinearInterpolator();
+        operatingAnim.setInterpolator(lin);
+
 
         cameraActivity = this;
         context = this;
         initView();
         initData();
-
     }
 
     private void initView() {
@@ -154,7 +173,6 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
             tvAddress.setVisibility(View.VISIBLE);
         }
         camera_delay_time_text = (TextView) findViewById(R.id.camera_delay_time_text);
-
         homecamera_bottom_relative = (RelativeLayout) findViewById(R.id.homecamera_bottom_relative);
     }
 
@@ -436,6 +454,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private void startPreview(Camera camera, SurfaceHolder holder) {
         try {
             setupCamera(camera);
+
             camera.setPreviewDisplay(holder);
             //亲测的一个方法 基本覆盖所有手机 将预览矫正
             CameraUtil.getInstance().setCameraDisplayOrientation(this, mCameraId, camera);
@@ -479,6 +498,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 //                }
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
+                if (isLandscape) {
+                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
+                }
                 desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
                 if (!TextUtils.isEmpty(address)) {
                     saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
@@ -771,7 +793,6 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         return output;
     }
 
-
     public static Bitmap getZoomImage(Bitmap orgBitmap, double newWidth, double newHeight) {
         if (null == orgBitmap) {
             return null;
@@ -797,5 +818,48 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         return bitmap;
     }
 
+    private boolean isLandscape = false;
+    private int newOrientation;
+    private class CameraOrientationEventListener extends OrientationEventListener {
+        public CameraOrientationEventListener(Context context) {
+            super(context);
+        }
 
+        public CameraOrientationEventListener(Context context, int rate) {
+            super(context, rate);
+        }
+
+        @Override
+        public void onOrientationChanged(int orientation) {
+            if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+                return;
+            }
+
+            //保证只返回四个方向
+            //只要手机偏移一点，方向发生变化时，onOrientationChanged会一直执行，
+            // 但是在实际开发中，我们只关心4个方向(0°，90°，180°，270°)，因此用上面的方法转化一下，
+            // 转化原理为：当偏移角度小于45°，都当成0°来处理；大于45°，小于90°，都当成90°来处理；
+            // 同理，大于90°，小于135°，当成90°来处理；大于135°，小于180°，都当成180°来处理，依此类推......
+            newOrientation = ((orientation + 45) / 90 * 90) % 360;
+            if (newOrientation == 270 || newOrientation == 90) {
+                if (!isLandscape && operatingAnim != null) {
+                    isLandscape = true;
+//                    tvAddress.clearAnimation();
+//                    tvAddress.startAnimation(operatingAnim);
+                }
+
+            } else if (newOrientation == 180 || newOrientation == 0) {
+                if (isLandscape && operatingAnim != null) {
+                    isLandscape = false;
+//                    tvAddress.clearAnimation();
+//                    tvAddress.startAnimation(operatingAnim);
+                }
+            }
+            Log.d("newOrientation", newOrientation + "");
+//            if (newOrientation != mOrientation) {
+//                mOrientation = newOrientation;
+//
+//                //返回的mOrientation就是手机方向，为0°、90°、180°和270°中的一个
+        }
+    }
 }

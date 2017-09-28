@@ -48,7 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
+public class MainActivity extends BaseActivity implements View.OnClickListener, View.OnFocusChangeListener {
     private String photoFileCachePath = "";
     private EditText etDate;
     private EditText etName;
@@ -58,6 +58,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private EditText etRemark;
     private EditText etDefect;
     private ImageView ivPicture;
+    private ImageView ivCamera;
     private ImageView ivList;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
@@ -74,6 +75,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private LocationService locationService;
     private String address;
     private LocationInfoDao locationInfoDao;
+    private String pileContent = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,20 +106,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         etDate.setText(dateStr);
         etDate.setEnabled(false);
         etName = findViewById(R.id.name_et);
-        etName.addTextChangedListener(this);
         etProject = findViewById(R.id.project_et);
-        etProject.addTextChangedListener(this);
         etBlock = findViewById(R.id.block_et);
-        etBlock.addTextChangedListener(this);
         etPile = findViewById(R.id.pile_et);
-        etPile.addTextChangedListener(this);
+        etPile.addTextChangedListener(new PileEditTextChangeWatcher());
+        etPile.setOnFocusChangeListener(this);
         etRemark = findViewById(R.id.remark_et);
-        etRemark.addTextChangedListener(this);
         etDefect = findViewById(R.id.defects_et);
-        etDefect.addTextChangedListener(this);
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
         ivPicture = findViewById(R.id.image_iv);
+        ivCamera = findViewById(R.id.iv_camera);
+        ivCamera.setOnClickListener(this);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
         ivList = findViewById(R.id.list_btn);
@@ -151,9 +151,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.iv_camera:
             case R.id.take_photo:
                 CameraUtil.getInstance().camera(this);
-//                startToPhoto();
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
@@ -289,19 +289,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return projectEntityDao.load(id);
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    private class PileEditTextChangeWatcher implements TextWatcher {
 
-    }
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-    @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
 
-    }
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-    @Override
-    public void afterTextChanged(Editable editable) {
+        }
 
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (editable == null) {
+                return;
+            }
+            pileContent = editable.toString();
+        }
     }
 
     @Subscribe
@@ -316,12 +322,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private Bitmap showBitmap = null;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 123) {
-            if (file == null ) {
+            if (file == null) {
                 Toast.makeText(getBaseContext(), "拍照失败", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -403,16 +410,31 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //        }
     }
 
-//
+    String tempContent;
+    @Override
+    public void onFocusChange(View view, boolean b) {
+        switch (view.getId()) {
+            case R.id.pile_et:
+                if (!b) {
+                    tempContent = pileContent;
+                    etPile.setText(CommonUtils.combinationStr(pileContent));
+                } else {
+                    etPile.setText(tempContent);
+                }
+                break;
+        }
+    }
 
     private static class UpdateImageHandler extends Handler {
         WeakReference<MainActivity> mainActivityWeakReference;
         WeakReference<Bitmap> bitmapWeakReference;
         String path;
+
         UpdateImageHandler(MainActivity mainActivity, Bitmap bitmap) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             bitmapWeakReference = new WeakReference<>(bitmap);
         }
+
         UpdateImageHandler(MainActivity mainActivity, String path) {
             mainActivityWeakReference = new WeakReference<>(mainActivity);
             this.path = path;

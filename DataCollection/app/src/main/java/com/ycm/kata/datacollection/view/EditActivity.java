@@ -53,7 +53,7 @@ import java.util.Locale;
  * Description:
  */
 
-public class EditActivity extends BaseActivity implements TextWatcher, View.OnClickListener {
+public class EditActivity extends BaseActivity implements View.OnClickListener,  View.OnFocusChangeListener {
     private String photoFileCachePath = "";
     private EditText etDate;
     private EditText etName;
@@ -78,12 +78,14 @@ public class EditActivity extends BaseActivity implements TextWatcher, View.OnCl
     private long dateTime;
     private long time;
     private ProjectEntity pje;
-
+    private String pileContent = "";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         ActivityStack.getInstanse().pushActivity(this);
+        time = System.currentTimeMillis();
+        dateStr = CommonUtils.formatDate(time);
         initView();
         filePath = null;
         projectEntityDao = MyApplication.getInstances().getDaoSession().getProjectEntityDao();
@@ -98,20 +100,14 @@ public class EditActivity extends BaseActivity implements TextWatcher, View.OnCl
 
     private void initView() {
         etDate = findViewById(R.id.date_et);
-        etDate.setText(dateStr);
         etDate.setEnabled(false);
         etName = findViewById(R.id.name_et);
-        etName.addTextChangedListener(this);
         etProject = findViewById(R.id.project_et);
-        etProject.addTextChangedListener(this);
         etBlock = findViewById(R.id.block_et);
-        etBlock.addTextChangedListener(this);
         etPile = findViewById(R.id.pile_et);
-        etPile.addTextChangedListener(this);
+        etPile.addTextChangedListener(new PileEditTextChangeWatcher());
         etRemark = findViewById(R.id.remark_et);
-        etRemark.addTextChangedListener(this);
         etDefect = findViewById(R.id.defects_et);
-        etDefect.addTextChangedListener(this);
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
         ivPicture = findViewById(R.id.image_iv);
@@ -195,7 +191,7 @@ public class EditActivity extends BaseActivity implements TextWatcher, View.OnCl
 
     private ProjectEntity getNewProjectEntity() {
         ProjectEntity projectEntity = new ProjectEntity();
-
+        projectEntity.setCheckDate(time);
         String name = "";
         Editable nameEditable = etName.getText();
         if (nameEditable != null) {
@@ -249,20 +245,42 @@ public class EditActivity extends BaseActivity implements TextWatcher, View.OnCl
         return format.format(d1);
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    private class PileEditTextChangeWatcher implements TextWatcher {
 
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (editable == null) {
+                return;
+            }
+            pileContent = editable.toString();
+        }
     }
 
+    String tempContent;
     @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+    public void onFocusChange(View view, boolean b) {
+        switch (view.getId()) {
+            case R.id.pile_et:
+                if (!b) {
+                    tempContent = pileContent;
+                    etPile.setText(CommonUtils.combinationStr(pileContent));
+                } else {
+                    etPile.setText(tempContent);
+                }
+                break;
+        }
     }
 
-    @Override
-    public void afterTextChanged(Editable editable) {
-
-    }
 
     @Override
     public void onClick(View view) {

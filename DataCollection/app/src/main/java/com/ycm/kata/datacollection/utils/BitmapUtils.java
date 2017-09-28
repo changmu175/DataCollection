@@ -392,7 +392,21 @@ public class BitmapUtils {
         return degree;
     }
 
-
+    /**
+     * 旋转图片
+     * @param bmap 要旋转的图片
+     * @return
+     */
+    public static Bitmap rotaingImageView(Bitmap bmap, int angle) {
+        //旋转图片 动作
+        Matrix matrix1 = new Matrix();
+        matrix1.postRotate(angle);
+        int width  = bmap.getWidth();
+        int height = bmap.getHeight();
+        // 创建新的图片
+        return Bitmap.createBitmap(bmap, 0, 0,
+                width, height, matrix1, true);
+    }
     /**
      * 保存图片为PNG
      *

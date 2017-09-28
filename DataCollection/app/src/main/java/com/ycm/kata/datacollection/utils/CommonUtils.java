@@ -2,6 +2,7 @@ package com.ycm.kata.datacollection.utils;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
@@ -100,4 +101,23 @@ public class CommonUtils {
 //            width /= zoomIndex;
 //        }
 //    }
+
+    public static String combinationStr(String pileContent) {
+
+        if (TextUtils.isEmpty(pileContent)) {
+            return "";
+        }
+
+        int length = pileContent.length();
+        if (length == 3) {
+            return "K0" + "+" + pileContent;
+        }
+
+        if (length >= 3) {
+            String strPre = pileContent.substring(0, length - 3);
+            String strFor = pileContent.substring(length - 3, length);
+            return "K" + strPre + "+" + strFor;
+        }
+        return pileContent;
+    }
 }
