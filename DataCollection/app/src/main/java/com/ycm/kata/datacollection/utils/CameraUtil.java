@@ -508,7 +508,7 @@ public class CameraUtil {
         if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
         }
-        bitmap = bitmap.copy(bitmapConfig, true);
+//        bitmap = bitmap.copy(bitmapConfig, true);
         Canvas canvas = new Canvas(bitmap);
 
         canvas.drawText(text, paddingLeft, paddingTop, paint);

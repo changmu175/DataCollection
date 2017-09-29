@@ -404,8 +404,7 @@ public class BitmapUtils {
         int width  = bmap.getWidth();
         int height = bmap.getHeight();
         // 创建新的图片
-        return Bitmap.createBitmap(bmap, 0, 0,
-                width, height, matrix1, true);
+        return Bitmap.createBitmap(bmap, 0, 0, width, height, matrix1, true);
     }
     /**
      * 保存图片为PNG

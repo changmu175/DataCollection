@@ -474,7 +474,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 Bitmap saveBitmap = CameraUtil.getInstance().setTakePicktrueOrientation(mCameraId, bitmap);
                 saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
-                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
+//                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
 //                if (index == 1) {
 //                    //正方形 animHeight(动画高度)
 //                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
@@ -498,13 +498,20 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
                 desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis());
 
-
+                Log.d("mmmmmmm1", System.currentTimeMillis() + "");
                 if (isLandscape) {//横屏拍照
-                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
+                    //旋转图片 动作
+                    Matrix matrix1 = new Matrix();
+                    matrix1.postRotate(newOrientation);
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3, matrix1, true);
+                    Log.d("mmmmmmm2", System.currentTimeMillis() + "");
+//                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
                         saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
                     }
+                    Log.d("mmmmmmm3", System.currentTimeMillis() + "");
                     saveImage(saveBitmap, desFileName);
+                    Log.d("mmmmmmm4", System.currentTimeMillis() + "");
                     Intent intent = new Intent();
                     intent.setClass(cameraActivity, ShowPicActivity.class);
                     Uri imageUri = Uri.fromFile(new File(desFileName));
@@ -512,17 +519,16 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName);
                     intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
                     intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight);
-                    intent.putExtra("tag", "isLandscape");
                     cameraActivity.startActivity(intent);
                     cameraActivity.finish();
                 } else {//竖屏拍照
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
                     if (!TextUtils.isEmpty(address)) {
                         saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
                     }
                     saveImage(saveBitmap, desFileName);
                     pictureName = CommonUtils.getImageFilePath(System.currentTimeMillis());
                     startCropActivity(desFileName);
-//                    cameraActivity.finish();
                 }
 
 
