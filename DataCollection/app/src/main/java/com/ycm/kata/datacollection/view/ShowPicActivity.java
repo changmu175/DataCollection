@@ -1,14 +1,20 @@
 package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.yalantis.ucrop.view.UCropView;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.EventManager;
 import com.ycm.kata.datacollection.event.PhotoEvent;
@@ -20,39 +26,29 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 
 public class ShowPicActivity extends BaseActivity implements View.OnClickListener {
-    private ImageView img;
     private int picWidth;
     private int picHeight;
-    private TextView tvRepeat;
-    private TextView tvConfirm;
-    private Intent intent;
     private String imagePath;
-
+    private Uri imageUri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_pic);
         ActivityStack.getInstanse().pushActivity(this);
-        tvConfirm = findViewById(R.id.confirm);
-        tvRepeat = findViewById(R.id.repeat);
-        img = findViewById(R.id.img);
+        TextView tvConfirm = findViewById(R.id.confirm);
+        TextView tvRepeat = findViewById(R.id.repeat);
+        ImageView img = findViewById(R.id.img);
         tvRepeat.setOnClickListener(this);
         tvConfirm.setOnClickListener(this);
-        intent = getIntent();
+        Intent intent = getIntent();
+        imageUri = intent.getData();
+        imagePath = imageUri.getPath();
         picWidth = intent.getIntExtra(AppConstant.KEY.PIC_WIDTH, 0);
         picHeight = intent.getIntExtra(AppConstant.KEY.PIC_HEIGHT, 0);
-
-//        Bitmap bitmap = intent.getParcelableExtra(AppConstant.KEY.PIC_PRE);
-//        img.setImageBitmap(bitmap);
-
-
-        imagePath = intent.getStringExtra(AppConstant.KEY.IMG_PATH);
-        Uri uri = Uri.fromFile(new File(imagePath));
-        img.setImageURI(uri);
-
-
-//        img.setImageBitmap(bitmap);
-//        img.setLayoutParams(new RelativeLayout.LayoutParams(picWidth, picHeight));
+        img.setImageURI(imageUri);
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(new File(imageUri.getPath()).getAbsolutePath(), options);
     }
 
     @Override
@@ -65,13 +61,9 @@ public class ShowPicActivity extends BaseActivity implements View.OnClickListene
                 finish();
                 break;
             case R.id.confirm:
-//                Intent ii = intent;
-//                ii.putExtra(AppConstant.KEY.IMG_PATH, imagePath);
-//                setResult(123, ii);
                 PhotoEvent photoEvent = new PhotoEvent();
                 photoEvent.setImagePath(imagePath);
                 EventManager.GetInstance().getEventBus().post(photoEvent);
-//                EventBus.getDefault().post(photoEvent);
                 finish();
                 break;
         }
@@ -81,5 +73,11 @@ public class ShowPicActivity extends BaseActivity implements View.OnClickListene
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    public static void startWithUri(@NonNull Context context, @NonNull Uri uri) {
+        Intent intent = new Intent(context, ShowPicActivity.class);
+        intent.setData(uri);
+        context.startActivity(intent);
     }
 }

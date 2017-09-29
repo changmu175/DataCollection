@@ -1,23 +1,22 @@
 package com.ycm.kata.datacollection.view;
 
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -32,19 +31,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.location.BDAbstractLocationListener;
-import com.baidu.location.BDLocation;
-import com.ycm.kata.datacollection.MyApplication;
+import com.yalantis.ucrop.UCrop;
 import com.ycm.kata.datacollection.R;
-import com.ycm.kata.datacollection.model.LocationInfoDao;
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
-import com.ycm.kata.datacollection.model.entity.LocationInfo;
-import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
 import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
+import com.ycm.kata.datacollection.utils.SharePreferenceUtil;
 import com.ycm.kata.datacollection.utils.SystemUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -90,25 +85,29 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private ImageView img_camera;
     private int picHeight;
     private static String desFileName;
+    private static String pictureName;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     private CameraActivity cameraActivity;
-    private LocationInfoDao locationInfoDao;
+    //    private LocationInfoDao locationInfoDao;
     private TextView tvAddress;
     private String address;
     private CameraOrientationEventListener cameraOrientationEventListener;
     private Animation operatingAnim;
+    private SharePreferenceUtil sharePreferenceUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         ActivityStack.getInstanse().pushActivity(this);
-        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
-        LocationInfo locationInfo = locationInfoDao.loadByRowId(1L);
-        if (locationInfo != null) {
-            address = locationInfo.getAddress();
-        }
+//        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
+//        LocationInfo locationInfo = locationInfoDao.loadByRowId(1L);
+//        if (locationInfo != null) {
+//            address = locationInfo.getAddress();
+//        }
+        sharePreferenceUtil = SharePreferenceUtil.getInstance("address", this);
+        address = sharePreferenceUtil.getStringData("address");
         cameraOrientationEventListener = new CameraOrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL);
         if (cameraOrientationEventListener.canDetectOrientation()) {
             cameraOrientationEventListener.enable();
@@ -116,8 +115,6 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.rote);
         LinearInterpolator lin = new LinearInterpolator();
         operatingAnim.setInterpolator(lin);
-
-
         cameraActivity = this;
         context = this;
         initView();
@@ -477,13 +474,14 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 Bitmap saveBitmap = CameraUtil.getInstance().setTakePicktrueOrientation(mCameraId, bitmap);
                 saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
-                if (index == 1) {
-                    //正方形 animHeight(动画高度)
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
-                } else {
-                    //正方形 animHeight(动画高度)
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
-                }
+                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
+//                if (index == 1) {
+//                    //正方形 animHeight(动画高度)
+//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
+//                } else {
+//                    //正方形 animHeight(动画高度)
+//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
+//                }
 
 //                String img_path = CommonUtils.getImageFilePath(System.currentTimeMillis());
 
@@ -498,28 +496,44 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 //                }
 
 //                Bitmap bitmap = BitmapFactory.decodeFile(rootFilePath);
-                if (isLandscape) {
+                desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis());
+
+
+                if (isLandscape) {//横屏拍照
                     saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
+                    if (!TextUtils.isEmpty(address)) {
+                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+                    }
+                    saveImage(saveBitmap, desFileName);
+                    Intent intent = new Intent();
+                    intent.setClass(cameraActivity, ShowPicActivity.class);
+                    Uri imageUri = Uri.fromFile(new File(desFileName));
+                    intent.setData(imageUri);
+                    intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName);
+                    intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
+                    intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight);
+                    intent.putExtra("tag", "isLandscape");
+                    cameraActivity.startActivity(intent);
+                    cameraActivity.finish();
+                } else {//竖屏拍照
+                    if (!TextUtils.isEmpty(address)) {
+                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+                    }
+                    saveImage(saveBitmap, desFileName);
+                    pictureName = CommonUtils.getImageFilePath(System.currentTimeMillis());
+                    startCropActivity(desFileName);
+//                    cameraActivity.finish();
                 }
-                desFileName = CommonUtils.getImageFilePath(System.currentTimeMillis()); /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
-                if (!TextUtils.isEmpty(address)) {
-                    saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
-                }
-                saveImage(saveBitmap, desFileName);
+
+
+                 /*getFileName(System.currentTimeMillis())*//*imageRootPath + File.separator + formatDate2(System.currentTimeMillis()) + ".png"*/
 
 
 //                ImageInfo imageInfo = new ImageInfo(desFileName, screenWidth, picHeight);
 //                updateImageHandler = new UpdateImageHandler(cameraActivity, imageInfo);
 //                saveImageThread = new SaveImageThread(saveBitmap, desFileName, updateImageHandler, cameraActivity, imageInfo);
 //                saveImageThread.start();
-                Intent intent = new Intent();
-                intent.setClass(cameraActivity, ShowPicActivity.class);
-                intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName /*imageInfoWeakReference.get().getPath()*/);
-                intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth /*imageInfoWeakReference.get().getWidth()*/);
-                intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight /*imageInfoWeakReference.get().getHeight()*/);
-//                intent.putExtra(AppConstant.KEY.PIC_PRE, saveBitmap /*imageInfoWeakReference.get().getHeight()*/);
-                cameraActivity.startActivity(intent);
-                cameraActivity.finish();
+
 
 //                BitmapUtils.saveJPGE_After(context, saveBitmap, img_path, 100);
 
@@ -545,6 +559,21 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 //                Log.d("bitmapHeight==", bitmap.getHeight() + "");
             }
         });
+    }
+
+    /**
+     * 裁剪图片
+     */
+    private void startCropActivity(String fileName) {
+        Uri uri = Uri.fromFile(new File(fileName));
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(fileName)));
+        UCrop.Options options = new UCrop.Options();
+        options.setHideBottomControls(true);
+        options.setCompressionQuality(100);
+//        options.withMaxResultSize(400, 200);
+        options.withAspectRatio(4, 3);
+        uCrop.withOptions(options);
+        uCrop.start(this);
     }
 
     /**
@@ -820,6 +849,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 
     private boolean isLandscape = false;
     private int newOrientation;
+
     private class CameraOrientationEventListener extends OrientationEventListener {
         public CameraOrientationEventListener(Context context) {
             super(context);
@@ -860,6 +890,25 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 //                mOrientation = newOrientation;
 //
 //                //返回的mOrientation就是手机方向，为0°、90°、180°和270°中的一个
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == UCrop.REQUEST_CROP) {
+                handleCropResult(data);
+            }
+        }
+    }
+
+    private void handleCropResult(@NonNull Intent result) {
+        final Uri resultUri = UCrop.getOutput(result);
+        if (resultUri != null) {
+            ShowPicActivity.startWithUri(this, resultUri);
+            finish();
+        } else {
         }
     }
 }

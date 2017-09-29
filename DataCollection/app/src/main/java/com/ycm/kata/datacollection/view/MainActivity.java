@@ -37,6 +37,7 @@ import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.PermissionUtils;
+import com.ycm.kata.datacollection.utils.SharePreferenceUtil;
 import com.zxy.tiny.Tiny;
 import com.zxy.tiny.callback.FileWithBitmapCallback;
 
@@ -74,17 +75,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private SaveImageThread saveImageThread;
     private LocationService locationService;
     private String address;
-    private LocationInfoDao locationInfoDao;
+//    private LocationInfoDao locationInfoDao;
     private String pileContent = "";
-
+    private SharePreferenceUtil sharePreferenceUtil;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ActivityStack.getInstanse().pushActivity(this);
+        sharePreferenceUtil = SharePreferenceUtil.getInstance("address", this);
         time = System.currentTimeMillis();
         dateStr = CommonUtils.formatDate(time);
-        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
+//        locationInfoDao = MyApplication.getInstances().getDaoSession().getLocationInfoDao();
         locationService = ((MyApplication) getApplication()).locationService;
         locationService.registerListener(mListener);
         locationService.setLocationOption(locationService.getDefaultLocationClientOption());
@@ -623,12 +625,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         @Override
         public void onReceiveLocation(BDLocation location) {
             address = location.getAddrStr();
-            LocationInfo existLocationInfo = locationInfoDao.loadByRowId(1L);
-            if (existLocationInfo != null) {
-                locationInfoDao.update(new LocationInfo(1L, address));
-            } else {
-                locationInfoDao.insert(new LocationInfo(1L, address));
-            }
+            sharePreferenceUtil.addData("address", address);
         }
     };
 

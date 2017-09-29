@@ -22,10 +22,20 @@
     <color name="Black4">#121415</color>
     <color name="Black5">#242125</color>
     <color name="Black6">#313641</color>
-
+    <color name="W1">#ffffff</color>
     <color name="White">#ffffff</color>
     <color name="title_bg">#fafafa</color>
     <color name="Transparent">#00000000</color>
     <color name="short_video_red">#ff4747</color>
     <color name="Gray">#eeeeee</color>
+    <color name="G1">#222222</color>
+    <color name="G2">#777777</color>
+    <color name="G3">#aaaaaa</color>
+    <color name="G4">#cccccc</color>
+    <color name="G5">#ebebeb</color>
+    <color name="G6">#f0f0f0</color>
+    <color name="G8">#f7f7f7</color>
+    <color name="G9">#DDDDDD</color>
+    <color name="G10">#FAFAFA</color>
+    <color name="B1">#4880d4</color>
 </resources>

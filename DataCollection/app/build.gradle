@@ -96,6 +96,7 @@ dependencies {
 
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.zxy.android:tiny:0.0.6'
+    compile 'com.github.yalantis:ucrop:2.2.1-native'
     //    compile files('libs/rt.jar')
 //    compile files('libs/rt.jar')
 }

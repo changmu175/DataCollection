@@ -201,9 +201,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:inputType="number"
-                android:maxLines="1"
-                android:maxLength="7" />
+                android:inputType="number" />
 
             <View
                 android:layout_width="200dp"
@@ -237,9 +235,7 @@
                 android:id="@+id/remark_et"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:maxEms="255"
-                android:maxLines="3" />
+                android:background="@null" />
 
             <View
                 android:layout_width="200dp"

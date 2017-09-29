@@ -54,7 +54,7 @@ import java.util.List;
  * Description:
  */
 
-public class DataListActivity extends Activity implements GetDataListener, OnItemClickListener, View.OnClickListener, ExportListener {
+public class DataListActivity extends BaseActivity implements GetDataListener, OnItemClickListener, View.OnClickListener, ExportListener {
     private Button btnAdd;
     private Button btnExport;
     private Button btnPrevious;
@@ -145,8 +145,14 @@ public class DataListActivity extends Activity implements GetDataListener, OnIte
     }
 
     @Override
-    public void buttonOnclickListener(int position) {
-        deleteById(position);
+    public void buttonOnclickListener(final int position) {
+        showConfirmCancelDialog("确认删除？", "确定", "取消", "删除之后无法恢复", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteById(position);
+            }
+
+        }, null);
     }
 
     @Override
