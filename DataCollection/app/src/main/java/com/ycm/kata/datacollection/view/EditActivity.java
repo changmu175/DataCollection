@@ -64,6 +64,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
     private EditText etDefect;
     private ImageView ivPicture;
     private ImageView ivList;
+    private ImageView ivCamera;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
     private Button btnSave;
@@ -112,7 +113,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
         ivPicture = findViewById(R.id.image_iv);
-        ivPicture.setEnabled(false);
+        ivCamera = findViewById(R.id.iv_camera);
+        ivCamera.setOnClickListener(this);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
         ivList = findViewById(R.id.list_btn);
@@ -132,9 +134,10 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         etBlock.setText(pje.getBlock());
         etProject.setText(pje.getUnitEngineering());
         ivPicture.setVisibility(View.VISIBLE);
+        filePath = pje.getImagePath();
         if (!TextUtils.isEmpty(pje.getImagePath())) {
             ivPicture.setVisibility(View.VISIBLE);
-            Glide.with(this).load(pje.getImagePath()).crossFade().into(ivPicture);
+            Glide.with(this).load(filePath).crossFade().into(ivPicture);
         } else {
             ivPicture.setVisibility(View.GONE);
         }
@@ -186,7 +189,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         projectEntity.setRemark(remark);
         projectEntity.setUnitEngineering(project);
         projectEntity.setUpdateTime(time);
-        String path = filePath == null ? pje.getImagePath() : filePath;
+        String path = TextUtils.equals(filePath, pje.getImagePath()) ? pje.getImagePath() : filePath;
         projectEntity.setImagePath(path);
         return projectEntity;
     }
@@ -236,7 +239,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         projectEntity.setRemark(remark);
         projectEntity.setUnitEngineering(project);
         projectEntity.setUpdateTime(time);
-        String path = filePath == null ? pje.getImagePath() : filePath;
+        String path = TextUtils.equals(filePath, pje.getImagePath()) ? pje.getImagePath() : filePath;
         projectEntity.setImagePath(path);
         return projectEntity;
     }
@@ -291,11 +294,11 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
                 CameraUtil.getInstance().camera(this);
                 break;
             case R.id.take_photo:
-                if (imageUri == null) {
+                if (TextUtils.isEmpty(filePath)) {
                     return;
                 }
                 Intent ii = new Intent();
-                ii.setData(imageUri);
+                ii.setData(Uri.fromFile(new File(filePath)));
                 ii.setClass(this, ShowPicActivity.class);
                 startActivity(ii);
                 break;
@@ -382,7 +385,6 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         Uri uri = Uri.fromFile(new File(filePath));
         ivPicture.setVisibility(View.VISIBLE);
         ivPicture.setImageURI(uri);
-        ivPicture.setEnabled(true);
     }
 
     @Override

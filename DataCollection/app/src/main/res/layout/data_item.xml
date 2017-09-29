@@ -13,9 +13,10 @@
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="30dp"
             android:layout_marginStart="30dp"
-            android:maxWidth="120dp" />
+            android:maxWidth="250dp" />
 
         <ImageView
             android:id="@+id/delete"
@@ -23,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:layout_marginEnd="30dp"
             android:layout_marginRight="30dp"
             android:src="@drawable/delete_24" />

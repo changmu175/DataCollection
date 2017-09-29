@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ycm.kata.datacollection.MyApplication;
@@ -59,6 +60,8 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
     private Button btnExport;
     private Button btnPrevious;
     private Button btnNext;
+    private TextView tvCurrentPage;
+    private TextView totalPage;
     private ListView listView;
     private MyAdapter myAdapter;
     private static List<ProjectEntity> dataSource;
@@ -79,6 +82,8 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         ActivityStack.getInstanse().pushActivity(this);
         btnAdd = findViewById(R.id.add_new_btn);
         btnAdd.setOnClickListener(this);
+        tvCurrentPage = findViewById(R.id.currentPage);
+        totalPage = findViewById(R.id.totalPage);
         btnExport = findViewById(R.id.export_btn);
         btnExport.setOnClickListener(this);
         btnPrevious = findViewById(R.id.previous_btn);

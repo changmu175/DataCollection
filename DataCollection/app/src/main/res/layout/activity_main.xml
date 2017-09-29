@@ -420,6 +420,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
+            android:textColor="@color/G3"
+            android:textSize="12sp"
             android:gravity="center"
             android:text="@string/copyRight" />
     </LinearLayout>
