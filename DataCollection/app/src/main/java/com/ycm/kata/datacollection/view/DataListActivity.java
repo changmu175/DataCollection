@@ -123,6 +123,16 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
             if (msg.what == 123) {
                 weakReference.get().myAdapter.setDataSource(dataSource);
                 weakReference.get().myAdapter.notifyDataSetChanged();
+                int totalSize = dataSource.size();
+                int totalPage = totalSize;
+                if (totalSize % 5 == 0) {
+                    totalPage = totalSize / 5;
+                } else {
+                    totalPage = totalSize / 5 + 1;
+                }
+                String pageStr = weakReference.get().index + "/" + totalPage;
+                weakReference.get().tvCurrentPage.setText(pageStr);
+                weakReference.get().totalPage.setText(totalSize);
             }
         }
     }
@@ -253,6 +263,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         myAdapter.notifyDataSetChanged();
         // 检查Button是否可用。
 //        checkButton();
+        tvCurrentPage.setText();
     }
 
     // 点击右边的Button，表示向后翻页，索引值要加1.
