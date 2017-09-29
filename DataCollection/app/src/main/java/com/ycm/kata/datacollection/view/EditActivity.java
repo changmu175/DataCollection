@@ -71,6 +71,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
     private ProjectEntityDao projectEntityDao;
     private ProjectEntity projectEntity;
     private String filePath;
+    private Uri imageUri = null;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     //    private ProjectEntity projectEntity;
@@ -111,6 +112,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
         ivPicture = findViewById(R.id.image_iv);
+        ivPicture.setEnabled(false);
         progressBar = findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
         ivList = findViewById(R.id.list_btn);
@@ -285,9 +287,17 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.take_photo:
+            case R.id.iv_camera:
                 CameraUtil.getInstance().camera(this);
-//                startToPhoto();
+                break;
+            case R.id.take_photo:
+                if (imageUri == null) {
+                    return;
+                }
+                Intent ii = new Intent();
+                ii.setData(imageUri);
+                ii.setClass(this, ShowPicActivity.class);
+                startActivity(ii);
                 break;
         }
         if (view == btnSave) {
@@ -372,6 +382,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
         Uri uri = Uri.fromFile(new File(filePath));
         ivPicture.setVisibility(View.VISIBLE);
         ivPicture.setImageURI(uri);
+        ivPicture.setEnabled(true);
     }
 
     @Override

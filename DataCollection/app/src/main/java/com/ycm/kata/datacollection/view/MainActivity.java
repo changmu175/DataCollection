@@ -70,14 +70,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private String dateStr;
     private long time;
     private String filePath = "";
+    private Uri imageUri = null;
     private File file;
     private static UpdateImageHandler updateImageHandler;
     private SaveImageThread saveImageThread;
     private LocationService locationService;
     private String address;
-//    private LocationInfoDao locationInfoDao;
+    //    private LocationInfoDao locationInfoDao;
     private String pileContent = "";
     private SharePreferenceUtil sharePreferenceUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +120,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         llTakePhoto = findViewById(R.id.take_photo);
         llTakePhoto.setOnClickListener(this);
         ivPicture = findViewById(R.id.image_iv);
+        ivPicture.setEnabled(false);
         ivCamera = findViewById(R.id.iv_camera);
         ivCamera.setOnClickListener(this);
         progressBar = findViewById(R.id.progress);
@@ -154,8 +157,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_camera:
-            case R.id.take_photo:
                 CameraUtil.getInstance().camera(this);
+                break;
+            case R.id.take_photo:
+                if (imageUri == null) {
+                    return;
+                }
+                Intent ii = new Intent();
+                ii.setData(imageUri);
+                ii.setClass(this, ShowPicActivity.class);
+                startActivity(ii);
                 break;
             case R.id.save_btn:
                 projectEntity = getProjectEntity();
@@ -318,9 +329,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (TextUtils.isEmpty(filePath)) {
             return;
         }
-        Uri uri = Uri.fromFile(new File(filePath));
+        imageUri = Uri.fromFile(new File(filePath));
         ivPicture.setVisibility(View.VISIBLE);
-        ivPicture.setImageURI(uri);
+        ivPicture.setImageURI(imageUri);
+        ivPicture.setEnabled(true);
     }
 
     private Bitmap showBitmap = null;
@@ -413,6 +425,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     String tempContent;
+
     @Override
     public void onFocusChange(View view, boolean b) {
         switch (view.getId()) {

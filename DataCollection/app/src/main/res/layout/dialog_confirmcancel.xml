@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sohu.sohulive.customviews.RoundRelativeLayout
+    <com.ycm.kata.datacollection.view.RoundRelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -30,7 +30,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="15dp"
                 android:layout_marginTop="15dp"
-                android:text="请为本次作业打平均分请为本次作业打平均分"
+                android:text=""
                 android:textColor="@color/G1"
                 android:textSize="15sp" />
 
@@ -41,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/dialog_confirmcancel_title"
                 android:layout_marginTop="10dp"
+                android:layout_centerHorizontal="true"
                 android:text="内容"
                 android:textColor="@color/G1"
                 android:textSize="14sp"
@@ -102,7 +103,7 @@
             android:layout_below="@id/dialog_confirmcancel_content"
             android:background="@color/G5" />
 
-    </com.sohu.sohulive.customviews.RoundRelativeLayout>
+    </com.ycm.kata.datacollection.view.RoundRelativeLayout>
 
 </RelativeLayout>
 
