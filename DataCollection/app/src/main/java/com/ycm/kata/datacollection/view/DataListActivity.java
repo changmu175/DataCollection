@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,10 +54,10 @@ import java.util.List;
  */
 
 public class DataListActivity extends BaseActivity implements GetDataListener, OnItemClickListener, View.OnClickListener, ExportListener {
-    private Button btnAdd;
-    private Button btnExport;
-    private Button btnPrevious;
-    private Button btnNext;
+    private ImageView btnAdd;
+    private ImageView btnExport;
+    private ImageView btnPrevious;
+    private ImageView btnNext;
     private TextView tvCurrentPage;
     private TextView totalSize;
     private ListView listView;
