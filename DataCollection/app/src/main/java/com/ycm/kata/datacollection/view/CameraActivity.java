@@ -96,6 +96,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private Animation operatingAnim;
     private SharePreferenceUtil sharePreferenceUtil;
 
+    private int pictureWidth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -503,7 +504,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     //旋转图片 动作
                     Matrix matrix1 = new Matrix();
                     matrix1.postRotate(newOrientation);
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3, matrix1, true);
+                    if (screenWidth > 720) {
+                        screenWidth = 720;
+                    }
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0,screenWidth, screenWidth * 4 / 3, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
@@ -522,7 +526,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     cameraActivity.startActivity(intent);
                     cameraActivity.finish();
                 } else {//竖屏拍照
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
+                    if (screenWidth > 720) {
+                        screenWidth = 720;
+                    }
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0,screenWidth, screenWidth * 4 / 3);
                     if (!TextUtils.isEmpty(address)) {
                         saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
                     }
@@ -609,7 +616,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
          */
 
         picHeight = (screenWidth * pictureSize.width) / pictureSize.height;
-
+        pictureWidth = pictureSize.width;
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenWidth, (screenWidth * pictureSize.width) / pictureSize.height);
         //这里当然可以设置拍照位置 比如居中 我这里就置顶了
         //params.gravity = Gravity.CENTER;

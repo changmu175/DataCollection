@@ -1,7 +1,6 @@
 package com.ycm.kata.datacollection.view;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -29,7 +27,6 @@ import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CommonUtils;
-
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
@@ -61,7 +58,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
     private Button btnPrevious;
     private Button btnNext;
     private TextView tvCurrentPage;
-    private TextView totalPage;
+    private TextView totalSize;
     private ListView listView;
     private MyAdapter myAdapter;
     private static List<ProjectEntity> dataSource;
@@ -69,7 +66,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
     private ProjectEntity projectEntity;
     private GetData getData;
     private int index = 0;
-    private static final int VIEW_COUNT = 6;
+    private static final int VIEW_COUNT = 5;
     private UpdateViewHandler handler;
     private static final int MY_PERMISSIONS_REQUEST = 1;
     private String imageFile;
@@ -80,10 +77,18 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_list);
         ActivityStack.getInstanse().pushActivity(this);
+        preViewHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                String str = (index + 1) + "/" + dataSize;
+                tvCurrentPage.setText(str);
+            }
+        };
         btnAdd = findViewById(R.id.add_new_btn);
         btnAdd.setOnClickListener(this);
         tvCurrentPage = findViewById(R.id.currentPage);
-        totalPage = findViewById(R.id.totalPage);
+        totalSize = findViewById(R.id.totalSize);
         btnExport = findViewById(R.id.export_btn);
         btnExport.setOnClickListener(this);
         btnPrevious = findViewById(R.id.previous_btn);
@@ -110,6 +115,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         return 0;
     }
 
+    private static int dataSize;
     private static class UpdateViewHandler extends Handler {
         private WeakReference<DataListActivity> weakReference;
 
@@ -123,16 +129,15 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
             if (msg.what == 123) {
                 weakReference.get().myAdapter.setDataSource(dataSource);
                 weakReference.get().myAdapter.notifyDataSetChanged();
-                int totalSize = dataSource.size();
-                int totalPage = totalSize;
-                if (totalSize % 5 == 0) {
-                    totalPage = totalSize / 5;
+                dataSize = dataSource.size();
+                if (dataSize % 5 == 0) {
+                    dataSize = dataSize / 5;
                 } else {
-                    totalPage = totalSize / 5 + 1;
+                    dataSize = dataSize / 5 + 1;
                 }
-                String pageStr = weakReference.get().index + "/" + totalPage;
+                String pageStr = (weakReference.get().index+1) + "/" + dataSize;
                 weakReference.get().tvCurrentPage.setText(pageStr);
-                weakReference.get().totalPage.setText(totalSize);
+//                weakReference.get().totalSize.setText(dataSize);
             }
         }
     }
@@ -251,19 +256,20 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         getDataSource();
     }
 
+    private Handler preViewHandler;
+
     // 点击左边的Button，表示向前翻页，索引值要减1.
     public void preView() {
         if (index <= 0) {
             Toast.makeText(getBaseContext(), "已经是第一页啦", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.d("tagggg1", index + " ");
         myAdapter.setIndex(--index);
         // 刷新ListView里面的数值。
         myAdapter.notifyDataSetChanged();
         // 检查Button是否可用。
 //        checkButton();
-        tvCurrentPage.setText();
+        preViewHandler.sendEmptyMessage(index);
     }
 
     // 点击右边的Button，表示向后翻页，索引值要加1.
@@ -284,10 +290,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
             Toast.makeText(getBaseContext(), "已经是最后一页啦", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.d("tagggg", index + " ");
         myAdapter.setIndex(++index);
         // 刷新ListView里面的数值。
         myAdapter.notifyDataSetChanged();
+        preViewHandler.sendEmptyMessage(index);
         // 检查Button是否可用。
 //        checkButton();
     }
@@ -311,6 +317,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 //        }
 //
 //    }
+
 
     /**
      * 为了保证模板的可用，最好在现有的模板上复制后修改
@@ -753,17 +760,17 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
             HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
             //anchor主要用于设置图片的属性
 //                hssfCell.getRow().getRowNum();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options); // 此时返回的bitmap为null
-            double imageWidth = options.outWidth;
-            double imageHeight = options.outHeight;
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath); // 此时返回的bitmap为null
+            double imageWidth = bitmap.getWidth();
+            double imageHeight = bitmap.getHeight();
 
-            double zoomIndex;
-            if (imageHeight > 255) {
-                zoomIndex = imageHeight / 255;
-                imageHeight /= zoomIndex;
-                imageWidth /= zoomIndex;
-            }
+//            double zoomIndex;
+//            if (imageHeight > 255) {
+//                zoomIndex = imageHeight / 255;
+//                imageHeight /= zoomIndex;
+//                imageWidth /= zoomIndex;
+//            }
             int columnWidth = sheet.getDefaultColumnWidth();// 8
             int rowHeight = sheet.getDefaultRowHeight();//255
             int columNum = imageRCellAd.getLastColumn() - imageCellAd.getColumn();
@@ -771,14 +778,23 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 
             rowNum = 31 /*(columnWidth * columNum) / rowHeight*/;
 
-            if (imageHeight > 255) {
-                imageHeight = 255;
-            } else if (imageHeight <= 0) {
-                return;
-            }
-            HSSFClientAnchor anchor =
-                    new HSSFClientAnchor(0, 0, (int) imageWidth, (int) imageHeight, (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageRCellAd.getLastColumn()), imageRCellAd.getLastRow());
+//            if (imageHeight > 255) {
+//                imageHeight = 255;
+//            } else if (imageHeight <= 0) {
+//                return;
+//            }
 
+
+            int x = (int) (imageWidth / 144 * 1.2);
+            int y = (int) (imageHeight /45 * 1.2);
+            double proportion = 1;
+            if (x > 7) {
+                proportion = x /7;
+                x = 7;
+            }
+            y = (int) (y / proportion);
+            HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, (int) 255, (int) 255,
+                    (short) imageCellAd.getColumn(), imageCellAd.getRow(), (short) (imageCellAd.getColumn() + x/*imageRCellAd.getLastColumn()*/), imageCellAd.getRow() + y/*imageRCellAd.getLastRow()*/);
             anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
             //插入图片
             patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));

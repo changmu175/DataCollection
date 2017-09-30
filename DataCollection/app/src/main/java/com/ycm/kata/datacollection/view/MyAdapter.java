@@ -25,7 +25,7 @@ import java.util.Locale;
 public class MyAdapter extends BaseAdapter {
     private Context context;
     private List<ProjectEntity> dataSource;
-    private static final int VIEW_COUNT = 6;
+    private static final int VIEW_COUNT = 5;
     private int index = 0;
     private OnItemClickListener onItemClickListener;
     MyAdapter(Context context, OnItemClickListener onItemClickListener) {
