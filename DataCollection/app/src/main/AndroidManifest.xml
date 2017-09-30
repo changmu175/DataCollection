@@ -54,7 +54,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.CameraActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".view.ShowPicActivity"
             android:screenOrientation="portrait" />

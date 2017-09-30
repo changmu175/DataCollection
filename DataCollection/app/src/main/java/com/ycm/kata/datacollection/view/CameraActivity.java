@@ -36,7 +36,6 @@ import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
-import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.SharePreferenceUtil;
@@ -175,15 +174,15 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     }
 
     private void initData() {
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        screenWidth = dm.widthPixels;
-        screenHeight = dm.heightPixels;
-        menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
-        animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
-        //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
-        RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
-        bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        homecamera_bottom_relative.setLayoutParams(bottomParam);
+            DisplayMetrics dm = context.getResources().getDisplayMetrics();
+            screenWidth = dm.widthPixels;
+            screenHeight = dm.heightPixels;
+            menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
+            animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
+            //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
+            RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
+            bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+            homecamera_bottom_relative.setLayoutParams(bottomParam);
     }
 
 
@@ -198,7 +197,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
 
                     try {
                         if (delay_time == 0) {
-                            captrue();
+                            capture();
                             is_camera_delay = false;
                             camera_delay_time_text.setVisibility(View.GONE);
                         }
@@ -236,7 +235,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                                 CameraUtil.getInstance().turnLightAuto(mCamera);
                                 break;
                         }
-                        captrue();
+                        capture();
                     } else {
                         camera_delay_time_text.setVisibility(View.VISIBLE);
                         camera_delay_time_text.setText(String.valueOf(delay_time));
@@ -456,7 +455,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
             camera.setPreviewDisplay(holder);
             //亲测的一个方法 基本覆盖所有手机 将预览矫正
             CameraUtil.getInstance().setCameraDisplayOrientation(this, mCameraId, camera);
-//            camera.setDisplayOrientation(90);
+//            camera.setDisplayOrientation(0);
             camera.startPreview();
             isview = true;
         } catch (IOException e) {
@@ -465,7 +464,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     }
 
 
-    private void captrue() {
+    private void capture() {
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -504,10 +503,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     //旋转图片 动作
                     Matrix matrix1 = new Matrix();
                     matrix1.postRotate(newOrientation);
-                    if (screenWidth > 720) {
-                        screenWidth = 720;
-                    }
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0,screenWidth, screenWidth * 4 / 3, matrix1, true);
+//                    if (screenWidth > 720) {
+//                        screenWidth = 720;
+//                    }
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 7 / 4, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
@@ -526,16 +525,37 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     cameraActivity.startActivity(intent);
                     cameraActivity.finish();
                 } else {//竖屏拍照
-                    if (screenWidth > 720) {
-                        screenWidth = 720;
-                    }
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0,screenWidth, screenWidth * 4 / 3);
+//                    if (screenWidth > 720) {
+//                        screenWidth = 720;
+//                    }
+//                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0,screenWidth, screenWidth * 4 / 3);
+//                    if (!TextUtils.isEmpty(address)) {
+//                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+//                    }
+//                    saveImage(saveBitmap, desFileName);
+//                    pictureName = CommonUtils.getImageFilePath(System.currentTimeMillis());
+//                    startCropActivity(desFileName);
+                    //旋转图片 动作
+                    Matrix matrix1 = new Matrix();
+                    matrix1.postRotate(newOrientation);
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, picHeight /*screenWidth * 7 / 4*/, matrix1, true);
+                    Log.d("mmmmmmm2", System.currentTimeMillis() + "");
+//                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
                         saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
                     }
+                    Log.d("mmmmmmm3", System.currentTimeMillis() + "");
                     saveImage(saveBitmap, desFileName);
-                    pictureName = CommonUtils.getImageFilePath(System.currentTimeMillis());
-                    startCropActivity(desFileName);
+                    Log.d("mmmmmmm4", System.currentTimeMillis() + "");
+                    Intent intent = new Intent();
+                    intent.setClass(cameraActivity, ShowPicActivity.class);
+                    Uri imageUri = Uri.fromFile(new File(desFileName));
+                    intent.setData(imageUri);
+                    intent.putExtra(AppConstant.KEY.IMG_PATH, desFileName);
+                    intent.putExtra(AppConstant.KEY.PIC_WIDTH, screenWidth);
+                    intent.putExtra(AppConstant.KEY.PIC_HEIGHT, screenHeight);
+                    cameraActivity.startActivity(intent);
+                    cameraActivity.finish();
                 }
 
 
@@ -594,17 +614,15 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
      */
     private void setupCamera(Camera camera) {
         Camera.Parameters parameters = camera.getParameters();
-
         if (parameters.getSupportedFocusModes().contains(
                 Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
-
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
         Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 720);
-        parameters.setPreviewSize(previewSize.width, previewSize.height);
+        parameters.setPreviewSize(previewSize.width,previewSize.height);
         Camera.Size pictureSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 720);
-        parameters.setPictureSize(pictureSize.width, pictureSize.height);
+        parameters.setPictureSize(pictureSize.width,pictureSize.height);
         camera.setParameters(parameters);
 
         /**
@@ -887,22 +905,17 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
             if (newOrientation == 270 || newOrientation == 90) {
                 if (!isLandscape && operatingAnim != null) {
                     isLandscape = true;
-//                    tvAddress.clearAnimation();
-//                    tvAddress.startAnimation(operatingAnim);
+
                 }
 
             } else if (newOrientation == 180 || newOrientation == 0) {
                 if (isLandscape && operatingAnim != null) {
                     isLandscape = false;
-//                    tvAddress.clearAnimation();
-//                    tvAddress.startAnimation(operatingAnim);
+
                 }
             }
+
             Log.d("newOrientation", newOrientation + "");
-//            if (newOrientation != mOrientation) {
-//                mOrientation = newOrientation;
-//
-//                //返回的mOrientation就是手机方向，为0°、90°、180°和270°中的一个
         }
     }
 

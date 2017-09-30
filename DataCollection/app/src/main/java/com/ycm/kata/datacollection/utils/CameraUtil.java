@@ -106,7 +106,6 @@ public class CameraUtil {
                 degrees = 270;
                 break;
         }
-
         int result;
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360;

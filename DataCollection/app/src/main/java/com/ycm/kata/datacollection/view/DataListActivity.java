@@ -678,15 +678,108 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 //第1列
                 HSSFCell cellImage = rowImage.createCell(0);
                 CellAddress imageAddress = cellImage.getAddress();
-                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+//                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+//                sheet1.addMergedRegion(imageAd);
+
+
+
+
+//
+                CellRangeAddress imageAd = null;
+                byte[] buffer;
+                int y = 0;
+                FileInputStream fis = null;
+                ByteArrayOutputStream bos = null;
+                try {
+                    File file = new File(currentPs.get(i).getImagePath());
+                    fis = new FileInputStream(file);
+                    bos = new ByteArrayOutputStream(1000);
+                    byte[] b = new byte[1000];
+                    int n;
+                    while ((n = fis.read(b)) != -1) {
+                        bos.write(b, 0, n);
+                    }
+
+                    buffer = bos.toByteArray();
+                    //画图的顶级管理器，一个sheet只能获取一个（一定要注意这点）
+                    HSSFPatriarch patriarch = sheet1.createDrawingPatriarch();
+                    //anchor主要用于设置图片的属性
+//                hssfCell.getRow().getRowNum();
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+                    Bitmap bitmap = BitmapFactory.decodeFile(currentPs.get(i).getImagePath()); // 此时返回的bitmap为null
+                    double imageWidth = bitmap.getWidth();
+                    double imageHeight = bitmap.getHeight();
+
+//            double zoomIndex;
+//            if (imageHeight > 255) {
+//                zoomIndex = imageHeight / 255;
+//                imageHeight /= zoomIndex;
+//                imageWidth /= zoomIndex;
+//            }
+                    int columnWidth = sheet1.getDefaultColumnWidth();// 8
+                    int rowHeight = sheet1.getDefaultRowHeight();//255
+//                    int columNum = imageRCellAd.getLastColumn() - imageCellAd.getColumn();
+                    int rowNum /*= imageRCellAd.getLastRow() - imageCellAd.getRow()*/;
+
+                    rowNum = 31 /*(columnWidth * columNum) / rowHeight*/;
+
+//            if (imageHeight > 255) {
+//                imageHeight = 255;
+//            } else if (imageHeight <= 0) {
+//                return;
+//            }
+
+
+                    int x = (int) (imageWidth / 144 * 1.2);
+                    /*int */y = (int) (imageHeight /45 * 1.2);
+                    double proportion = 1;
+                    if (x > 7) {
+                        proportion = x /7;
+                        x = 7;
+                    }
+                    y = (int) (y / proportion);
+                    imageAd = new CellRangeAddress(imageAddress.getRow(),  imageAddress.getRow() + y/*imageAddress.getRow() + 10 + 10 + 11*/, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
                 sheet1.addMergedRegion(imageAd);
-                //插入图片
-                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
+                    HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, (int) 255, (int) 255,
+                            (short) imageAddress.getColumn(), imageAddress.getRow(), (short) (imageAddress.getColumn() + x/*imageRCellAd.getLastColumn()*/), imageAddress.getRow() + y/*imageRCellAd.getLastRow()*/);
+                    anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
+                    //插入图片
+                    patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (fis != null) {
+                            fis.close();
+                        }
+
+                        if (bos != null) {
+                            bos.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//                //插入图片
+//                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
 
                 //第2列
                 HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
                 CellAddress cellDefectsAddress = cellDefects.getAddress();
-                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), cellDefectsAddress.getRow() + 10 + 10 + 11, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), imageAddress.getRow() + y/*cellDefectsAddress.getRow() + 10 + 10 + 11*/, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellDefectsAd);
                 cellDefects.setCellValue(currentPs.get(i).getDefects());
 
