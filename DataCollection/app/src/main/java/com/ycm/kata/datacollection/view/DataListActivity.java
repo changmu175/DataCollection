@@ -684,8 +684,8 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 sheet1.addMergedRegion(imageAd);
 
 
-//
-                CellRangeAddress imageAd = null;
+
+                /*CellRangeAddress imageAd = null;
                 byte[] buffer;
                 int y = 0;
                 int x = 0;
@@ -720,9 +720,9 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                     int columnWidth = sheet1.getDefaultColumnWidth();// 8
                     int rowHeight = sheet1.getDefaultRowHeight();//255
 //                    int columNum = imageRCellAd.getLastColumn() - imageCellAd.getColumn();
-                    int rowNum /*= imageRCellAd.getLastRow() - imageCellAd.getRow()*/;
+                    int rowNum *//*= imageRCellAd.getLastRow() - imageCellAd.getRow()*//*;
 
-                    rowNum = 31 /*(columnWidth * columNum) / rowHeight*/;
+                    rowNum = 31 *//*(columnWidth * columNum) / rowHeight*//*;
 
 //            if (imageHeight > 255) {
 //                imageHeight = 255;
@@ -730,10 +730,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 //                return;
 //            }
 
-                    imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + y/*imageAddress.getRow() + 10 + 10 + 11*/, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+                    imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + y*//*imageAddress.getRow() + 10 + 10 + 11*//*, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
                     sheet1.addMergedRegion(imageAd);
                     HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, (int) 255, (int) 255,
-                            (short) imageAddress.getColumn(), imageAddress.getRow(), (short) (imageRCellAd.getLastColumn()), imageAddress.getRow() + y/*imageRCellAd.getLastRow()*/);
+                            (short) imageAddress.getColumn(), imageAddress.getRow(), (short) (imageRCellAd.getLastColumn()), imageAddress.getRow() + y*//*imageRCellAd.getLastRow()*//*);
                     anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
                     //插入图片
                     patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));
@@ -751,16 +751,16 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
 
 
 //                //插入图片
-//                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
+                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
 
                 //第2列
                 HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
                 CellAddress cellDefectsAddress = cellDefects.getAddress();
-                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), imageAddress.getRow() + y/*cellDefectsAddress.getRow() + 10 + 10 + 11*/, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), /*imageAddress.getRow() + y*/cellDefectsAddress.getRow() + 10 + 10 + 11, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellDefectsAd);
                 cellDefects.setCellValue(currentPs.get(i).getDefects());
 

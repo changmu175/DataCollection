@@ -510,7 +510,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     int width = saveBitmap.getWidth();
                     int height = saveBitmap.getHeight();
                     float scale;
-                    scale = ((float) 720) / height;
+                    scale = ((float) 1080) / height;
 //                    float scaleHeight = ((float) 720) / height;
                     // 取得想要缩放的matrix参数
                     matrix1.postScale(scale, scale);
