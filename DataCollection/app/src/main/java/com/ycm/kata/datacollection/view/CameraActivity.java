@@ -36,6 +36,7 @@ import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.entity.ImageInfo;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.AppConstant;
+import com.ycm.kata.datacollection.utils.BitmapUtils;
 import com.ycm.kata.datacollection.utils.CameraUtil;
 import com.ycm.kata.datacollection.utils.CommonUtils;
 import com.ycm.kata.datacollection.utils.SharePreferenceUtil;
@@ -96,6 +97,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     private SharePreferenceUtil sharePreferenceUtil;
 
     private int pictureWidth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,15 +176,15 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
     }
 
     private void initData() {
-            DisplayMetrics dm = context.getResources().getDisplayMetrics();
-            screenWidth = dm.widthPixels;
-            screenHeight = dm.heightPixels;
-            menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
-            animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
-            //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
-            RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
-            bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            homecamera_bottom_relative.setLayoutParams(bottomParam);
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        screenWidth = dm.widthPixels;
+        screenHeight = dm.heightPixels;
+        menuPopviewHeight = screenHeight - screenWidth * 4 / 3;
+        animHeight = (screenHeight - screenWidth - menuPopviewHeight - SystemUtils.dp2px(context, 44)) / 2;
+        //这里相机取景框我这是为宽高比3:4 所以限制底部控件的高度是剩余部分
+        RelativeLayout.LayoutParams bottomParam = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, menuPopviewHeight);
+        bottomParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        homecamera_bottom_relative.setLayoutParams(bottomParam);
     }
 
 
@@ -473,7 +475,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                 //这里我相信大部分都有其他用处把 比如加个水印 后续再讲解
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 Bitmap saveBitmap = CameraUtil.getInstance().setTakePicktrueOrientation(mCameraId, bitmap);
-                saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
+//                saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
+
+
 //                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
 //                if (index == 1) {
 //                    //正方形 animHeight(动画高度)
@@ -503,14 +507,18 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     //旋转图片 动作
                     Matrix matrix1 = new Matrix();
                     matrix1.postRotate(newOrientation);
-//                    if (screenWidth > 720) {
-//                        screenWidth = 720;
-//                    }
+                    int width = saveBitmap.getWidth();
+                    int height = saveBitmap.getHeight();
+                    float scale;
+                    scale = ((float) 720) / height;
+//                    float scaleHeight = ((float) 720) / height;
+                    // 取得想要缩放的matrix参数
+                    matrix1.postScale(scale, scale);
                     saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 7 / 4, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
-                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 16, getResources().getColor(R.color.Gray), 30, 30);
                     }
                     Log.d("mmmmmmm3", System.currentTimeMillis() + "");
                     saveImage(saveBitmap, desFileName);
@@ -538,11 +546,17 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     //旋转图片 动作
                     Matrix matrix1 = new Matrix();
                     matrix1.postRotate(newOrientation);
+                    int width = saveBitmap.getWidth();
+                    int height = saveBitmap.getHeight();
+                    float scale;
+                    // 计算缩放比例
+                    scale = ((float) 720) / width;
+                    matrix1.postScale(scale, scale);
                     saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, picHeight /*screenWidth * 7 / 4*/, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
-                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 18, getResources().getColor(R.color.Gray), 30, 30);
+                        saveBitmap = CameraUtil.drawTextToRightBottom(getBaseContext(), saveBitmap, address, 14, getResources().getColor(R.color.Gray), 30, 30);
                     }
                     Log.d("mmmmmmm3", System.currentTimeMillis() + "");
                     saveImage(saveBitmap, desFileName);
@@ -590,8 +604,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                 // 这设置的最小宽度影响返回图片的大小 所以这里一般这是1000左右把我觉得
 //                Log.d("bitmapWidth==", bitmap.getWidth() + "");
 //                Log.d("bitmapHeight==", bitmap.getHeight() + "");
+                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(desFileName)));
             }
         });
+
     }
 
     /**
@@ -620,9 +636,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
         }
         //这里第三个参数为最小尺寸 getPropPreviewSize方法会对从最小尺寸开始升序排列 取出所有支持尺寸的最小尺寸
         Camera.Size previewSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPreviewSizes(), 720);
-        parameters.setPreviewSize(previewSize.width,previewSize.height);
+        parameters.setPreviewSize(previewSize.width, previewSize.height);
         Camera.Size pictureSize = CameraUtil.getInstance().getPropSizeForHeight(parameters.getSupportedPictureSizes(), 720);
-        parameters.setPictureSize(pictureSize.width,pictureSize.height);
+        parameters.setPictureSize(pictureSize.width, pictureSize.height);
         camera.setParameters(parameters);
 
         /**

@@ -117,6 +117,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
     }
 
     private static int dataSize;
+
     private static class UpdateViewHandler extends Handler {
         private WeakReference<DataListActivity> weakReference;
 
@@ -136,7 +137,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 } else {
                     dataSize = dataSize / 5 + 1;
                 }
-                String pageStr = (weakReference.get().index+1) + "/" + dataSize;
+                String pageStr = (weakReference.get().index + 1) + "/" + dataSize;
                 weakReference.get().tvCurrentPage.setText(pageStr);
 //                weakReference.get().totalSize.setText(dataSize);
             }
@@ -679,16 +680,15 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 //第1列
                 HSSFCell cellImage = rowImage.createCell(0);
                 CellAddress imageAddress = cellImage.getAddress();
-//                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
-//                sheet1.addMergedRegion(imageAd);
-
-
+                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+                sheet1.addMergedRegion(imageAd);
 
 
 //
                 CellRangeAddress imageAd = null;
                 byte[] buffer;
                 int y = 0;
+                int x = 0;
                 FileInputStream fis = null;
                 ByteArrayOutputStream bos = null;
                 try {
@@ -730,19 +730,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 //                return;
 //            }
 
-
-                    int x = (int) (imageWidth / 144 * 1.2);
-                    /*int */y = (int) (imageHeight /45 * 1.2);
-                    double proportion = 1;
-                    if (x > 7) {
-                        proportion = x /7;
-                        x = 7;
-                    }
-                    y = (int) (y / proportion);
-                    imageAd = new CellRangeAddress(imageAddress.getRow(),  imageAddress.getRow() + y/*imageAddress.getRow() + 10 + 10 + 11*/, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
-                sheet1.addMergedRegion(imageAd);
+                    imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + y/*imageAddress.getRow() + 10 + 10 + 11*/, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+                    sheet1.addMergedRegion(imageAd);
                     HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, (int) 255, (int) 255,
-                            (short) imageAddress.getColumn(), imageAddress.getRow(), (short) (imageAddress.getColumn() + x/*imageRCellAd.getLastColumn()*/), imageAddress.getRow() + y/*imageRCellAd.getLastRow()*/);
+                            (short) imageAddress.getColumn(), imageAddress.getRow(), (short) (imageRCellAd.getLastColumn()), imageAddress.getRow() + y/*imageRCellAd.getLastRow()*/);
                     anchor.setAnchorType(ClientAnchor.AnchorType.DONT_MOVE_AND_RESIZE);
                     //插入图片
                     patriarch.createPicture(anchor, wb.addPicture(buffer, HSSFWorkbook.PICTURE_TYPE_JPEG));
@@ -761,17 +752,6 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                         e.printStackTrace();
                     }
                 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 //                //插入图片
@@ -880,10 +860,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 
 
             int x = (int) (imageWidth / 144 * 1.2);
-            int y = (int) (imageHeight /45 * 1.2);
+            int y = (int) (imageHeight / 45 * 1.2);
             double proportion = 1;
             if (x > 7) {
-                proportion = x /7;
+                proportion = x / 7;
                 x = 7;
             }
             y = (int) (y / proportion);

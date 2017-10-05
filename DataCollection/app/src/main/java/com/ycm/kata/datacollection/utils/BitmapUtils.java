@@ -228,6 +228,70 @@ public class BitmapUtils {
         return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 
+    /**
+     * 图片最小宽度
+     */
+    private static final int MIN_WIDTH = 720;
+    /**
+     * 图片最小高度
+     */
+    private static final int MIN_HEIGHT = 540;
+    /**
+     * 图片最大宽度
+     */
+    private static final int MAX_WIDTH = 1080;
+    /**
+     * 图片最大高度
+     */
+    private static final int MAX_HEIGHT = 810;
+
+
+    private static final int itemh = 360;
+    private static final int itemw = 360;
+    /*
+     * 获取压缩后的图片
+     */
+    public static Bitmap getZoomedDrawable(Bitmap bm, int zoom) {
+
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(filePath, options);
+//        int mWidth = options.outWidth;
+//        int mHeight = options.outHeight;
+//        int s = 1;
+//        while ((mWidth / s > itemw * 2 * zoom)
+//                || (mHeight / s > itemh * 2 * zoom)) {
+//            s *= 2;
+//        }
+//
+//        options = new BitmapFactory.Options();
+//        options.inSampleSize = s;
+//        options.inPreferredConfig = Config.ARGB_8888;
+//        options.inJustDecodeBounds = false;
+//        Bitmap bm = Bitmap.createBitmap(bitmap, options);
+
+        if (bm != null) {
+            int h = bm.getHeight();
+            int w = bm.getWidth();
+
+            float ft =  ((float) w / (float) h);
+            float fs =  ((float) itemw / (float) itemh);
+
+            int neww = ft >= fs ? itemw * zoom : (int) (itemh * zoom * ft);
+            int newh = ft >= fs ? (int) (itemw * zoom / ft) : itemh * zoom;
+
+            float scaleWidth = ((float) neww) / w;
+            float scaleHeight = ((float) newh) / h;
+
+            Matrix matrix = new Matrix();
+            matrix.postScale(scaleWidth, scaleHeight);
+            bm = Bitmap.createBitmap(bm, 0, 0, w, h, matrix, true);
+            // System.gc();
+            return bm;
+        }
+        return null;
+    }
+
     // 图片按比例大小压缩方法
     public static Bitmap getImageFromPath(String srcPath, float maxWidth, float maxHeight) {
         /*if (!isFileAtPath(srcPath)) {
