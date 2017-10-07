@@ -510,11 +510,11 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     int width = saveBitmap.getWidth();
                     int height = saveBitmap.getHeight();
                     float scale;
-                    scale = ((float) 1080) / height;
+                    scale = ((float) 900) / height;
 //                    float scaleHeight = ((float) 720) / height;
                     // 取得想要缩放的matrix参数
                     matrix1.postScale(scale, scale);
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 7 / 4, matrix1, true);
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, width, height, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {
@@ -550,9 +550,9 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     int height = saveBitmap.getHeight();
                     float scale;
                     // 计算缩放比例
-                    scale = ((float) 720) / width;
+                    scale = ((float) 900) / width;
                     matrix1.postScale(scale, scale);
-                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, picHeight /*screenWidth * 7 / 4*/, matrix1, true);
+                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, width, height /*screenWidth * 7 / 4*/, matrix1, true);
                     Log.d("mmmmmmm2", System.currentTimeMillis() + "");
 //                    saveBitmap = BitmapUtils.rotaingImageView(saveBitmap, newOrientation);
                     if (!TextUtils.isEmpty(address)) {

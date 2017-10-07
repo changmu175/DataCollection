@@ -93,14 +93,6 @@ public class CommonUtils {
         return getRootPath() + File.separator + "log";
     }
 
-//    public static ImageInfo zoomImage(int width, int height) {
-//        float zoomIndex;
-//        if (height > 255) {
-//            zoomIndex = height / 255;
-//            height /= zoomIndex;
-//            width /= zoomIndex;
-//        }
-//    }
 
     public static String combinationStr(String pileContent) {
 

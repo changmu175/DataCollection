@@ -680,7 +680,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 //第1列
                 HSSFCell cellImage = rowImage.createCell(0);
                 CellAddress imageAddress = cellImage.getAddress();
-                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
+                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(), imageAddress.getRow() + 10 + 10 + 11 + 12, imageAddress.getColumn(), imageAddress.getColumn() + 4 + 3);
                 sheet1.addMergedRegion(imageAd);
 
 
@@ -760,7 +760,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 //第2列
                 HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
                 CellAddress cellDefectsAddress = cellDefects.getAddress();
-                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), /*imageAddress.getRow() + y*/cellDefectsAddress.getRow() + 10 + 10 + 11, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(), /*imageAddress.getRow() + y*/cellDefectsAddress.getRow() + 10 + 10 + 11  +12, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 2);
                 sheet1.addMergedRegion(newCellDefectsAd);
                 cellDefects.setCellValue(currentPs.get(i).getDefects());
 

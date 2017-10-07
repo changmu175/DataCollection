@@ -18,20 +18,20 @@
 
         <ImageView
             android:id="@+id/add_new_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginEnd="90dp"
             android:layout_marginRight="90dp"
-            android:src="@drawable/add"
+            android:src="@drawable/ic_add_circle_outline_black_24dp"
             />
 
         <ImageView
             android:id="@+id/export_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginLeft="90dp"
             android:layout_marginStart="90dp"
-            android:src="@drawable/share" />
+            android:src="@drawable/ic_share_black_24dp" />
     </LinearLayout>
 
     <ListView

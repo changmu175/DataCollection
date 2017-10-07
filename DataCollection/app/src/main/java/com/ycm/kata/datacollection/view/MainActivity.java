@@ -15,12 +15,14 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.location.BDAbstractLocationListener;
@@ -28,9 +30,7 @@ import com.baidu.location.BDLocation;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.PhotoEvent;
-import com.ycm.kata.datacollection.model.LocationInfoDao;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
-import com.ycm.kata.datacollection.model.entity.LocationInfo;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.service.LocationService;
 import com.ycm.kata.datacollection.utils.ActivityStack;
@@ -63,8 +63,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView ivList;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
-    private ImageView btnSave;
-    private ImageView btnAdd;
+    private TextView btnSave;
+    private TextView btnAdd;
     private ProjectEntityDao projectEntityDao;
     private ProjectEntity projectEntity;
     private String dateStr;
@@ -642,4 +642,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     };
 
+    private long exitTime;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            exit();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void exit() {
+        if (System.currentTimeMillis() - exitTime > 2000) {
+            Toast.makeText(this, "请再按一次退出程序", Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            ActivityStack.getInstanse().exitApp();
+        }
+    }
 }

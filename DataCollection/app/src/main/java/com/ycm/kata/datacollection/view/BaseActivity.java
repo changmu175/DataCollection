@@ -2,11 +2,16 @@ package com.ycm.kata.datacollection.view;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
@@ -86,4 +91,41 @@ public class BaseActivity extends Activity {
         dialog.setContentView(layout);
         dialog.show();
     }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View view = getCurrentFocus();
+            if (isShouldHideInput(view, ev)) {
+                hideSoftInput(view.getWindowToken());
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean isShouldHideInput(View view, MotionEvent event) {
+        if (view != null && (view instanceof EditText)) {
+            int[] l = {0, 0};
+            view.getLocationInWindow(l);
+            int left = l[0];
+            int top = l[1];
+            int bottom = top + view.getHeight();
+            int right = left + view.getWidth();
+            if (event.getRawX() > left && event.getX() < right && event.getY() > top && event.getY() < bottom) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void hideSoftInput(IBinder token) {
+        if (token == null) {
+            return;
+        }
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
 }
