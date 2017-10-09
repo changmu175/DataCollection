@@ -475,10 +475,10 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                 //这里我相信大部分都有其他用处把 比如加个水印 后续再讲解
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 Bitmap saveBitmap = CameraUtil.getInstance().setTakePicktrueOrientation(mCameraId, bitmap);
-//                saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
+                saveBitmap = Bitmap.createScaledBitmap(saveBitmap, screenWidth, picHeight, true);
 
 
-//                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
+                saveBitmap = Bitmap.createBitmap(saveBitmap, 0, 0, screenWidth, screenWidth * 4 / 3);
 //                if (index == 1) {
 //                    //正方形 animHeight(动画高度)
 //                    saveBitmap = Bitmap.createBitmap(saveBitmap, 0, animHeight + SystemUtils.dp2px(context, 44), screenWidth, screenWidth);
@@ -510,7 +510,7 @@ public class CameraActivity extends BaseActivity implements SurfaceHolder.Callba
                     int width = saveBitmap.getWidth();
                     int height = saveBitmap.getHeight();
                     float scale;
-                    scale = ((float) 900) / height;
+                    scale = ((float) 1200) / height;
 //                    float scaleHeight = ((float) 720) / height;
                     // 取得想要缩放的matrix参数
                     matrix1.postScale(scale, scale);

@@ -63,8 +63,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView ivList;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
-    private TextView btnSave;
-    private TextView btnAdd;
+    private Button btnSave;
+    private Button btnAdd;
     private ProjectEntityDao projectEntityDao;
     private ProjectEntity projectEntity;
     private String dateStr;

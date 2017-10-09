@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -65,8 +66,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView ivCamera;
     private RelativeLayout llTakePhoto;
     private ProgressBar progressBar;
-    private TextView btnSave;
-    private TextView btnAdd;
+    private Button btnSave;
+    private Button btnAdd;
     private ProjectEntityDao projectEntityDao;
     private ProjectEntity projectEntity;
     private String filePath;

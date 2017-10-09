@@ -55,7 +55,7 @@ public class ActivityStack {
 
 
     public void pushActivity(@NonNull Activity activity) {
-//        activities.addFirst(activity);
+        activities.addFirst(activity);
     }
 
 
