@@ -1,20 +1,15 @@
 package com.ycm.kata.datacollection.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.yalantis.ucrop.view.UCropView;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.event.EventManager;
 import com.ycm.kata.datacollection.event.PhotoEvent;

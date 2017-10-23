@@ -1,5 +1,7 @@
 package com.ycm.kata.datacollection.view;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -103,6 +106,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             requestPermission();
         }
 
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        int memorySize = activityManager.getMemoryClass();
+        Log.d("memorySize", memorySize + "");
     }
 
     private void initView() {

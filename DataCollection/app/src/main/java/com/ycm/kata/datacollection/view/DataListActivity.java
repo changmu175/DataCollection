@@ -79,6 +79,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
     private String imageFile;
     private String decFile;
     private TextView tvEmptyView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -613,11 +614,11 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         HSSFFont titleFont = wb.createFont();
         titleFont.setFontName("宋体");
         titleFont.setBold(true);
-        titleFont.setFontHeightInPoints((short)18);
+        titleFont.setFontHeightInPoints((short) 18);
         HSSFFont contentFont = wb.createFont();
         contentFont.setFontName("宋体");
         contentFont.setBold(false);
-        contentFont.setFontHeightInPoints((short)16);
+        contentFont.setFontHeightInPoints((short) 16);
         HSSFPrintSetup printSetup = sheet1.getPrintSetup();
         printSetup.setPaperSize(HSSFPrintSetup.A4_PAPERSIZE);
         sheet1.setMargin(HSSFSheet.RightMargin, -0.5);
@@ -651,12 +652,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 style.setAlignment(HorizontalAlignment.CENTER_SELECTION);//居中
                 style.setVerticalAlignment(VerticalAlignment.CENTER);
 
-                RegionUtil.setBorderBottom(2,newCellTitleAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellTitleAd, sheet1);
 //                RegionUtil.setBorderLeft(2,newCellTitleAd, sheet1);
 //                RegionUtil.setBorderRight(2,newCellTitleAd, sheet1);
 //                RegionUtil.setBorderTop(2,newCellTitleAd, sheet1);
-
-
 
 
                 //创建第二行
@@ -671,10 +670,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 hssfCellStyle.setFont(titleFont);
                 hssfCellStyle.setAlignment(HorizontalAlignment.CENTER);//居中
                 cellNameTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellTitleNameAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellTitleNameAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellTitleNameAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellTitleNameAd, sheet1);
 
                 //第2列
                 HSSFCell cellName = rowName.createCell(newCellTitleNameAd.getLastColumn() + 1);
@@ -685,10 +684,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellName.setCellValue(currentPs.get(i).getProjectName());
                 hssfCellStyle.setFont(contentFont);
                 cellName.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellNameAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellNameAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellNameAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellNameAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellNameAd, sheet1);
 
 
                 //第3列
@@ -700,10 +699,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellCheckDateTitle.setCellValue("检测日期");
                 hssfCellStyle.setFont(titleFont);
                 cellCheckDateTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellTitleCheckDateAd, sheet1);
 
                 //第4列
                 HSSFCell checkDate = rowName.createCell(newCellTitleCheckDateAd.getLastColumn() + 1);
@@ -713,10 +712,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 sheet1.addMergedRegion(newCellCheckDateAd);
                 checkDate.setCellValue(CommonUtils.formatDate(currentPs.get(i).getCheckDate()));
                 hssfCellStyle.setFont(contentFont);
-                RegionUtil.setBorderBottom(2,newCellCheckDateAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellCheckDateAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellCheckDateAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellCheckDateAd, sheet1);
                 checkDate.setCellStyle(hssfCellStyle);
 
                 //创建第三行
@@ -725,15 +724,15 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 HSSFCell cellUnitEngineerTitle = rowUnitEngineer.createCell(0);
                 CellAddress unitEngineerTitleAddress = cellUnitEngineerTitle.getAddress();
                 CellRangeAddress unitEngineerTitleCheckDateAd = new CellRangeAddress(unitEngineerTitleAddress.getRow(),
-                        unitEngineerTitleAddress.getRow() + 2  + 1, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn() + 1);
+                        unitEngineerTitleAddress.getRow() + 2 + 1, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn() + 1);
                 sheet1.addMergedRegion(unitEngineerTitleCheckDateAd);
                 cellUnitEngineerTitle.setCellValue("单位工程");
                 hssfCellStyle.setFont(titleFont);
                 cellUnitEngineerTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,unitEngineerTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderLeft(2,unitEngineerTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderRight(2,unitEngineerTitleCheckDateAd, sheet1);
-                RegionUtil.setBorderTop(2,unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderBottom(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, unitEngineerTitleCheckDateAd, sheet1);
 
                 //第2列
                 HSSFCell cellUnitEngineer = rowUnitEngineer.createCell(unitEngineerTitleCheckDateAd.getLastColumn() + 1);
@@ -744,10 +743,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellUnitEngineer.setCellValue(currentPs.get(i).getUnitEngineering());
                 hssfCellStyle.setFont(contentFont);
                 cellUnitEngineer.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellUnitEngineerAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellUnitEngineerAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellUnitEngineerAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellUnitEngineerAd, sheet1);
 
                 //第3列
                 HSSFCell cellBlockPileTitle = rowUnitEngineer.createCell(newCellUnitEngineerAd.getLastColumn() + 1);
@@ -758,10 +757,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellBlockPileTitle.setCellValue("标段及桩号");
                 hssfCellStyle.setFont(titleFont);
                 cellBlockPileTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newBlockPileTitleAddress, sheet1);
-                RegionUtil.setBorderLeft(2,newBlockPileTitleAddress, sheet1);
-                RegionUtil.setBorderRight(2,newBlockPileTitleAddress, sheet1);
-                RegionUtil.setBorderTop(2,newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderBottom(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderLeft(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderRight(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderTop(2, newBlockPileTitleAddress, sheet1);
 
                 //第4列
                 HSSFCell cellBlockPile = rowUnitEngineer.createCell(newBlockPileTitleAddress.getLastColumn() + 1);
@@ -772,10 +771,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellBlockPile.setCellValue(currentPs.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
                 hssfCellStyle.setFont(contentFont);
                 cellBlockPile.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellBlockPileAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellBlockPileAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellBlockPileAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellBlockPileAd, sheet1);
 
                 //第5列
                 HSSFCell cellDefectsTitle = rowUnitEngineer.createCell(newCellBlockPileAd.getLastColumn() + 1);
@@ -786,10 +785,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellDefectsTitle.setCellValue("缺陷描述");
                 hssfCellStyle.setFont(titleFont);
                 cellDefectsTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newDefectsTitleAddress, sheet1);
-                RegionUtil.setBorderLeft(2,newDefectsTitleAddress, sheet1);
-                RegionUtil.setBorderRight(2,newDefectsTitleAddress, sheet1);
-                RegionUtil.setBorderTop(2,newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderBottom(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderLeft(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderRight(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderTop(2, newDefectsTitleAddress, sheet1);
 
                 //创建第4行
                 HSSFRow rowImage = sheet1.createRow(unitEngineerTitleCheckDateAd.getLastRow() + 1);
@@ -799,10 +798,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(),
                         imageAddress.getRow() + 35, imageAddress.getColumn(), imageAddress.getColumn() + 7);
                 sheet1.addMergedRegion(imageAd);
-                RegionUtil.setBorderBottom(2,imageAd, sheet1);
-                RegionUtil.setBorderLeft(2,imageAd, sheet1);
-                RegionUtil.setBorderRight(2,imageAd, sheet1);
-                RegionUtil.setBorderTop(2,imageAd, sheet1);
+                RegionUtil.setBorderBottom(2, imageAd, sheet1);
+                RegionUtil.setBorderLeft(2, imageAd, sheet1);
+                RegionUtil.setBorderRight(2, imageAd, sheet1);
+                RegionUtil.setBorderTop(2, imageAd, sheet1);
 
 
                 /*CellRangeAddress imageAd = null;
@@ -886,10 +885,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellDefects.setCellValue(currentPs.get(i).getDefects());
                 hssfCellStyle.setFont(contentFont);
                 cellDefects.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,newCellDefectsAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellDefectsAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellDefectsAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellDefectsAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellDefectsAd, sheet1);
 
                 //创建第5行
                 HSSFRow rowRemark = sheet1.createRow(imageAd.getLastRow() + 1);
@@ -902,10 +901,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 cellRemarkTitle.setCellValue("备注");
                 hssfCellStyle.setFont(titleFont);
                 cellRemarkTitle.setCellStyle(hssfCellStyle);
-                RegionUtil.setBorderBottom(2,remarkTitleAd, sheet1);
-                RegionUtil.setBorderLeft(2,remarkTitleAd, sheet1);
-                RegionUtil.setBorderRight(2,remarkTitleAd, sheet1);
-                RegionUtil.setBorderTop(2,remarkTitleAd, sheet1);
+                RegionUtil.setBorderBottom(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderLeft(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderRight(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderTop(2, remarkTitleAd, sheet1);
 
                 //第2列
                 HSSFCell cellRemark = rowRemark.createCell(remarkTitleAd.getLastColumn() + 1);
@@ -915,10 +914,10 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 sheet1.addMergedRegion(newCellRemarkAd);
                 cellRemark.setCellValue(currentPs.get(i).getRemark());
                 hssfCellStyle.setFont(contentFont);
-                RegionUtil.setBorderBottom(2,newCellRemarkAd, sheet1);
-                RegionUtil.setBorderLeft(2,newCellRemarkAd, sheet1);
-                RegionUtil.setBorderRight(2,newCellRemarkAd, sheet1);
-                RegionUtil.setBorderTop(2,newCellRemarkAd, sheet1);
+                RegionUtil.setBorderBottom(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellRemarkAd, sheet1);
                 cellRemark.setCellStyle(hssfCellStyle);
 
                 lastRow = remarkTitleAd.getLastRow();
@@ -938,6 +937,12 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+
+            try {
+                wb.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
