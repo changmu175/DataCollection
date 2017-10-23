@@ -44,6 +44,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
+import org.apache.poi.ss.util.WorkbookUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -581,6 +582,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         @Override
         public void run() {
             super.run();
+
             writeExcel(dataSource, weakReference.get());
             dataSuccessHandler.sendEmptyMessage(123);
         }
@@ -599,14 +601,608 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 
     }
 
-    private void writeExcel(List<ProjectEntity> dataSource, ExportListener exportListener) {
+    private void writeExcel2(List<ProjectEntity> dataSource, ExportListener exportListener) {
         List<ProjectEntity> currentPs = new ArrayList<>();
         currentPs.addAll(dataSource/*filterDataSource(dataSource)*/);
         FileOutputStream fileOut = null;
-        String rootPath = CommonUtils.getDataFilePath(System.currentTimeMillis());
-        if (rootPath == null) {
+        FileInputStream fileInput = null;
+        String p = CommonUtils.getDataFilePath(System.currentTimeMillis());
+        if (p == null) {
             return;
         }
+        int lastRow = 0;
+        for (int i = 0; i < currentPs.size(); i++) {
+            if (lastRow == 0) {
+//                    lastRow += 1;
+            } else {
+                lastRow += 6;
+            }
+            HSSFWorkbook wb = null;
+            try {
+                fileInput = new FileInputStream(p);
+                fileOut = new FileOutputStream(p);
+                wb = new HSSFWorkbook(fileInput);
+
+                HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtils.formatDate(System.currentTimeMillis()));
+                HSSFCellStyle hssfCellStyle = wb.createCellStyle();
+                HSSFFont titleFont = wb.createFont();
+                titleFont.setFontName("宋体");
+                titleFont.setBold(true);
+                titleFont.setFontHeightInPoints((short) 18);
+                HSSFFont contentFont = wb.createFont();
+                contentFont.setFontName("宋体");
+                contentFont.setBold(false);
+                contentFont.setFontHeightInPoints((short) 16);
+                HSSFPrintSetup printSetup = sheet1.getPrintSetup();
+                printSetup.setPaperSize(HSSFPrintSetup.A4_PAPERSIZE);
+                sheet1.setMargin(HSSFSheet.RightMargin, -0.5);
+
+                //创建第一行，为标题行，可用可不用
+                HSSFRow titleRow = sheet1.createRow(lastRow);
+                //第1列
+                HSSFCell cellTitle = titleRow.createCell(0);
+                CellAddress cellTitleAddress = cellTitle.getAddress();
+                CellRangeAddress newCellTitleAd = new CellRangeAddress(cellTitleAddress.getRow(), cellTitleAddress.getRow() + 1 + 1, cellTitleAddress.getColumn(), cellTitleAddress.getColumn() + 9);
+                sheet1.addMergedRegion(newCellTitleAd);
+//                cellTitle.setCellValue("项目名称");
+
+                hssfCellStyle.setFont(titleFont);
+                cellTitle.setCellStyle(hssfCellStyle);
+                HSSFCellStyle style = cellTitle.getCellStyle();
+                style.setAlignment(HorizontalAlignment.CENTER_SELECTION);//居中
+                style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+                RegionUtil.setBorderBottom(2, newCellTitleAd, sheet1);
+
+                //创建第二行
+                HSSFRow rowName = sheet1.createRow(newCellTitleAd.getLastRow() + 1);
+                //第1列
+                HSSFCell cellNameTitle = rowName.createCell(0);
+                CellAddress cellNameTitleAddress = cellNameTitle.getAddress();
+                CellRangeAddress newCellTitleNameAd = new CellRangeAddress(cellNameTitleAddress.getRow(),
+                        cellNameTitleAddress.getRow() + 1 + 1 + 1, cellNameTitleAddress.getColumn(), cellNameTitleAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newCellTitleNameAd);
+                cellNameTitle.setCellValue("项目名称");
+                hssfCellStyle.setFont(titleFont);
+                hssfCellStyle.setAlignment(HorizontalAlignment.CENTER);//居中
+                cellNameTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellTitleNameAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellTitleNameAd, sheet1);
+
+                //第2列
+                HSSFCell cellName = rowName.createCell(newCellTitleNameAd.getLastColumn() + 1);
+                CellAddress cellNameAddress = cellName.getAddress();
+                CellRangeAddress newCellNameAd = new CellRangeAddress(cellNameAddress.getRow(), cellNameAddress.getRow() + 1 + 1 + 1,
+                        cellNameAddress.getColumn(), cellNameAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newCellNameAd);
+                cellName.setCellValue(currentPs.get(i).getProjectName());
+                hssfCellStyle.setFont(contentFont);
+                cellName.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellNameAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellNameAd, sheet1);
+
+
+                //第3列
+                HSSFCell cellCheckDateTitle = rowName.createCell(newCellNameAd.getLastColumn() + 1);
+                CellAddress checkDateTitleAddress = cellCheckDateTitle.getAddress();
+                CellRangeAddress newCellTitleCheckDateAd = new CellRangeAddress(checkDateTitleAddress.getRow(),
+                        checkDateTitleAddress.getRow() + 1 + 1 + 1, checkDateTitleAddress.getColumn(), checkDateTitleAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newCellTitleCheckDateAd);
+                cellCheckDateTitle.setCellValue("检测日期");
+                hssfCellStyle.setFont(titleFont);
+                cellCheckDateTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellTitleCheckDateAd, sheet1);
+
+                //第4列
+                HSSFCell checkDate = rowName.createCell(newCellTitleCheckDateAd.getLastColumn() + 1);
+                CellAddress checkDateAddress = checkDate.getAddress();
+                CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(),
+                        checkDateAddress.getRow() + 1 + 1 + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2);
+                sheet1.addMergedRegion(newCellCheckDateAd);
+                checkDate.setCellValue(CommonUtils.formatDate(currentPs.get(i).getCheckDate()));
+                hssfCellStyle.setFont(contentFont);
+                RegionUtil.setBorderBottom(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellCheckDateAd, sheet1);
+                checkDate.setCellStyle(hssfCellStyle);
+
+                //创建第三行
+                HSSFRow rowUnitEngineer = sheet1.createRow(newCellCheckDateAd.getLastRow() + 1);
+                //第1列
+                HSSFCell cellUnitEngineerTitle = rowUnitEngineer.createCell(0);
+                CellAddress unitEngineerTitleAddress = cellUnitEngineerTitle.getAddress();
+                CellRangeAddress unitEngineerTitleCheckDateAd = new CellRangeAddress(unitEngineerTitleAddress.getRow(),
+                        unitEngineerTitleAddress.getRow() + 2 + 1, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn() + 1);
+                sheet1.addMergedRegion(unitEngineerTitleCheckDateAd);
+                cellUnitEngineerTitle.setCellValue("单位工程");
+                hssfCellStyle.setFont(titleFont);
+                cellUnitEngineerTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderLeft(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderRight(2, unitEngineerTitleCheckDateAd, sheet1);
+                RegionUtil.setBorderTop(2, unitEngineerTitleCheckDateAd, sheet1);
+
+                //第2列
+                HSSFCell cellUnitEngineer = rowUnitEngineer.createCell(unitEngineerTitleCheckDateAd.getLastColumn() + 1);
+                CellAddress cellUnitEngineerAddress = cellUnitEngineer.getAddress();
+                CellRangeAddress newCellUnitEngineerAd = new CellRangeAddress(cellUnitEngineerAddress.getRow(),
+                        cellUnitEngineerAddress.getRow() + 2 + 1, cellUnitEngineerAddress.getColumn(), cellUnitEngineerAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newCellUnitEngineerAd);
+                cellUnitEngineer.setCellValue(currentPs.get(i).getUnitEngineering());
+                hssfCellStyle.setFont(contentFont);
+                cellUnitEngineer.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellUnitEngineerAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellUnitEngineerAd, sheet1);
+
+                //第3列
+                HSSFCell cellBlockPileTitle = rowUnitEngineer.createCell(newCellUnitEngineerAd.getLastColumn() + 1);
+                CellAddress blockPileTitleAddress = cellBlockPileTitle.getAddress();
+                CellRangeAddress newBlockPileTitleAddress = new CellRangeAddress(blockPileTitleAddress.getRow(),
+                        blockPileTitleAddress.getRow() + 2 + 1, blockPileTitleAddress.getColumn(), blockPileTitleAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newBlockPileTitleAddress);
+                cellBlockPileTitle.setCellValue("标段及桩号");
+                hssfCellStyle.setFont(titleFont);
+                cellBlockPileTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderLeft(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderRight(2, newBlockPileTitleAddress, sheet1);
+                RegionUtil.setBorderTop(2, newBlockPileTitleAddress, sheet1);
+
+                //第4列
+                HSSFCell cellBlockPile = rowUnitEngineer.createCell(newBlockPileTitleAddress.getLastColumn() + 1);
+                CellAddress cellBlockPileAddress = cellBlockPile.getAddress();
+                CellRangeAddress newCellBlockPileAd = new CellRangeAddress(cellBlockPileAddress.getRow(),
+                        cellBlockPileAddress.getRow() + 2 + 1, cellBlockPileAddress.getColumn(), cellBlockPileAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newCellBlockPileAd);
+                cellBlockPile.setCellValue(currentPs.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+                hssfCellStyle.setFont(contentFont);
+                cellBlockPile.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellBlockPileAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellBlockPileAd, sheet1);
+
+                //第5列
+                HSSFCell cellDefectsTitle = rowUnitEngineer.createCell(newCellBlockPileAd.getLastColumn() + 1);
+                CellAddress defectsAddress = cellDefectsTitle.getAddress();
+                CellRangeAddress newDefectsTitleAddress = new CellRangeAddress(defectsAddress.getRow(),
+                        defectsAddress.getRow() + 2 + 1, defectsAddress.getColumn(), defectsAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newDefectsTitleAddress);
+                cellDefectsTitle.setCellValue("缺陷描述");
+                hssfCellStyle.setFont(titleFont);
+                cellDefectsTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderLeft(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderRight(2, newDefectsTitleAddress, sheet1);
+                RegionUtil.setBorderTop(2, newDefectsTitleAddress, sheet1);
+
+                //创建第4行
+                HSSFRow rowImage = sheet1.createRow(unitEngineerTitleCheckDateAd.getLastRow() + 1);
+                //第1列
+                HSSFCell cellImage = rowImage.createCell(0);
+                CellAddress imageAddress = cellImage.getAddress();
+                CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(),
+                        imageAddress.getRow() + 35, imageAddress.getColumn(), imageAddress.getColumn() + 7);
+                sheet1.addMergedRegion(imageAd);
+                RegionUtil.setBorderBottom(2, imageAd, sheet1);
+                RegionUtil.setBorderLeft(2, imageAd, sheet1);
+                RegionUtil.setBorderRight(2, imageAd, sheet1);
+                RegionUtil.setBorderTop(2, imageAd, sheet1);
+
+//                //插入图片
+                insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
+
+                //第2列
+                HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
+                CellAddress cellDefectsAddress = cellDefects.getAddress();
+                CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(),
+                        /*imageAddress.getRow() + y*/cellDefectsAddress.getRow() + 35, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 1);
+                sheet1.addMergedRegion(newCellDefectsAd);
+                cellDefects.setCellValue(currentPs.get(i).getDefects());
+                hssfCellStyle.setFont(contentFont);
+                cellDefects.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellDefectsAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellDefectsAd, sheet1);
+
+                //创建第5行
+                HSSFRow rowRemark = sheet1.createRow(imageAd.getLastRow() + 1);
+                //第1列
+                HSSFCell cellRemarkTitle = rowRemark.createCell(0);
+                CellAddress remarkTitleAddress = cellRemarkTitle.getAddress();
+                CellRangeAddress remarkTitleAd = new CellRangeAddress(remarkTitleAddress.getRow(),
+                        remarkTitleAddress.getRow() + 1 + 1 + 1, remarkTitleAddress.getColumn(), remarkTitleAddress.getColumn() + 1);
+                sheet1.addMergedRegion(remarkTitleAd);
+                cellRemarkTitle.setCellValue("备注");
+                hssfCellStyle.setFont(titleFont);
+                cellRemarkTitle.setCellStyle(hssfCellStyle);
+                RegionUtil.setBorderBottom(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderLeft(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderRight(2, remarkTitleAd, sheet1);
+                RegionUtil.setBorderTop(2, remarkTitleAd, sheet1);
+
+                //第2列
+                HSSFCell cellRemark = rowRemark.createCell(remarkTitleAd.getLastColumn() + 1);
+                CellAddress cellRemarkAddress = cellRemark.getAddress();
+                CellRangeAddress newCellRemarkAd = new CellRangeAddress(cellRemarkAddress.getRow(),
+                        cellRemarkAddress.getRow() + 1 + 1 + 1, cellRemarkAddress.getColumn(), cellRemarkAddress.getColumn() + 6 + 1);
+                sheet1.addMergedRegion(newCellRemarkAd);
+                cellRemark.setCellValue(currentPs.get(i).getRemark());
+                hssfCellStyle.setFont(contentFont);
+                RegionUtil.setBorderBottom(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderLeft(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderRight(2, newCellRemarkAd, sheet1);
+                RegionUtil.setBorderTop(2, newCellRemarkAd, sheet1);
+                cellRemark.setCellStyle(hssfCellStyle);
+
+                lastRow = remarkTitleAd.getLastRow();
+                exportListener.progress(i);
+                // 写入excel文件
+                wb.write(fileOut);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (fileOut != null) {
+                    try {
+                        fileOut.flush();
+                        fileOut.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                try {
+                    if (fileInput != null) {
+                        fileInput.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    if (wb != null) {
+                        wb.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+
+    private void writeExcel(List<ProjectEntity> dataSource, ExportListener exportListener) {
+        List<ProjectEntity> currentPs = new ArrayList<>();
+        currentPs.addAll(dataSource);
+        int all = currentPs.size();
+        int defaultCount = 5;
+        int pages = getPages(all, defaultCount);
+        int currentPage = 1;
+        long currentTime = System.currentTimeMillis();
+        String levelOneFileRootPath = CommonUtils.getLevelOneDataRootPath();
+        String levelTwoFileRootPath = CommonUtils.getLevelTwoDataRootPath(currentTime);
+        while (currentPage <= pages) {
+            String filePath = CommonUtils.getDataFilePath(currentTime, currentPage);
+            if (filePath == null) {
+                return;
+            }
+
+
+//            String p = CommonUtils.getDataFilePath(System.currentTimeMillis(), pages);
+//            if (p == null) {
+//                return;
+//            }
+            FileOutputStream fileOut = null;
+            HSSFWorkbook wb = new HSSFWorkbook();
+
+            HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtils.formatDate(System.currentTimeMillis()));
+            HSSFCellStyle hssfCellStyle = wb.createCellStyle();
+            HSSFFont titleFont = wb.createFont();
+            titleFont.setFontName("宋体");
+            titleFont.setBold(true);
+            titleFont.setFontHeightInPoints((short) 18);
+            HSSFFont contentFont = wb.createFont();
+            contentFont.setFontName("宋体");
+            contentFont.setBold(false);
+            contentFont.setFontHeightInPoints((short) 14);
+            HSSFPrintSetup printSetup = sheet1.getPrintSetup();
+            printSetup.setPaperSize(HSSFPrintSetup.A4_PAPERSIZE);
+            sheet1.setMargin(HSSFSheet.RightMargin, -0.5);
+
+
+            try {
+                fileOut = new FileOutputStream(filePath);
+                int lastRow = 0;
+
+                int start;
+                int end;
+
+                start = (currentPage - 1) * defaultCount;
+                if (currentPage == pages) {
+                    end = all;
+                } else {
+                    end = currentPage * defaultCount;
+                }
+                for (int i = start; i < end; i++) {
+                    if (lastRow != 0) {
+                        lastRow += 6;
+                    }
+
+                    //创建第一行，为标题行，可用可不用
+                    HSSFRow titleRow = sheet1.createRow(lastRow);
+                    //第1列
+                    HSSFCell cellTitle = titleRow.createCell(0);
+                    CellAddress cellTitleAddress = cellTitle.getAddress();
+                    CellRangeAddress newCellTitleAd = new CellRangeAddress(cellTitleAddress.getRow(), cellTitleAddress.getRow() + 1 + 1, cellTitleAddress.getColumn(), cellTitleAddress.getColumn() + 9);
+                    sheet1.addMergedRegion(newCellTitleAd);
+
+                    hssfCellStyle.setFont(titleFont);
+                    cellTitle.setCellStyle(hssfCellStyle);
+                    HSSFCellStyle style = cellTitle.getCellStyle();
+                    style.setAlignment(HorizontalAlignment.CENTER_SELECTION);//居中
+                    style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+                    RegionUtil.setBorderBottom(2, newCellTitleAd, sheet1);
+
+                    //创建第二行
+                    HSSFRow rowName = sheet1.createRow(newCellTitleAd.getLastRow() + 1);
+                    //第1列
+                    HSSFCell cellNameTitle = rowName.createCell(0);
+                    CellAddress cellNameTitleAddress = cellNameTitle.getAddress();
+                    CellRangeAddress newCellTitleNameAd = new CellRangeAddress(cellNameTitleAddress.getRow(),
+                            cellNameTitleAddress.getRow() + 1 + 1 + 1, cellNameTitleAddress.getColumn(), cellNameTitleAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newCellTitleNameAd);
+                    cellNameTitle.setCellValue("项目名称");
+                    hssfCellStyle.setFont(titleFont);
+                    hssfCellStyle.setAlignment(HorizontalAlignment.CENTER);//居中
+                    cellNameTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellTitleNameAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellTitleNameAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellTitleNameAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellTitleNameAd, sheet1);
+
+                    //第2列
+                    HSSFCell cellName = rowName.createCell(newCellTitleNameAd.getLastColumn() + 1);
+                    CellAddress cellNameAddress = cellName.getAddress();
+                    CellRangeAddress newCellNameAd = new CellRangeAddress(cellNameAddress.getRow(), cellNameAddress.getRow() + 1 + 1 + 1,
+                            cellNameAddress.getColumn(), cellNameAddress.getColumn() + 2);
+                    sheet1.addMergedRegion(newCellNameAd);
+                    cellName.setCellValue(currentPs.get(i).getProjectName());
+                    hssfCellStyle.setFont(contentFont);
+                    cellName.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellNameAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellNameAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellNameAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellNameAd, sheet1);
+
+
+                    //第3列
+                    HSSFCell cellCheckDateTitle = rowName.createCell(newCellNameAd.getLastColumn() + 1);
+                    CellAddress checkDateTitleAddress = cellCheckDateTitle.getAddress();
+                    CellRangeAddress newCellTitleCheckDateAd = new CellRangeAddress(checkDateTitleAddress.getRow(),
+                            checkDateTitleAddress.getRow() + 1 + 1 + 1, checkDateTitleAddress.getColumn(), checkDateTitleAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newCellTitleCheckDateAd);
+                    cellCheckDateTitle.setCellValue("检测日期");
+                    hssfCellStyle.setFont(titleFont);
+                    cellCheckDateTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellTitleCheckDateAd, sheet1);
+
+                    //第4列
+                    HSSFCell checkDate = rowName.createCell(newCellTitleCheckDateAd.getLastColumn() + 1);
+                    CellAddress checkDateAddress = checkDate.getAddress();
+                    CellRangeAddress newCellCheckDateAd = new CellRangeAddress(checkDateAddress.getRow(),
+                            checkDateAddress.getRow() + 1 + 1 + 1, checkDateAddress.getColumn(), checkDateAddress.getColumn() + 2);
+                    sheet1.addMergedRegion(newCellCheckDateAd);
+                    checkDate.setCellValue(CommonUtils.formatDate(currentPs.get(i).getCheckDate()));
+                    hssfCellStyle.setFont(contentFont);
+                    RegionUtil.setBorderBottom(2, newCellCheckDateAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellCheckDateAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellCheckDateAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellCheckDateAd, sheet1);
+                    checkDate.setCellStyle(hssfCellStyle);
+
+                    //创建第三行
+                    HSSFRow rowUnitEngineer = sheet1.createRow(newCellCheckDateAd.getLastRow() + 1);
+                    //第1列
+                    HSSFCell cellUnitEngineerTitle = rowUnitEngineer.createCell(0);
+                    CellAddress unitEngineerTitleAddress = cellUnitEngineerTitle.getAddress();
+                    CellRangeAddress unitEngineerTitleCheckDateAd = new CellRangeAddress(unitEngineerTitleAddress.getRow(),
+                            unitEngineerTitleAddress.getRow() + 2 + 1, unitEngineerTitleAddress.getColumn(), unitEngineerTitleAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(unitEngineerTitleCheckDateAd);
+                    cellUnitEngineerTitle.setCellValue("单位工程");
+                    hssfCellStyle.setFont(titleFont);
+                    cellUnitEngineerTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, unitEngineerTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderLeft(2, unitEngineerTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderRight(2, unitEngineerTitleCheckDateAd, sheet1);
+                    RegionUtil.setBorderTop(2, unitEngineerTitleCheckDateAd, sheet1);
+
+                    //第2列
+                    HSSFCell cellUnitEngineer = rowUnitEngineer.createCell(unitEngineerTitleCheckDateAd.getLastColumn() + 1);
+                    CellAddress cellUnitEngineerAddress = cellUnitEngineer.getAddress();
+                    CellRangeAddress newCellUnitEngineerAd = new CellRangeAddress(cellUnitEngineerAddress.getRow(),
+                            cellUnitEngineerAddress.getRow() + 2 + 1, cellUnitEngineerAddress.getColumn(), cellUnitEngineerAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newCellUnitEngineerAd);
+                    cellUnitEngineer.setCellValue(currentPs.get(i).getUnitEngineering());
+                    hssfCellStyle.setFont(contentFont);
+                    cellUnitEngineer.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellUnitEngineerAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellUnitEngineerAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellUnitEngineerAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellUnitEngineerAd, sheet1);
+
+                    //第3列
+                    HSSFCell cellBlockPileTitle = rowUnitEngineer.createCell(newCellUnitEngineerAd.getLastColumn() + 1);
+                    CellAddress blockPileTitleAddress = cellBlockPileTitle.getAddress();
+                    CellRangeAddress newBlockPileTitleAddress = new CellRangeAddress(blockPileTitleAddress.getRow(),
+                            blockPileTitleAddress.getRow() + 2 + 1, blockPileTitleAddress.getColumn(), blockPileTitleAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newBlockPileTitleAddress);
+                    cellBlockPileTitle.setCellValue("标段及桩号");
+                    hssfCellStyle.setFont(titleFont);
+                    cellBlockPileTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newBlockPileTitleAddress, sheet1);
+                    RegionUtil.setBorderLeft(2, newBlockPileTitleAddress, sheet1);
+                    RegionUtil.setBorderRight(2, newBlockPileTitleAddress, sheet1);
+                    RegionUtil.setBorderTop(2, newBlockPileTitleAddress, sheet1);
+
+                    //第4列
+                    HSSFCell cellBlockPile = rowUnitEngineer.createCell(newBlockPileTitleAddress.getLastColumn() + 1);
+                    CellAddress cellBlockPileAddress = cellBlockPile.getAddress();
+                    CellRangeAddress newCellBlockPileAd = new CellRangeAddress(cellBlockPileAddress.getRow(),
+                            cellBlockPileAddress.getRow() + 2 + 1, cellBlockPileAddress.getColumn(), cellBlockPileAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newCellBlockPileAd);
+                    cellBlockPile.setCellValue(currentPs.get(i).getBlock() + " " + dataSource.get(i).getPilNo());
+                    hssfCellStyle.setFont(contentFont);
+                    cellBlockPile.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellBlockPileAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellBlockPileAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellBlockPileAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellBlockPileAd, sheet1);
+
+                    //第5列
+                    HSSFCell cellDefectsTitle = rowUnitEngineer.createCell(newCellBlockPileAd.getLastColumn() + 1);
+                    CellAddress defectsAddress = cellDefectsTitle.getAddress();
+                    CellRangeAddress newDefectsTitleAddress = new CellRangeAddress(defectsAddress.getRow(),
+                            defectsAddress.getRow() + 2 + 1, defectsAddress.getColumn(), defectsAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newDefectsTitleAddress);
+                    cellDefectsTitle.setCellValue("缺陷描述");
+                    hssfCellStyle.setFont(titleFont);
+                    cellDefectsTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newDefectsTitleAddress, sheet1);
+                    RegionUtil.setBorderLeft(2, newDefectsTitleAddress, sheet1);
+                    RegionUtil.setBorderRight(2, newDefectsTitleAddress, sheet1);
+                    RegionUtil.setBorderTop(2, newDefectsTitleAddress, sheet1);
+
+                    //创建第4行
+                    HSSFRow rowImage = sheet1.createRow(unitEngineerTitleCheckDateAd.getLastRow() + 1);
+                    //第1列
+                    HSSFCell cellImage = rowImage.createCell(0);
+                    CellAddress imageAddress = cellImage.getAddress();
+                    CellRangeAddress imageAd = new CellRangeAddress(imageAddress.getRow(),
+                            imageAddress.getRow() + 35, imageAddress.getColumn(), imageAddress.getColumn() + 7);
+                    sheet1.addMergedRegion(imageAd);
+                    RegionUtil.setBorderBottom(2, imageAd, sheet1);
+                    RegionUtil.setBorderLeft(2, imageAd, sheet1);
+                    RegionUtil.setBorderRight(2, imageAd, sheet1);
+                    RegionUtil.setBorderTop(2, imageAd, sheet1);
+
+
+//                //插入图片
+                    insertImage(sheet1, currentPs.get(i).getImagePath(), imageAddress, imageAd, wb);
+
+                    //第2列
+                    HSSFCell cellDefects = rowImage.createCell(imageAd.getLastColumn() + 1);
+                    CellAddress cellDefectsAddress = cellDefects.getAddress();
+                    CellRangeAddress newCellDefectsAd = new CellRangeAddress(cellDefectsAddress.getRow(),
+                        /*imageAddress.getRow() + y*/cellDefectsAddress.getRow() + 35, cellDefectsAddress.getColumn(), cellDefectsAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(newCellDefectsAd);
+                    cellDefects.setCellValue(currentPs.get(i).getDefects());
+                    hssfCellStyle.setFont(contentFont);
+                    cellDefects.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, newCellDefectsAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellDefectsAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellDefectsAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellDefectsAd, sheet1);
+
+                    //创建第5行
+                    HSSFRow rowRemark = sheet1.createRow(imageAd.getLastRow() + 1);
+                    //第1列
+                    HSSFCell cellRemarkTitle = rowRemark.createCell(0);
+                    CellAddress remarkTitleAddress = cellRemarkTitle.getAddress();
+                    CellRangeAddress remarkTitleAd = new CellRangeAddress(remarkTitleAddress.getRow(),
+                            remarkTitleAddress.getRow() + 1 + 1 + 1, remarkTitleAddress.getColumn(), remarkTitleAddress.getColumn() + 1);
+                    sheet1.addMergedRegion(remarkTitleAd);
+                    cellRemarkTitle.setCellValue("备注");
+                    hssfCellStyle.setFont(titleFont);
+                    cellRemarkTitle.setCellStyle(hssfCellStyle);
+                    RegionUtil.setBorderBottom(2, remarkTitleAd, sheet1);
+                    RegionUtil.setBorderLeft(2, remarkTitleAd, sheet1);
+                    RegionUtil.setBorderRight(2, remarkTitleAd, sheet1);
+                    RegionUtil.setBorderTop(2, remarkTitleAd, sheet1);
+
+                    //第2列
+                    HSSFCell cellRemark = rowRemark.createCell(remarkTitleAd.getLastColumn() + 1);
+                    CellAddress cellRemarkAddress = cellRemark.getAddress();
+                    CellRangeAddress newCellRemarkAd = new CellRangeAddress(cellRemarkAddress.getRow(),
+                            cellRemarkAddress.getRow() + 1 + 1 + 1, cellRemarkAddress.getColumn(), cellRemarkAddress.getColumn() + 6 + 1);
+                    sheet1.addMergedRegion(newCellRemarkAd);
+                    cellRemark.setCellValue(currentPs.get(i).getRemark());
+                    hssfCellStyle.setFont(contentFont);
+                    RegionUtil.setBorderBottom(2, newCellRemarkAd, sheet1);
+                    RegionUtil.setBorderLeft(2, newCellRemarkAd, sheet1);
+                    RegionUtil.setBorderRight(2, newCellRemarkAd, sheet1);
+                    RegionUtil.setBorderTop(2, newCellRemarkAd, sheet1);
+                    cellRemark.setCellStyle(hssfCellStyle);
+
+                    lastRow = remarkTitleAd.getLastRow();
+                    exportListener.progress(i);
+                }
+
+                // 写入excel文件
+                wb.write(fileOut);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (fileOut != null) {
+                    try {
+                        fileOut.flush();
+                        fileOut.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                try {
+                    wb.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            currentPage++;
+        }
+        try {
+            CommonUtils.zipFolder(levelTwoFileRootPath, levelOneFileRootPath);
+        } catch (Exception e) {
+
+        }
+//        shareDataFile(Uri.fromFile(new File(p)));
+    }
+
+    private int getPages(int all, int defaultCount) {
+        if (all < defaultCount) {
+            return 1;
+        }
+
+        if (all % defaultCount == 0) {
+            return all / defaultCount;
+        } else {
+            return all / defaultCount + 1;
+        }
+    }
+
+    private void writeExcel3(List<ProjectEntity> dataSource, ExportListener exportListener) {
+        List<ProjectEntity> currentPs = new ArrayList<>();
+        currentPs.addAll(dataSource/*filterDataSource(dataSource)*/);
+        FileOutputStream fileOut = null;
+//        String rootPath = CommonUtils.getDataFilePath(System.currentTimeMillis());
+//        if (rootPath == null) {
+//            return;
+//        }
         HSSFWorkbook wb = new HSSFWorkbook();
 
         HSSFSheet sheet1 = wb.createSheet("项目数据" + CommonUtils.formatDate(System.currentTimeMillis()));
