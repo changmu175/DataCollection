@@ -40,7 +40,7 @@ public class CommonUtils {
 
     public static String getImageFilePath(long currTime) {
         String rootPath = getRootPath();
-        String imageRootFilePath = rootPath + File.separator + "数据采集照片" + formatDate(currTime);
+        String imageRootFilePath = rootPath + File.separator + "data_collection_pic" + formatDate(currTime);
         File imageDirectFile = new File(imageRootFilePath);
         if (!imageDirectFile.exists() && !imageDirectFile.mkdir()) {
             return null;
@@ -66,7 +66,7 @@ public class CommonUtils {
     public static String getDataFilePath(long currTime, int index) {
         String dataFileRootPath = getLevelTwoDataRootPath(currTime);
         String indexStr = index == 0 ? "" : "-" + index;
-        String dataFilePath = dataFileRootPath + File.separator + "数据采集" + formatDate(currTime) + indexStr + ".xls";
+        String dataFilePath = dataFileRootPath + File.separator + "data_collection" + formatDate(currTime) + indexStr + ".xls";
         File dataFile = new File(dataFilePath);
         try {
             if (!dataFile.exists() && !dataFile.createNewFile()) {
@@ -80,7 +80,7 @@ public class CommonUtils {
 
     public static String getLevelOneDataRootPath() {
         String rootPath = getRootPath();
-        String dataFileRootPath = rootPath + File.separator + "数据采集文件";
+        String dataFileRootPath = rootPath + File.separator + "data_collection_file";
         File dataDirectFile = new File(dataFileRootPath);
         if (!dataDirectFile.exists() && !dataDirectFile.mkdirs()) {
             return null;
@@ -97,8 +97,21 @@ public class CommonUtils {
         return data2FileRootPath;
     }
 
+    public static String getZipPath(long currTime) {
+        String data2FileRootPath = getLevelOneDataRootPath() + File.separator + formatDate(currTime) + ".zip";
+        File dataDirectFile = new File(data2FileRootPath);
+        try {
+            if (!dataDirectFile.exists() && !dataDirectFile.createNewFile()) {
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data2FileRootPath;
+    }
+
     public static String getRootPath() {
-        String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "A数据采集";
+        String rootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "A_data_collection";
         File rootFile = new File(rootPath);
         if (!rootFile.exists() && !rootFile.mkdir()) {
             return null;

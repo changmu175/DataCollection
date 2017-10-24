@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +28,7 @@ import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CommonUtils;
+import com.ycm.kata.datacollection.utils.ZipUtil;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -891,7 +893,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
         int pages = getPages(all, defaultCount);
         int currentPage = 1;
         long currentTime = System.currentTimeMillis();
-        String levelOneFileRootPath = CommonUtils.getLevelOneDataRootPath();
+        String levelOneFileRootPath = CommonUtils.getZipPath(currentTime);
         String levelTwoFileRootPath = CommonUtils.getLevelTwoDataRootPath(currentTime);
         while (currentPage <= pages) {
             String filePath = CommonUtils.getDataFilePath(currentTime, currentPage);
@@ -1175,12 +1177,13 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
             }
             currentPage++;
         }
-        try {
-            CommonUtils.zipFolder(levelTwoFileRootPath, levelOneFileRootPath);
-        } catch (Exception e) {
 
+        try {
+            ZipUtil.zipFolder(levelTwoFileRootPath, levelOneFileRootPath);
+        } catch (Exception e) {
+            Log.e("zip", e.getMessage());
         }
-//        shareDataFile(Uri.fromFile(new File(p)));
+        shareDataFile(Uri.fromFile(new File(levelOneFileRootPath)));
     }
 
     private int getPages(int all, int defaultCount) {
