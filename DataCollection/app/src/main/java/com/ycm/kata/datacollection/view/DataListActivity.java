@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -22,12 +23,42 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.independentsoft.office.ExtendedBoolean;
+import com.independentsoft.office.Unit;
+import com.independentsoft.office.UnitType;
+import com.independentsoft.office.drawing.Extents;
+import com.independentsoft.office.drawing.Offset;
+import com.independentsoft.office.drawing.Picture;
+import com.independentsoft.office.drawing.PresetGeometry;
+import com.independentsoft.office.drawing.ShapeType;
+import com.independentsoft.office.drawing.Transform2D;
+import com.independentsoft.office.word.DrawingObject;
+import com.independentsoft.office.word.HeightRule;
+import com.independentsoft.office.word.HorizontalAlignmentType;
+import com.independentsoft.office.word.Paragraph;
+import com.independentsoft.office.word.Run;
+import com.independentsoft.office.word.Shading;
+import com.independentsoft.office.word.ShadingPattern;
+import com.independentsoft.office.word.StandardBorderStyle;
+import com.independentsoft.office.word.VerticalAlignmentType;
+import com.independentsoft.office.word.VerticalTextAlignment;
+import com.independentsoft.office.word.WordDocument;
+import com.independentsoft.office.word.drawing.DrawingObjectSize;
+import com.independentsoft.office.word.drawing.Inline;
+import com.independentsoft.office.word.tables.Cell;
+import com.independentsoft.office.word.tables.HorizontallyMergedCell;
+import com.independentsoft.office.word.tables.Row;
+import com.independentsoft.office.word.tables.RowHeight;
+import com.independentsoft.office.word.tables.Table;
+import com.independentsoft.office.word.tables.TableWidthUnit;
+import com.independentsoft.office.word.tables.Width;
 import com.ycm.kata.datacollection.MyApplication;
 import com.ycm.kata.datacollection.R;
 import com.ycm.kata.datacollection.model.ProjectEntityDao;
 import com.ycm.kata.datacollection.model.entity.ProjectEntity;
 import com.ycm.kata.datacollection.utils.ActivityStack;
 import com.ycm.kata.datacollection.utils.CommonUtils;
+import com.ycm.kata.datacollection.utils.CompressUtil;
 import com.ycm.kata.datacollection.utils.ZipUtil;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -601,6 +632,212 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 
         return currentP;
 
+    }
+
+    private void writeExcel4(List<ProjectEntity> dataSource, ExportListener exportListener) {
+
+        try {
+            WordDocument doc = new WordDocument();
+            Run run11 = new Run("项目名称");
+
+            run11.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph11 = new Paragraph();
+            paragraph11.add(run11);
+            paragraph11.setHorizontalTextAlignment(HorizontalAlignmentType.CENTER);
+            Cell cell11 = new Cell();
+            cell11.setWidth(new Width(TableWidthUnit.POINT, 1170));
+            cell11.setVerticalAlignment(VerticalAlignmentType.CENTER);
+            cell11.add(paragraph11);
+
+            Run run12 = new Run("Item #");
+            Paragraph paragraph12 = new Paragraph();
+            paragraph12.add(run12);
+            paragraph12.setHorizontalTextAlignment(HorizontalAlignmentType.CENTER);
+            Cell cell12 = new Cell();
+            cell12.setWidth(new Width(TableWidthUnit.POINT, 2730));
+            cell12.setVerticalAlignment(VerticalAlignmentType.CENTER);
+            cell12.add(paragraph12);
+
+
+            Run run13 = new Run("检测日期");
+            run13.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph13 = new Paragraph();
+            paragraph13.add(run13);
+            paragraph13.setHorizontalTextAlignment(HorizontalAlignmentType.CENTER);
+            Cell cell13 = new Cell();
+            cell13.setWidth(new Width(TableWidthUnit.POINT, 1560));
+            cell13.setVerticalAlignment(VerticalAlignmentType.CENTER);
+            cell13.add(paragraph13);
+
+
+            Run run14 = new Run("");
+            Paragraph paragraph14 = new Paragraph();
+            paragraph14.add(run14);
+            paragraph14.setHorizontalTextAlignment(HorizontalAlignmentType.CENTER);
+            Cell cell14 = new Cell();
+            cell14.setWidth(new Width(TableWidthUnit.POINT, 2340));
+            cell14.setVerticalAlignment(VerticalAlignmentType.CENTER);
+            cell14.add(paragraph14);
+
+            Row row1 = new Row();
+            row1.setHeight(new RowHeight(HeightRule.EXACT, 2300));
+            row1.add(cell11);
+            row1.add(cell12);
+            row1.add(cell13);
+            row1.add(cell14);
+
+
+            Run run21 = new Run("单位工程");
+            run21.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph21 = new Paragraph();
+            paragraph21.add(run21);
+            Cell cell21 = new Cell();
+            cell21.setWidth(new Width(TableWidthUnit.POINT, 1170));
+            cell21.add(paragraph21);
+
+
+            Run run22 = new Run("Item #");
+            Paragraph paragraph22 = new Paragraph();
+            paragraph22.add(run22);
+
+            Cell cell22 = new Cell();
+            cell22.setWidth(new Width(TableWidthUnit.POINT, 1170));
+            cell22.add(paragraph22);
+
+
+            Run run23 = new Run("标段及桩号");
+            run23.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph23 = new Paragraph();
+            paragraph23.add(run23);
+
+            Cell cell23 = new Cell();
+            cell23.setWidth(new Width(TableWidthUnit.POINT, 1560));
+            cell23.add(paragraph23);
+
+
+            Run run24 = new Run("Unit Price");
+            Paragraph paragraph24 = new Paragraph();
+            paragraph14.add(run24);
+
+            Cell cell24 = new Cell();
+            cell24.setWidth(new Width(TableWidthUnit.POINT, 1560));
+            cell24.add(paragraph24);
+
+
+            Run run25 = new Run("缺陷描述");
+            run25.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph25 = new Paragraph();
+            paragraph25.add(run25);
+            paragraph25.setHorizontalTextAlignment(HorizontalAlignmentType.CENTER);
+            paragraph25.setVerticalTextAlignment(VerticalTextAlignment.CENTER);
+            Cell cell25 = new Cell();
+            cell25.setWidth(new Width(TableWidthUnit.POINT, 2340));
+            cell25.add(paragraph25);
+
+            Row row2 = new Row();
+            row2.setHeight(new RowHeight(HeightRule.EXACT, 2300));
+            row2.add(cell21);
+            row2.add(cell22);
+            row2.add(cell23);
+            row2.add(cell24);
+            row2.add(cell25);
+
+            String path = Environment.getExternalStorageDirectory().getPath() + File.separator + Environment.DIRECTORY_DCIM + File.separator + "Camera" + File.separator + "IMG_20171215_173507.jpg";
+            Picture picture = new Picture(path);
+            Unit pictureWidth = new Unit(720, UnitType.POINT);
+            Unit pictureHeight = new Unit(480, UnitType.POINT);
+
+            Offset offset = new Offset(10, 10);
+            Extents extents = new Extents(pictureWidth, pictureHeight);
+
+            picture.getShapeProperties().setPresetGeometry(new PresetGeometry(ShapeType.RECTANGLE));
+            picture.getShapeProperties().setTransform2D(new Transform2D(offset, extents));
+            picture.setID("1");
+            picture.setName("IMG_20171215_173507.jpg");
+
+            Inline inline = new Inline(picture);
+            inline.setSize(new DrawingObjectSize(pictureWidth, pictureHeight));
+            inline.setID("1");
+            inline.setName("Picture 1");
+            inline.setDescription("IMG_20171215_173507.jpg");
+
+            DrawingObject drawingObject = new DrawingObject(inline);
+
+            Run run31 = new Run();
+//            run31.add(drawingObject);
+            Paragraph paragraph31 = new Paragraph();
+            paragraph31.setVerticalTextAlignment(VerticalTextAlignment.CENTER);
+            paragraph31.add(run31);
+            Cell cell31 = new Cell();
+            cell31.setWidth(new Width(TableWidthUnit.POINT, 5460));
+            cell31.add(paragraph31);
+
+            Run run32 = new Run("Item #");
+            Paragraph paragraph32 = new Paragraph();
+            paragraph12.add(run32);
+
+            Cell cell32 = new Cell();
+            cell32.setWidth(new Width(TableWidthUnit.POINT, 2340));
+            cell32.add(paragraph32);
+
+            Row row3 = new Row();
+            row3.setHeight(new RowHeight(HeightRule.EXACT, 6300));
+            row3.add(cell31);
+            row3.add(cell32);
+
+            Run run41 = new Run("项目名称");
+            run41.setBold(ExtendedBoolean.TRUE);
+            Paragraph paragraph41 = new Paragraph();
+            paragraph41.add(run41);
+            Cell cell41 = new Cell();
+            cell41.setWidth(new Width(TableWidthUnit.POINT, 1170));
+            cell41.add(paragraph41);
+
+
+            Run run42 = new Run("Item #");
+            Paragraph paragraph42 = new Paragraph();
+            paragraph42.add(run42);
+
+            Cell cell42 = new Cell();
+            cell42.setWidth(new Width(TableWidthUnit.POINT, 6630));
+            cell42.add(paragraph42);
+
+            Row row4 = new Row();
+            row4.setHeight(new RowHeight(HeightRule.EXACT, 1300));
+            row4.add(cell41);
+            row4.add(cell42);
+            row4.setAlignment(HorizontalAlignmentType.CENTER);
+            Table table1 = new Table(StandardBorderStyle.SINGLE_LINE);
+
+            table1.add(row1);
+            table1.add(row2);
+            table1.add(row3);
+            table1.add(row4);
+
+            Run run2 = new Run();
+            Paragraph paragraph2 = new Paragraph();
+            paragraph2.add(run2);
+            paragraph2.setPageBreakBefore(ExtendedBoolean.TRUE);
+
+            Run run3 = new Run();
+            run3.addText("我应该在第2页");
+            Paragraph paragraph3 = new Paragraph();
+            paragraph3.add(run3);
+
+            HorizontallyMergedCell horizontallyMergedCell = new HorizontallyMergedCell();
+
+            cell11.setHorizontallyMergedCell(horizontallyMergedCell);
+            doc.getBody().add(table1);
+            doc.getBody().add(paragraph2);
+            doc.getBody().add(paragraph3);
+
+
+            String path1 = Environment.getExternalStorageDirectory().getPath();
+            doc.save(path1 + File.separator + "123.docx", true);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void writeExcel2(List<ProjectEntity> dataSource, ExportListener exportListener) {
@@ -1180,6 +1417,7 @@ public class DataListActivity extends BaseActivity implements GetDataListener, O
 
         try {
             ZipUtil.zipFolder(levelTwoFileRootPath, levelOneFileRootPath);
+//            CompressUtil.zip(levelTwoFileRootPath, levelOneFileRootPath, null);
         } catch (Exception e) {
             Log.e("zip", e.getMessage());
         }

@@ -177,6 +177,7 @@ public class ZipUtil {
             //如果没有子文件, 则添加进去即可
             if (fileList.length <= 0) {
                 ZipEntry zipEntry = new ZipEntry(filePath + File.separator);
+                ZipFile zipFile = new ZipFile(filePath + File.separator);
                 zipOut.putNextEntry(zipEntry);
                 zipOut.closeEntry();
             }
